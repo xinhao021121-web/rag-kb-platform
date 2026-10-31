@@ -1,0 +1,1850 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="description" content="李昕昊的 AI 产品经理作品集：企业级 RAG 知识库平台——让知识可审核、可发布、可评测、可追溯。">
+  <title>李昕昊｜AI 产品经理作品集｜企业级 RAG 知识库平台</title>
+  <style>
+    :root {
+      --black: #08080a;
+      --paper: #f5f5f7;
+      --white: #ffffff;
+      --ink: #1d1d1f;
+      --muted: #6e6e73;
+      --muted-dark: #b8b8bd;
+      --line: #d8d8dc;
+      --line-dark: #333336;
+      --blue: #0066cc;
+      --blue-focus: #0071e3;
+      --blue-soft: #e8f2ff;
+      --risk: #c33a31;
+      --risk-soft: #fff0ee;
+      --success: #167b63;
+      --success-soft: #e8f5f1;
+      --display: "SF Pro Display", "Inter", "PingFang SC", "Microsoft YaHei UI", sans-serif;
+      --body: "SF Pro Text", "Inter", "PingFang SC", "Microsoft YaHei", sans-serif;
+      --mono: "SFMono-Regular", "Cascadia Code", Consolas, monospace;
+      --content: 1240px;
+      --reading: 980px;
+      --pill: 999px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 80px;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--white);
+      font-family: var(--body);
+      font-size: 17px;
+      line-height: 1.47;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    a {
+      color: var(--blue);
+      text-decoration-thickness: 1px;
+      text-underline-offset: .18em;
+    }
+
+    a:focus-visible {
+      outline: 2px solid var(--blue-focus);
+      outline-offset: 4px;
+      border-radius: 4px;
+    }
+
+    img {
+      display: block;
+      max-width: 100%;
+      height: auto;
+    }
+
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin-top: 0;
+    }
+
+    h1,
+    h2,
+    h3 {
+      font-family: var(--display);
+      letter-spacing: -.025em;
+    }
+
+    .skip-link {
+      position: fixed;
+      z-index: 100;
+      top: 12px;
+      left: 12px;
+      transform: translateY(-180%);
+      padding: 10px 16px;
+      color: var(--black);
+      background: var(--white);
+      border-radius: 8px;
+      font-weight: 700;
+    }
+
+    .skip-link:focus {
+      transform: none;
+    }
+
+    .site-nav {
+      position: fixed;
+      z-index: 50;
+      inset: 0 0 auto;
+      color: var(--white);
+      background: rgba(8, 8, 10, .78);
+      border-bottom: 1px solid rgba(255, 255, 255, .1);
+      backdrop-filter: saturate(180%) blur(20px);
+      -webkit-backdrop-filter: saturate(180%) blur(20px);
+    }
+
+    .nav-inner {
+      width: min(var(--content), calc(100% - 48px));
+      min-height: 68px;
+      margin-inline: auto;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 36px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--white);
+      text-decoration: none;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .brand-mark {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      color: var(--black);
+      background: var(--paper);
+      border-radius: 50%;
+      font: 700 11px/1 var(--mono);
+    }
+
+    .brand-copy {
+      display: grid;
+      gap: 1px;
+    }
+
+    .brand-copy small {
+      color: var(--muted-dark);
+      font-size: 11px;
+      font-weight: 400;
+      letter-spacing: .01em;
+    }
+
+    .nav-links {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: clamp(22px, 3.2vw, 44px);
+      font-size: 13px;
+    }
+
+    .nav-links a {
+      color: rgba(255, 255, 255, .68);
+      text-decoration: none;
+      transition: color .2s ease;
+    }
+
+    .nav-links a:hover,
+    .nav-links a.is-active {
+      color: var(--white);
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 42px;
+      padding: 10px 16px;
+      color: var(--white);
+      background: rgba(255, 255, 255, .07);
+      border: 1px solid rgba(255, 255, 255, .15);
+      border-radius: var(--pill);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .status-pill::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      flex: 0 0 auto;
+      background: #4cd7a7;
+      border-radius: 50%;
+    }
+
+    .hero {
+      color: var(--white);
+      background: var(--black);
+      padding-top: 68px;
+    }
+
+    .hero-inner {
+      width: min(var(--content), calc(100% - 48px));
+      min-height: min(880px, calc(100svh - 68px));
+      margin-inline: auto;
+      display: grid;
+      grid-template-columns: minmax(0, .82fr) minmax(520px, 1.18fr);
+      gap: clamp(44px, 6vw, 90px);
+      align-items: center;
+      padding-block: clamp(72px, 9vw, 128px) clamp(56px, 7vw, 96px);
+    }
+
+    .hero-copy {
+      position: relative;
+      z-index: 2;
+    }
+
+    .eyebrow {
+      margin-bottom: 24px;
+      color: var(--muted);
+      font: 500 12px/1.4 var(--mono);
+      letter-spacing: .035em;
+    }
+
+    .hero .eyebrow {
+      color: #a7a7ac;
+    }
+
+    .hero h1 {
+      max-width: 720px;
+      margin-bottom: 4px;
+      color: #f7f3ef;
+      font-size: clamp(64px, 7.6vw, 112px);
+      line-height: .94;
+      font-weight: 700;
+      letter-spacing: -.055em;
+    }
+
+    .hero-role {
+      margin-bottom: 30px;
+      color: #d4d4d9;
+      font-family: var(--display);
+      font-size: clamp(34px, 4.4vw, 62px);
+      line-height: 1.02;
+      font-weight: 600;
+      letter-spacing: -.04em;
+    }
+
+    .hero-lead {
+      max-width: 610px;
+      margin-bottom: 20px;
+      color: #d2d2d7;
+      font-size: clamp(18px, 1.6vw, 21px);
+      line-height: 1.55;
+    }
+
+    .hero-note {
+      max-width: 590px;
+      margin-bottom: 28px;
+      color: #929298;
+      font-size: 15px;
+    }
+
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 30px;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 34px;
+      padding: 7px 12px;
+      color: #d6d6db;
+      border: 1px solid rgba(255, 255, 255, .14);
+      border-radius: var(--pill);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 50px;
+      padding: 12px 22px;
+      color: var(--blue);
+      background: transparent;
+      border: 1px solid rgba(0, 102, 204, .42);
+      border-radius: var(--pill);
+      text-decoration: none;
+      font-size: 15px;
+      font-weight: 600;
+      transition: transform .18s ease, background-color .18s ease;
+    }
+
+    .button:hover {
+      background: var(--blue-soft);
+    }
+
+    .button:active {
+      transform: scale(.96);
+    }
+
+    .button.primary {
+      color: var(--white);
+      background: var(--blue);
+      border-color: var(--blue);
+    }
+
+    .button.primary:hover {
+      background: #005bb5;
+    }
+
+    .hero .button {
+      color: var(--white);
+      border-color: rgba(255, 255, 255, .24);
+    }
+
+    .hero .button:hover {
+      background: rgba(255, 255, 255, .1);
+    }
+
+    .hero .button.primary {
+      color: var(--black);
+      background: var(--paper);
+      border-color: var(--paper);
+    }
+
+    .hero .button.primary:hover {
+      background: var(--white);
+    }
+
+    .hero-stage {
+      position: relative;
+      min-width: 0;
+      padding-left: 26px;
+      padding-top: 26px;
+    }
+
+    .hero-stage::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 24px;
+      left: 0;
+      width: 1px;
+      background: #2d2d30;
+    }
+
+    .stage-meta {
+      position: absolute;
+      z-index: 3;
+      top: 0;
+      left: 26px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #9f9fa5;
+      font: 500 11px/1.3 var(--mono);
+    }
+
+    .stage-meta::after {
+      content: "";
+      width: 34px;
+      height: 1px;
+      background: #3c3c40;
+    }
+
+    .product-frame {
+      position: relative;
+      overflow: hidden;
+      background: #e8ebef;
+      border: 1px solid var(--line-dark);
+      border-radius: 18px;
+      box-shadow: 0 28px 80px rgba(0, 0, 0, .4);
+    }
+
+    .product-frame img {
+      width: 100%;
+      aspect-ratio: 1.32 / 1;
+      object-fit: cover;
+      object-position: top center;
+    }
+
+    .product-frame::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .3);
+      border-radius: inherit;
+    }
+
+    .stage-label {
+      position: absolute;
+      z-index: 4;
+      right: 18px;
+      bottom: 18px;
+      padding: 10px 13px;
+      color: var(--white);
+      background: rgba(8, 8, 10, .9);
+      border: 1px solid rgba(255, 255, 255, .18);
+      border-radius: 11px;
+      backdrop-filter: blur(12px);
+      font-size: 12px;
+    }
+
+    .stage-label strong {
+      display: block;
+      margin-bottom: 2px;
+      font-weight: 600;
+    }
+
+    .stage-label span {
+      color: #a7a7ac;
+      font-size: 10px;
+    }
+
+    .metrics {
+      width: min(var(--content), calc(100% - 48px));
+      margin-inline: auto;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      border-top: 1px solid var(--line-dark);
+    }
+
+    .metric {
+      min-width: 0;
+      padding: 26px 24px 30px 0;
+      border-right: 1px solid var(--line-dark);
+    }
+
+    .metric + .metric {
+      padding-left: 24px;
+    }
+
+    .metric:last-child {
+      border-right: 0;
+    }
+
+    .metric strong {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--white);
+      font-family: var(--display);
+      font-size: clamp(34px, 4vw, 50px);
+      line-height: 1;
+      font-weight: 600;
+      letter-spacing: -.04em;
+    }
+
+    .metric span {
+      color: #8d8d93;
+      font-size: 12px;
+    }
+
+    .section {
+      padding-block: clamp(88px, 11vw, 152px);
+    }
+
+    .section-inner {
+      width: min(var(--content), calc(100% - 48px));
+      margin-inline: auto;
+    }
+
+    .section-heading {
+      max-width: 920px;
+      margin-bottom: clamp(44px, 6vw, 76px);
+    }
+
+    .section-heading h2 {
+      margin-bottom: 18px;
+      font-size: clamp(40px, 5.4vw, 68px);
+      line-height: 1.06;
+      font-weight: 650;
+    }
+
+    .section-heading p {
+      max-width: 760px;
+      margin-bottom: 0;
+      color: var(--muted);
+      font-size: clamp(17px, 1.5vw, 20px);
+    }
+
+    .capabilities {
+      background: var(--paper);
+    }
+
+    .capability-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      border-top: 1px solid #b9b9bd;
+    }
+
+    .capability {
+      min-height: 230px;
+      padding: 26px 26px 18px 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      border-right: 1px solid var(--line);
+    }
+
+    .capability + .capability {
+      padding-left: 26px;
+    }
+
+    .capability:last-child {
+      border-right: 0;
+    }
+
+    .capability h3 {
+      margin: 0 0 14px;
+      font-size: 24px;
+      line-height: 1.2;
+      font-weight: 650;
+    }
+
+    .capability p {
+      margin-bottom: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.65;
+    }
+
+    .flagship {
+      color: var(--ink);
+      background: var(--paper);
+    }
+
+    .flagship .section-heading {
+      max-width: 100%;
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(300px, .95fr);
+      gap: clamp(40px, 7vw, 100px);
+      align-items: end;
+    }
+
+    .flagship .section-heading h2 {
+      margin-bottom: 0;
+      color: var(--ink);
+    }
+
+    .flagship .section-heading p {
+      color: var(--muted);
+      padding-bottom: 5px;
+    }
+
+    .project-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+
+    .dark-tag {
+      display: inline-flex;
+      padding: 7px 11px;
+      color: #4b4b50;
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: var(--pill);
+      font-size: 11px;
+    }
+
+    .project-canvas {
+      overflow: hidden;
+      background: #e9ebee;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 24px 70px rgba(0, 0, 0, .14);
+    }
+
+    .project-canvas img {
+      width: 100%;
+      aspect-ratio: 16 / 8.9;
+      object-fit: cover;
+      object-position: top center;
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      margin-top: 44px;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .flow-step {
+      min-height: 128px;
+      padding: 20px 18px 18px 0;
+      border-right: 1px solid var(--line);
+    }
+
+    .flow-step + .flow-step {
+      padding-left: 18px;
+    }
+
+    .flow-step:last-child {
+      border-right: 0;
+    }
+
+    .flow-step b {
+      display: block;
+      margin-bottom: 18px;
+      color: #8a8a90;
+      font: 500 10px/1.2 var(--mono);
+    }
+
+    .flow-step span {
+      display: block;
+      color: var(--ink);
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .flow-step small {
+      display: block;
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.45;
+    }
+
+    .feature-pair {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 24px;
+      margin-top: 56px;
+    }
+
+    .feature {
+      min-width: 0;
+      overflow: hidden;
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+    }
+
+    .feature img {
+      width: 100%;
+      aspect-ratio: 1.36 / 1;
+      object-fit: cover;
+      object-position: top center;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .feature-copy {
+      padding: 28px;
+    }
+
+    .feature-copy h3 {
+      margin-bottom: 8px;
+      color: var(--ink);
+      font-size: 27px;
+      line-height: 1.2;
+    }
+
+    .feature-copy p {
+      margin-bottom: 18px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .feature-fact {
+      display: inline-flex;
+      color: var(--blue);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .result-band {
+      margin-top: 56px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .result {
+      padding: 24px 20px 26px 0;
+      border-right: 1px solid var(--line);
+    }
+
+    .result + .result {
+      padding-left: 20px;
+    }
+
+    .result:last-child {
+      border-right: 0;
+    }
+
+    .result strong {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--ink);
+      font-family: var(--display);
+      font-size: 36px;
+      line-height: 1;
+      font-weight: 600;
+      letter-spacing: -.03em;
+    }
+
+    .result span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .project-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      margin-top: 34px;
+    }
+
+    .project-boundary {
+      max-width: 760px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.65;
+    }
+
+    .flagship .button {
+      flex: 0 0 auto;
+      color: var(--blue);
+      border-color: rgba(0, 102, 204, .42);
+    }
+
+    .flagship .button:hover {
+      background: var(--blue-soft);
+    }
+
+    .flagship .button.primary {
+      color: var(--white);
+      background: var(--blue);
+      border-color: var(--blue);
+    }
+
+    .flagship .button.primary:hover {
+      background: #005bb5;
+    }
+
+    .work {
+      background: var(--white);
+    }
+
+    .work-list {
+      border-top: 1px solid var(--line);
+    }
+
+    .work-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1.02fr) minmax(0, .98fr);
+      gap: clamp(34px, 6vw, 84px);
+      align-items: center;
+      padding-block: 44px;
+      border-bottom: 1px solid var(--line);
+      border-radius: 12px;
+      color: inherit;
+      text-decoration: none;
+      transition: background-color .18s ease;
+    }
+
+    .work-row:hover {
+      background: rgba(245, 245, 247, .55);
+    }
+
+    .work-row:focus-visible {
+      outline: 2px solid var(--blue-focus);
+      outline-offset: -2px;
+      border-radius: 12px;
+    }
+
+    .work-row:nth-child(even) .work-visual {
+      order: 2;
+    }
+
+    .work-visual {
+      overflow: hidden;
+      aspect-ratio: 16 / 10.2;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+    }
+
+    .work-visual img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top center;
+      transition: transform .28s ease;
+    }
+
+    .work-row:hover .work-visual img {
+      transform: scale(1.015);
+    }
+
+    .work-copy {
+      max-width: 570px;
+    }
+
+    .work-index {
+      margin-bottom: 18px;
+      color: #8a8a90;
+      font: 500 11px/1.4 var(--mono);
+    }
+
+    .work-copy h3 {
+      margin-bottom: 14px;
+      font-size: clamp(31px, 3.6vw, 48px);
+      line-height: 1.08;
+      font-weight: 650;
+    }
+
+    .work-copy p {
+      margin-bottom: 22px;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .work-facts {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .work-facts span {
+      padding: 6px 10px;
+      color: #4b4b50;
+      background: var(--paper);
+      border-radius: var(--pill);
+      font-size: 11px;
+    }
+
+    .work-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      min-height: 38px;
+      margin-top: 18px;
+      padding: 8px 14px;
+      color: var(--blue);
+      background: var(--white);
+      border: 1px solid rgba(0, 102, 204, .36);
+      border-radius: var(--pill);
+      font-size: 12px;
+      font-weight: 600;
+      transition: background-color .18s ease;
+    }
+
+    .work-row:hover .work-cta {
+      background: var(--blue-soft);
+    }
+
+    .external-indicator {
+      font-size: 14px;
+      line-height: 1;
+    }
+
+    .archive {
+      margin-top: clamp(56px, 7vw, 88px);
+      padding-top: 34px;
+      border-top: 1px solid var(--line);
+    }
+
+    .archive-heading {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: 28px;
+    }
+
+    .archive-heading h3 {
+      margin: 0;
+      font-size: 27px;
+      line-height: 1.2;
+    }
+
+    .archive-heading p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .archive-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 24px;
+    }
+
+    .archive-item {
+      display: grid;
+      grid-template-columns: 52px 1fr;
+      gap: 18px;
+      padding: 22px;
+      color: inherit;
+      background: var(--paper);
+      border: 1px solid transparent;
+      border-radius: 18px;
+      text-decoration: none;
+      transition: background-color .18s ease, border-color .18s ease;
+    }
+
+    .archive-item:hover {
+      background: var(--white);
+      border-color: var(--line);
+    }
+
+    .archive-item:focus-visible {
+      outline: 2px solid var(--blue-focus);
+      outline-offset: 2px;
+    }
+
+    .archive-mark {
+      width: 52px;
+      height: 52px;
+      display: grid;
+      place-items: center;
+      color: var(--blue);
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      font: 600 12px/1 var(--mono);
+    }
+
+    .archive-copy h4 {
+      margin: 1px 0 7px;
+      color: var(--ink);
+      font-family: var(--display);
+      font-size: 18px;
+      line-height: 1.3;
+    }
+
+    .archive-copy p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .closing {
+      padding-block: clamp(96px, 12vw, 164px);
+      color: var(--white);
+      background: var(--black);
+    }
+
+    .closing-inner {
+      width: min(var(--reading), calc(100% - 48px));
+      margin-inline: auto;
+      text-align: center;
+    }
+
+    .closing .eyebrow {
+      color: #85858b;
+    }
+
+    .closing h2 {
+      margin-bottom: 20px;
+      color: #f7f3ef;
+      font-size: clamp(46px, 6vw, 78px);
+      line-height: 1.03;
+      font-weight: 650;
+    }
+
+    .closing p {
+      max-width: 720px;
+      margin: 0 auto 30px;
+      color: #a9a9ae;
+      font-size: 18px;
+    }
+
+    .closing .actions {
+      justify-content: center;
+    }
+
+    .closing .button {
+      color: var(--white);
+      border-color: rgba(255, 255, 255, .24);
+    }
+
+    .closing .button:hover {
+      background: rgba(255, 255, 255, .1);
+    }
+
+    .closing .button.primary {
+      color: var(--black);
+      background: var(--paper);
+      border-color: var(--paper);
+    }
+
+    .site-footer {
+      color: #85858b;
+      background: var(--black);
+      border-top: 1px solid #242427;
+    }
+
+    .footer-inner {
+      width: min(var(--content), calc(100% - 48px));
+      margin-inline: auto;
+      padding: 28px 0 36px;
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      font-size: 12px;
+    }
+
+    .footer-inner a {
+      color: #b6b6bb;
+    }
+
+    .hero-copy > * {
+      animation: hero-in .68s cubic-bezier(.2, .8, .2, 1) both;
+    }
+
+    .hero-copy > :nth-child(2) {
+      animation-delay: .05s;
+    }
+
+    .hero-copy > :nth-child(3) {
+      animation-delay: .1s;
+    }
+
+    .hero-copy > :nth-child(4) {
+      animation-delay: .15s;
+    }
+
+    .hero-copy > :nth-child(n+5) {
+      animation-delay: .2s;
+    }
+
+    @keyframes hero-in {
+      from {
+        opacity: 0;
+        transform: translateY(18px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 1080px) {
+      .hero-inner {
+        grid-template-columns: 1fr;
+        min-height: auto;
+        gap: 64px;
+      }
+
+      .hero-stage {
+        max-width: 860px;
+      }
+
+      .capability-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .capability {
+        padding: 24px;
+        border-right: 1px solid var(--line);
+        border-bottom: 1px solid var(--line);
+      }
+
+      .capability + .capability {
+        padding-left: 24px;
+      }
+
+      .capability:nth-child(2n) {
+        border-right: 0;
+      }
+
+      .capability:nth-last-child(-n+2) {
+        border-bottom: 0;
+      }
+
+      .flow {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .flow-step:nth-child(3n) {
+        border-right: 0;
+      }
+
+      .flow-step:nth-child(n+4) {
+        border-top: 1px solid var(--line);
+      }
+    }
+
+    @media (max-width: 820px) {
+      html {
+        scroll-padding-top: 72px;
+      }
+
+      .nav-inner {
+        width: min(100% - 28px, var(--content));
+        grid-template-columns: 1fr auto;
+      }
+
+      .nav-links {
+        display: none;
+      }
+
+      .hero-inner,
+      .section-inner,
+      .metrics,
+      .closing-inner,
+      .footer-inner {
+        width: min(100% - 28px, var(--content));
+      }
+
+      .hero h1 {
+        font-size: clamp(64px, 17vw, 92px);
+      }
+
+      .hero-role {
+        font-size: clamp(34px, 9vw, 48px);
+      }
+
+      .metrics,
+      .result-band {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .flagship .section-heading {
+        grid-template-columns: 1fr;
+        gap: 22px;
+      }
+
+      .project-canvas img {
+        aspect-ratio: 1.35 / 1;
+      }
+
+      .feature-pair,
+      .work-row {
+        grid-template-columns: 1fr;
+      }
+
+      .archive-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .work-row:nth-child(even) .work-visual {
+        order: 0;
+      }
+
+      .project-footer {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .footer-inner {
+        flex-direction: column;
+      }
+    }
+
+    @media (max-width: 560px) {
+      body {
+        font-size: 16px;
+      }
+
+      .brand-copy small {
+        display: none;
+      }
+
+      .status-pill {
+        min-height: 38px;
+        padding: 8px 12px;
+        font-size: 12px;
+      }
+
+      .hero-inner {
+        padding-top: 62px;
+      }
+
+      .hero-stage {
+        padding-left: 0;
+        padding-top: 22px;
+      }
+
+      .hero-stage::before {
+        display: none;
+      }
+
+      .stage-meta {
+        left: 0;
+      }
+
+      .product-frame img {
+        aspect-ratio: 1.07 / 1;
+      }
+
+      .stage-label {
+        right: 12px;
+        bottom: 12px;
+      }
+
+      .actions,
+      .closing .actions {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .button {
+        width: 100%;
+      }
+
+      .metric,
+      .metric + .metric,
+      .result,
+      .result + .result {
+        padding: 20px 0;
+        border-right: 0;
+      }
+
+      .metric:nth-child(odd),
+      .result:nth-child(odd) {
+        padding-right: 14px;
+      }
+
+      .metric:nth-child(even),
+      .result:nth-child(even) {
+        padding-left: 14px;
+      }
+
+      .metrics,
+      .result-band {
+        grid-template-columns: 1fr;
+      }
+
+      .metric:nth-child(n+2),
+      .result:nth-child(n+2) {
+        border-top: 1px solid var(--line-dark);
+      }
+
+      .result:nth-child(n+2) {
+        border-top-color: var(--line);
+      }
+
+      .metric:nth-child(n),
+      .result:nth-child(n) {
+        padding-right: 0;
+        padding-left: 0;
+      }
+
+      .capability-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .capability,
+      .capability + .capability {
+        min-height: auto;
+        padding: 24px 0;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .capability:last-child {
+        border-bottom: 0;
+      }
+
+      .capability p {
+        margin-top: 20px;
+      }
+
+      .flow {
+        grid-template-columns: 1fr;
+      }
+
+      .flow-step,
+      .flow-step + .flow-step {
+        min-height: auto;
+        padding: 18px 0;
+        border-right: 0;
+        border-top: 1px solid var(--line);
+      }
+
+      .flow-step:first-child {
+        border-top: 0;
+      }
+
+      .flow-step b {
+        margin-bottom: 8px;
+      }
+
+      .feature-pair {
+        gap: 14px;
+      }
+
+      .feature-copy {
+        padding: 22px;
+      }
+
+      .feature-copy h3 {
+        font-size: 23px;
+      }
+
+      .work-row {
+        padding-block: 34px;
+        gap: 28px;
+      }
+
+      .work-visual {
+        aspect-ratio: 1.22 / 1;
+      }
+
+      .project-canvas,
+      .feature,
+      .work-visual,
+      .archive-item {
+        border-radius: 13px;
+      }
+
+      .archive-heading {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 8px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      *,
+      *::before,
+      *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+      }
+    }
+
+    @media print {
+      @page {
+        size: A4;
+        margin: 12mm;
+      }
+
+      html {
+        scroll-behavior: auto;
+      }
+
+      body {
+        color: #111;
+        background: #fff;
+        font-size: 10pt;
+      }
+
+      .site-nav,
+      .skip-link,
+      .actions,
+      .stage-meta {
+        display: none !important;
+      }
+
+      .hero,
+      .flagship,
+      .closing,
+      .site-footer {
+        color: #111;
+        background: #fff;
+      }
+
+      .hero {
+        padding-top: 0;
+      }
+
+      .hero-inner {
+        display: block;
+        width: 100%;
+        min-height: 0;
+        padding: 0 0 10mm;
+      }
+
+      .hero h1,
+      .hero-role,
+      .metric strong,
+      .flagship .section-heading h2,
+      .feature-copy h3,
+      .result strong,
+      .closing h2 {
+        color: #111;
+      }
+
+      .hero-lead,
+      .hero-note,
+      .hero .eyebrow,
+      .tag,
+      .metric span,
+      .flagship .section-heading p,
+      .feature-copy p,
+      .result span,
+      .project-boundary,
+      .closing p {
+        color: #333;
+      }
+
+      .hero-stage {
+        max-width: 100%;
+        padding: 0;
+        margin-top: 8mm;
+      }
+
+      .hero-stage::before,
+      .stage-label {
+        display: none;
+      }
+
+      .hero-copy > * {
+        animation: none;
+      }
+
+      .product-frame,
+      .project-canvas,
+      .feature,
+      .work-visual,
+      .archive-item {
+        box-shadow: none;
+      }
+
+      .product-frame img,
+      .project-canvas img,
+      .feature img {
+        max-height: 115mm;
+        object-fit: contain;
+        object-position: top center;
+      }
+
+      .section {
+        padding-block: 7mm;
+      }
+
+      .section-heading {
+        margin-bottom: 6mm;
+      }
+
+      .section-heading h2 {
+        font-size: 22pt;
+      }
+
+      .capability-grid,
+      .section-heading,
+      .flow,
+      .feature-pair,
+      .work-list,
+      .archive,
+      .archive-item,
+      .feature,
+      .work-row {
+        break-inside: avoid;
+      }
+
+      .work-row {
+        padding-block: 6mm;
+      }
+
+      .work .section-heading {
+        break-after: avoid;
+      }
+
+      .work-list {
+        break-before: avoid;
+      }
+
+      .work-visual {
+        aspect-ratio: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到正文</a>
+
+  <header class="site-nav">
+    <div class="nav-inner">
+      <a class="brand" href="#top" aria-label="返回首页">
+        <span class="brand-mark">LH</span>
+        <span class="brand-copy">
+          <span>李昕昊</span>
+          <small>AI 产品经理</small>
+        </span>
+      </a>
+      <nav class="nav-links" aria-label="页面导航">
+        <a href="#strengths">个人优势</a>
+        <a href="#flagship">主项目</a>
+        <a href="#work">其他作品</a>
+        <a href="#contact">与我联系</a>
+      </nav>
+      <a class="status-pill" href="#contact">开放求职机会</a>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero" id="top">
+      <div class="hero-inner">
+        <div class="hero-copy">
+          <p class="eyebrow">2026 作品集 · 模拟项目与真实实验分开标注</p>
+          <h1>李昕昊</h1>
+          <p class="hero-role">AI 产品经理</p>
+          <p class="hero-lead">
+            从业务现场出发，把复杂的 AI 能力做成可交付、可验证、可追溯的产品。
+          </p>
+          <p class="hero-note">
+            环境设计背景，做过两个上线产品。关注 AI 产品中的上下文、知识证据与责任边界，也愿意把没有验证的部分直接写清楚。
+          </p>
+          <div class="tag-row" aria-label="能力标签">
+            <span class="tag">企业知识治理</span>
+            <span class="tag">RAG 产品</span>
+            <span class="tag">0→1 落地</span>
+            <span class="tag">体验设计</span>
+          </div>
+          <div class="actions">
+            <a class="button primary" href="#flagship">查看主项目</a>
+            <a class="button" href="#contact">联系我</a>
+          </div>
+        </div>
+
+        <div class="hero-stage" aria-label="企业级 RAG 知识库平台界面预览">
+          <span class="stage-meta">主项目 01 · 企业级 RAG 知识库平台</span>
+          <div class="product-frame">
+            <img src="assets/RAG-overview.png" alt="RAG 知识库平台运营总览：已发布知识、待处理工作与治理闭环">
+          </div>
+          <span class="stage-label">
+            <strong>模拟案例 · 真实原型</strong>
+            <span>真实版本可本地运行</span>
+          </span>
+        </div>
+      </div>
+
+      <div class="metrics" aria-label="三个项目的关键证据">
+        <div class="metric">
+          <strong>13 页</strong>
+          <span>RAG 平台 · 治理闭环页面</span>
+        </div>
+        <div class="metric">
+          <strong>2.9 s</strong>
+          <span>直聘助手 · 线上生成</span>
+        </div>
+        <div class="metric">
+          <strong>3 端</strong>
+          <span>问需 · 已上线终端</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="section capabilities" id="strengths">
+      <div class="section-inner">
+        <div class="section-heading">
+          <p class="eyebrow">个人优势</p>
+          <h2>懂业务现场，也懂 AI 的边界。</h2>
+          <p>
+            我的方法不是追新模型，而是把一线流程、知识来源、风险门禁和验收口径放进同一个产品系统里。
+          </p>
+        </div>
+
+        <div class="capability-grid">
+          <article class="capability">
+            <div>
+              <h3>先定义可验证结果</h3>
+              <p>把“效率低”拆成上下文、证据、权限与风险，先确定怎么验收，再决定做什么功能。</p>
+            </div>
+          </article>
+          <article class="capability">
+            <div>
+              <h3>让证据和版本可追溯</h3>
+              <p>把来源范围、有效期、正文引用和发布版本设计成可检查的产品对象，而不是生成后再补来源。</p>
+            </div>
+          </article>
+          <article class="capability">
+            <div>
+              <h3>风险在模型前拦截</h3>
+              <p>安全、越权承诺和知识冲突由规则与系统前置处理，不依赖模型“记得自己应该谨慎”。</p>
+            </div>
+          </article>
+          <article class="capability">
+            <div>
+              <h3>失败进入回归闭环</h3>
+              <p>冻结样本、记录失败并验证修复，再把结论回流到知识发布、回滚和下一轮产品决策。</p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section flagship" id="flagship">
+      <div class="section-inner">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">主项目 · 企业级 RAG 知识库平台</p>
+            <h2>让知识可审核，<br>让发布可追溯。</h2>
+          </div>
+          <p>
+            面向企业知识运营的治理平台：把散落的政策、FAQ 与 SOP 变成可审核、可发布、可评测、可追溯的知识资产。平台负责“知识是否可用、谁能用、效果如何”，Dify 负责解析、切片、向量检索与生成。
+          </p>
+        </div>
+
+        <div class="project-meta" aria-label="项目属性">
+          <span class="dark-tag">企业级知识治理</span>
+          <span class="dark-tag">自研全栈</span>
+          <span class="dark-tag">真实 Dify 接入</span>
+          <span class="dark-tag">模拟案例 · 模拟数据</span>
+        </div>
+
+        <div class="project-canvas">
+          <img src="assets/RAG-overview.png" alt="RAG 知识库平台运营总览：已发布知识、待处理工作、评测通过率与治理闭环" loading="lazy">
+        </div>
+
+        <div class="flow" aria-label="知识治理核心流程">
+          <div class="flow-step">
+            <b>01</b>
+            <span>知识库与文档</span>
+            <small>版本、有效期与负责人</small>
+          </div>
+          <div class="flow-step">
+            <b>02</b>
+            <span>业务审核</span>
+            <small>三项确认与独立审核</small>
+          </div>
+          <div class="flow-step">
+            <b>03</b>
+            <span>测试入库</span>
+            <small>隔离的测试 dataset</small>
+          </div>
+          <div class="flow-step">
+            <b>04</b>
+            <span>处理验收</span>
+            <small>解析、切片与索引</small>
+          </div>
+          <div class="flow-step">
+            <b>05</b>
+            <span>检索与评测</span>
+            <small>5 / 40 / 200 逐级解锁</small>
+          </div>
+          <div class="flow-step">
+            <b>06</b>
+            <span>审批与发布</span>
+            <small>生产切换与证据留存</small>
+          </div>
+        </div>
+
+        <div class="feature-pair">
+          <article class="feature">
+            <img src="assets/RAG-review.png" alt="业务审核页：线上版本与待审核版本对比，完成三项确认后才可通过" loading="lazy">
+            <div class="feature-copy">
+              <h3>把“审核”做成可验证的门禁</h3>
+              <p>业务事实、适用范围、有效期三项确认缺一不可；提交人、审核人、发布人分属不同角色，越权操作被系统拒绝。</p>
+              <span class="feature-fact">五角色职责分离 · 服务端强制校验</span>
+            </div>
+          </article>
+          <article class="feature">
+            <img src="assets/RAG-evaluation.png" alt="批量评测页：冒烟5条、正式40条、全量回归200条逐级解锁" loading="lazy">
+            <div class="feature-copy">
+              <h3>评测不是一次跑分，而是发布门槛</h3>
+              <p>冒烟 5 条 → 正式 40 条 → 全量回归 200 条 → 客服对话验收；未处理的问题案例会阻断发布，处理完成后才能继续。</p>
+              <span class="feature-fact">问题案例回流 · 失败分支可演示</span>
+            </div>
+          </article>
+        </div>
+
+        <div class="result-band" aria-label="主项目关键证据">
+          <div class="result">
+            <strong>13 页</strong>
+            <span>覆盖 F-01~F-10 的治理闭环</span>
+          </div>
+          <div class="result">
+            <strong>60 项</strong>
+            <span>自动化验证（黄金路径 + 失败分支）</span>
+          </div>
+          <div class="result">
+            <strong>2 环境</strong>
+            <span>测试 / 生产 dataset 严格隔离</span>
+          </div>
+        </div>
+
+        <div class="project-footer">
+          <p class="project-boundary">
+            证据边界：企业与数据均为虚拟案例；交互原型使用模拟数据，真实版本在本机运行并接入 Dify，未在真实企业上线，不代表生产 SLA。
+          </p>
+          <a class="button primary" href="RAG知识库平台案例.html">查看完整案例</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section work" id="work">
+      <div class="section-inner">
+        <div class="section-heading">
+          <p class="eyebrow">其他作品</p>
+          <h2>一个看真实业务现场，一个看完整上线。</h2>
+          <p>两个次项目分别补充 AI 工具上线和 B 端三端交付能力，其他实践则降低展示级别。</p>
+        </div>
+
+        <div class="work-list">
+          <a class="work-row" href="https://zhipin.rainylli02xin11hao21.dpdns.org" target="_blank" rel="noopener noreferrer">
+            <div class="work-visual">
+              <img src="assets/zhipin.png" alt="直聘打招呼助手：岗位匹配分析与三条可复制话术" loading="lazy">
+            </div>
+            <div class="work-copy">
+              <p class="work-index">项目 02 · 已上线工具</p>
+              <h3>直聘打招呼助手</h3>
+              <p>
+                粘贴岗位 JD，用已有简历生成三条可追溯的打招呼话术。写出的经历、技能和数字必须在原文里有依据，个人信息与教育经历保持锁定。
+              </p>
+              <div class="work-facts">
+                <span>线上生成 2.9 秒</span>
+                <span>固定样本 0 编造</span>
+              </div>
+              <span class="work-cta">
+                在线体验
+                <span class="external-indicator" aria-hidden="true">↗</span>
+                <span class="visually-hidden">（在新窗口打开）</span>
+              </span>
+            </div>
+          </a>
+
+          <a class="work-row" href="问需案例.html">
+            <div class="work-visual">
+              <img src="assets/askneed.png" alt="问需装修需求采集系统：房主需求采集表单和需求发现助手" loading="lazy">
+            </div>
+            <div class="work-copy">
+              <p class="work-index">项目 03 · B 端三端产品</p>
+              <h3>问需</h3>
+              <p>
+                针对设计师现场漏问导致返工，基于 3 位设计师访谈和 22 个住宅项目记录，设计采集、解读、现场执行三端流程；模型只提出待核实项。
+              </p>
+              <div class="work-facts">
+                <span>3 端已上线</span>
+                <span>现场遗漏可回流</span>
+              </div>
+              <span class="work-cta">
+                查看案例
+                <span class="external-indicator" aria-hidden="true">→</span>
+                <span class="visually-hidden">（进入案例详情）</span>
+              </span>
+            </div>
+          </a>
+        </div>
+
+        <div class="archive" aria-label="其他实践">
+          <div class="archive-heading">
+            <h3>其他实践</h3>
+            <p>保留广度，不占用首页主视觉。</p>
+          </div>
+          <div class="archive-grid">
+            <a class="archive-item" href="其他实践.html#ad-workbench">
+              <span class="archive-mark">MVP</span>
+              <div class="archive-copy">
+                <h4>AI 广告素材工作台</h4>
+                <p>六阶段 Agent 工作流，真实样例链路已跑通；图片生成仍为占位。</p>
+              </div>
+            </a>
+            <a class="archive-item" href="其他实践.html#mi-home">
+              <span class="archive-mark">PRD</span>
+              <div class="archive-copy">
+                <h4>米家 App 智能场景</h4>
+                <p>完成竞品分析与 PRD，聚焦自动化配置门槛和重复操作识别，未进入实现。</p>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="closing" id="contact">
+      <div class="closing-inner">
+        <p class="eyebrow">与我联系</p>
+        <h2>正在寻找 AI 产品经理机会。</h2>
+        <p>
+          目标方向：AI 应用产品、知识协作、RAG/Agent 产品与 B 端业务流程。适合从业务现场出发，把 0→1 方案推进到可验证闭环的团队。
+        </p>
+        <div class="actions">
+          <a class="button primary" href="mailto:lxh2226@outlook.com">发送邮件</a>
+          <a class="button" href="https://github.com/xinhao021121-web" target="_blank" rel="noreferrer">查看 GitHub</a>
+          <a class="button" href="RAG知识库平台案例.html">阅读主项目</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <span>© 2026 李昕昊 · AI 产品经理作品集</span>
+      <span>模拟项目与实验数据均按真实边界标注 · 非生产企业系统</span>
+    </div>
+  </footer>
+
+  <script>
+    (() => {
+      const links = [...document.querySelectorAll(".nav-links a")];
+      const sections = links
+        .map(link => document.querySelector(link.getAttribute("href")))
+        .filter(Boolean);
+
+      if (!("IntersectionObserver" in window) || !sections.length) return;
+
+      const observer = new IntersectionObserver(entries => {
+        const visible = entries
+          .filter(entry => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        if (!visible) return;
+
+        for (const link of links) {
+          const active = link.getAttribute("href") === `#${visible.target.id}`;
+          link.classList.toggle("is-active", active);
+          if (active) {
+            link.setAttribute("aria-current", "location");
+          } else {
+            link.removeAttribute("aria-current");
+          }
+        }
+      }, {
+        rootMargin: "-22% 0px -62% 0px",
+        threshold: [0, .2, .5]
+      });
+
+      for (const section of sections) observer.observe(section);
+    })();
+  </script>
+</body>
+</html>

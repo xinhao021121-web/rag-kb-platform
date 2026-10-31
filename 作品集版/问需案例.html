@@ -1,0 +1,1415 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="description" content="问需项目详情：把装修需求问全、问清、问定。">
+  <title>问需｜项目详情</title>
+  <style>
+    :root {
+      --black: #08080a;
+      --paper: #f5f5f7;
+      --surface: #ffffff;
+      --ink: #1d1d1f;
+      --muted: #6e6e73;
+      --muted-dark: #b8b8bd;
+      --line: #d2d2d7;
+      --line-dark: #333336;
+      --blue: #0066cc;
+      --blue-focus: #0071e3;
+      --blue-soft: #e8f2ff;
+      --risk: #b93830;
+      --risk-soft: #fff0ee;
+      --success: #167b63;
+      --success-soft: #e8f5f1;
+      --display: "SF Pro Display", "Inter", "PingFang SC", "Microsoft YaHei UI", sans-serif;
+      --body: "SF Pro Text", "Inter", "PingFang SC", "Microsoft YaHei", sans-serif;
+      --mono: "SFMono-Regular", "Cascadia Code", Consolas, monospace;
+      --content: 1240px;
+      --pill: 999px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 28px;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--surface);
+      font-family: var(--body);
+      font-size: 17px;
+      line-height: 1.55;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    a {
+      color: var(--blue);
+      text-decoration-thickness: 1px;
+      text-underline-offset: .18em;
+    }
+
+    a:focus-visible,
+    summary:focus-visible {
+      outline: 2px solid var(--blue-focus);
+      outline-offset: 4px;
+      border-radius: 4px;
+    }
+
+    img {
+      display: block;
+      max-width: 100%;
+      height: auto;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin-top: 0;
+    }
+
+    h1,
+    h2,
+    h3 {
+      font-family: var(--display);
+      letter-spacing: -.025em;
+    }
+
+    .skip-link {
+      position: fixed;
+      z-index: 100;
+      top: 12px;
+      left: 12px;
+      transform: translateY(-180%);
+      padding: 10px 16px;
+      color: var(--black);
+      background: var(--surface);
+      border-radius: 8px;
+      font-weight: 700;
+    }
+
+    .skip-link:focus {
+      transform: none;
+    }
+
+    .hero {
+      color: var(--surface);
+      background: var(--black);
+    }
+
+    .topbar,
+    .hero-grid,
+    .hero-bottom,
+    .snapshot-inner,
+    .page,
+    .footer-inner {
+      width: min(var(--content), calc(100% - 48px));
+      margin-inline: auto;
+    }
+
+    .topbar {
+      min-height: 68px;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 36px;
+      border-bottom: 1px solid rgba(255, 255, 255, .12);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--surface);
+      text-decoration: none;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .brand-mark {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      color: var(--black);
+      background: var(--paper);
+      border-radius: 50%;
+      font: 700 11px/1 var(--mono);
+    }
+
+    .brand small {
+      display: block;
+      margin-top: 1px;
+      color: var(--muted-dark);
+      font-size: 11px;
+      font-weight: 400;
+    }
+
+    .topnav {
+      display: flex;
+      justify-content: center;
+      gap: 28px;
+      font-size: 13px;
+    }
+
+    .topnav a,
+    .back-link {
+      color: rgba(255, 255, 255, .7);
+      text-decoration: none;
+    }
+
+    .topnav a:hover,
+    .back-link:hover {
+      color: var(--surface);
+    }
+
+    .back-link {
+      justify-self: end;
+      padding: 9px 13px;
+      border: 1px solid rgba(255, 255, 255, .2);
+      border-radius: var(--pill);
+      font-size: 12px;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, .88fr) minmax(500px, 1.12fr);
+      gap: clamp(44px, 7vw, 96px);
+      align-items: center;
+      padding-block: clamp(72px, 9vw, 126px) clamp(48px, 6vw, 76px);
+    }
+
+    .status-line {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      margin-bottom: 24px;
+      color: #a8a8ae;
+      font: 500 11px/1.4 var(--mono);
+    }
+
+    .status-line::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      background: #4cd7a7;
+      border-radius: 50%;
+    }
+
+    h1 {
+      max-width: 760px;
+      margin-bottom: 24px;
+      color: #f7f7f8;
+      font-size: clamp(52px, 6.5vw, 86px);
+      line-height: 1.02;
+      font-weight: 650;
+      letter-spacing: -.05em;
+    }
+
+    .hero-lede {
+      max-width: 660px;
+      margin-bottom: 28px;
+      color: #c3c3c8;
+      font-size: clamp(17px, 1.45vw, 20px);
+      line-height: 1.65;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px;
+      padding: 11px 20px;
+      color: var(--blue);
+      background: transparent;
+      border: 1px solid rgba(0, 102, 204, .4);
+      border-radius: var(--pill);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+      transition: background-color .18s ease, transform .18s ease;
+    }
+
+    .button:hover {
+      background: var(--blue-soft);
+    }
+
+    .button:active {
+      transform: scale(.96);
+    }
+
+    .button.primary {
+      color: var(--surface);
+      background: var(--blue);
+      border-color: var(--blue);
+    }
+
+    .button.primary:hover {
+      background: #005bb5;
+    }
+
+    .hero .button {
+      color: var(--surface);
+      border-color: rgba(255, 255, 255, .22);
+    }
+
+    .hero .button:hover {
+      background: rgba(255, 255, 255, .08);
+    }
+
+    .hero .button.primary {
+      color: var(--black);
+      background: var(--surface);
+      border-color: var(--surface);
+    }
+
+    .hero-visual {
+      position: relative;
+      padding-top: 24px;
+    }
+
+    .hero-visual::before {
+      content: "PRODUCT EVIDENCE · 房主采集端";
+      position: absolute;
+      top: 0;
+      left: 0;
+      color: #8d8d93;
+      font: 500 10px/1.4 var(--mono);
+    }
+
+    .hero-visual img {
+      width: 100%;
+      border: 1px solid var(--line-dark);
+      border-radius: 18px;
+      box-shadow: 0 28px 80px rgba(0, 0, 0, .4);
+    }
+
+    .hero-bottom {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1.2fr;
+      border-top: 1px solid var(--line-dark);
+    }
+
+    .hero-stat,
+    .hero-note {
+      min-height: 112px;
+      padding: 24px 28px 25px 0;
+      border-right: 1px solid var(--line-dark);
+    }
+
+    .hero-stat + .hero-stat,
+    .hero-note {
+      padding-left: 28px;
+    }
+
+    .hero-note {
+      border-right: 0;
+    }
+
+    .hero-stat strong {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--surface);
+      font-family: var(--display);
+      font-size: clamp(34px, 4vw, 48px);
+      line-height: 1;
+      font-weight: 600;
+      letter-spacing: -.04em;
+    }
+
+    .hero-stat span,
+    .hero-note {
+      color: #8f8f95;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .snapshot {
+      background: var(--paper);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .snapshot-inner {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .snapshot-item {
+      padding: 24px 26px 26px 0;
+      border-right: 1px solid var(--line);
+    }
+
+    .snapshot-item + .snapshot-item {
+      padding-left: 26px;
+    }
+
+    .snapshot-item:last-child {
+      border-right: 0;
+    }
+
+    .snapshot-item span {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--muted);
+      font: 500 10px/1.4 var(--mono);
+    }
+
+    .snapshot-item p {
+      margin: 0;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .page {
+      display: grid;
+      grid-template-columns: 220px minmax(0, 1fr);
+      gap: clamp(40px, 6vw, 82px);
+      padding-block: 72px 96px;
+    }
+
+    .rail {
+      align-self: start;
+      position: sticky;
+      top: 28px;
+    }
+
+    .rail-label {
+      margin-bottom: 16px;
+      color: var(--muted);
+      font: 500 10px/1.4 var(--mono);
+    }
+
+    .rail nav {
+      border-top: 1px solid var(--line);
+    }
+
+    .rail a {
+      display: grid;
+      grid-template-columns: 28px 1fr;
+      gap: 10px;
+      padding: 12px 0;
+      color: var(--ink);
+      border-bottom: 1px solid var(--line);
+      text-decoration: none;
+      font-size: 13px;
+    }
+
+    .rail a span {
+      color: #8a8a90;
+      font: 10px/1.75 var(--mono);
+    }
+
+    .rail a:hover,
+    .rail a.is-active {
+      color: var(--blue);
+    }
+
+    .rail-note {
+      margin: 22px 0 0;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.7;
+    }
+
+    main {
+      min-width: 0;
+    }
+
+    .mobile-toc {
+      display: none;
+      margin-bottom: 28px;
+      padding: 14px 16px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+
+    .mobile-toc summary {
+      font-weight: 600;
+    }
+
+    .mobile-toc nav {
+      display: grid;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .mobile-toc a {
+      color: var(--ink);
+      text-decoration: none;
+      font-size: 13px;
+    }
+
+    .section {
+      padding-bottom: 78px;
+      margin-bottom: 78px;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 24px;
+    }
+
+    .section:last-of-type {
+      margin-bottom: 0;
+    }
+
+    .section-head {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(190px, 290px);
+      gap: 32px;
+      align-items: end;
+      margin-bottom: 30px;
+    }
+
+    .section-label {
+      margin-bottom: 12px;
+      color: var(--muted);
+      font: 500 10px/1.4 var(--mono);
+    }
+
+    .section h2 {
+      margin-bottom: 12px;
+      font-size: clamp(36px, 4.6vw, 56px);
+      line-height: 1.08;
+      font-weight: 650;
+    }
+
+    .section-deck {
+      max-width: 720px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 16px;
+    }
+
+    .section-side {
+      margin: 0;
+      padding-bottom: 4px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+    .section-side strong {
+      color: var(--ink);
+    }
+
+    .prose {
+      max-width: 72ch;
+      font-size: 15px;
+      line-height: 1.75;
+    }
+
+    .prose p:last-child {
+      margin-bottom: 0;
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(260px, .8fr);
+      gap: 34px;
+      align-items: start;
+    }
+
+    .fact-list {
+      margin: 0;
+      border-top: 1px solid var(--line);
+    }
+
+    .fact-list div {
+      display: grid;
+      grid-template-columns: 94px 1fr;
+      gap: 14px;
+      padding: 11px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .fact-list dt {
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .fact-list dd {
+      margin: 0;
+      font-size: 13px;
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      margin: 30px 0;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .flow-step {
+      min-height: 126px;
+      padding: 19px 18px 18px 0;
+      border-right: 1px solid var(--line);
+    }
+
+    .flow-step + .flow-step {
+      padding-left: 18px;
+    }
+
+    .flow-step:last-child {
+      border-right: 0;
+    }
+
+    .flow-step b {
+      display: block;
+      margin-bottom: 16px;
+      color: #8a8a90;
+      font: 500 10px/1 var(--mono);
+    }
+
+    .flow-step span {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .flow-step small {
+      display: block;
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.5;
+    }
+
+    figure {
+      margin: 30px 0 0;
+      overflow: hidden;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 55px rgba(0, 0, 0, .1);
+    }
+
+    figure img {
+      width: 100%;
+      background: #e9ebee;
+    }
+
+    figcaption {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 20px;
+      padding: 14px 18px;
+      color: var(--muted);
+      border-top: 1px solid var(--line);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    figcaption strong {
+      color: var(--ink);
+      font-weight: 600;
+    }
+
+    figcaption code {
+      align-self: center;
+      color: var(--muted);
+      font: 10px/1.4 var(--mono);
+      white-space: nowrap;
+    }
+
+    .decision-list {
+      margin: 0;
+      border-top: 1px solid var(--line);
+    }
+
+    .decision {
+      display: grid;
+      grid-template-columns: 170px minmax(0, 1fr);
+      gap: 30px;
+      padding: 20px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .decision dt {
+      font-weight: 650;
+    }
+
+    .decision dd {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.75;
+    }
+
+    .decision dd strong {
+      color: var(--ink);
+    }
+
+    .claim {
+      margin: 28px 0;
+      padding: 18px 20px;
+      background: var(--blue-soft);
+      border-left: 3px solid var(--blue);
+      font-size: 14px;
+    }
+
+    .research-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      margin: 28px 0;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .research-stat {
+      padding: 22px 20px 24px 0;
+      border-right: 1px solid var(--line);
+    }
+
+    .research-stat + .research-stat {
+      padding-left: 20px;
+    }
+
+    .research-stat:last-child {
+      border-right: 0;
+    }
+
+    .research-stat strong {
+      display: block;
+      margin-bottom: 4px;
+      font-family: var(--display);
+      font-size: 34px;
+      line-height: 1;
+      font-weight: 600;
+      letter-spacing: -.04em;
+    }
+
+    .research-stat span {
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.5;
+    }
+
+    .boundary-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1px;
+      margin: 28px 0;
+      overflow: hidden;
+      background: var(--line);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+    }
+
+    .boundary {
+      padding: 24px;
+      background: var(--surface);
+    }
+
+    .boundary h3 {
+      margin-bottom: 12px;
+      font-size: 20px;
+    }
+
+    .boundary ul {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.75;
+    }
+
+    .source-row,
+    .end-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px 20px;
+      margin-top: 24px;
+      font-size: 13px;
+    }
+
+    .end-actions {
+      align-items: center;
+      margin-top: 34px;
+    }
+
+    footer {
+      color: #b5b5ba;
+      background: var(--black);
+    }
+
+    .footer-inner {
+      padding: 28px 0 36px;
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      font-size: 12px;
+    }
+
+    footer a {
+      color: #d2d2d7;
+    }
+
+    @media (max-width: 1020px) {
+      .hero-grid {
+        grid-template-columns: 1fr;
+        gap: 54px;
+      }
+
+      .hero-visual {
+        max-width: 860px;
+      }
+
+      .snapshot-inner {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .snapshot-item:nth-child(2) {
+        border-right: 0;
+      }
+
+      .snapshot-item:nth-child(n+3) {
+        border-top: 1px solid var(--line);
+      }
+
+      .page {
+        grid-template-columns: 1fr;
+      }
+
+      .rail {
+        display: none;
+      }
+
+      .mobile-toc {
+        display: block;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .topbar,
+      .hero-grid,
+      .hero-bottom,
+      .snapshot-inner,
+      .page,
+      .footer-inner {
+        width: min(100% - 28px, var(--content));
+      }
+
+      .topbar {
+        grid-template-columns: 1fr auto;
+      }
+
+      .topnav {
+        display: none;
+      }
+
+      .hero-grid {
+        padding-block: 58px 46px;
+      }
+
+      h1 {
+        font-size: clamp(48px, 14vw, 68px);
+      }
+
+      .hero-bottom {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-stat,
+      .hero-note {
+        min-height: auto;
+        padding: 20px 0;
+        border-right: 0;
+        border-top: 1px solid var(--line-dark);
+      }
+
+      .hero-note {
+        padding-left: 0;
+      }
+
+      .snapshot-inner {
+        grid-template-columns: 1fr;
+      }
+
+      .snapshot-item,
+      .snapshot-item + .snapshot-item {
+        padding: 17px 0;
+        border-right: 0;
+        border-top: 1px solid var(--line);
+      }
+
+      .snapshot-item:first-child {
+        border-top: 0;
+      }
+
+      .page {
+        padding-block: 48px 72px;
+      }
+
+      .section {
+        padding-bottom: 56px;
+        margin-bottom: 56px;
+      }
+
+      .section-head,
+      .split {
+        grid-template-columns: 1fr;
+      }
+
+      .section-head {
+        gap: 16px;
+      }
+
+      .flow {
+        grid-template-columns: 1fr;
+      }
+
+      .flow-step,
+      .flow-step + .flow-step {
+        min-height: auto;
+        padding: 16px 0;
+        border-right: 0;
+        border-top: 1px solid var(--line);
+      }
+
+      .flow-step:first-child {
+        border-top: 0;
+      }
+
+      .flow-step b {
+        margin-bottom: 7px;
+      }
+
+      figcaption {
+        grid-template-columns: 1fr;
+        gap: 4px;
+      }
+
+      .decision {
+        grid-template-columns: 1fr;
+        gap: 7px;
+      }
+
+      .research-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .research-stat,
+      .research-stat + .research-stat {
+        padding: 17px 0;
+        border-right: 0;
+        border-top: 1px solid var(--line);
+      }
+
+      .research-stat:first-child {
+        border-top: 0;
+      }
+
+      .boundary-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .footer-inner {
+        flex-direction: column;
+      }
+    }
+
+    @media (max-width: 440px) {
+      .back-link {
+        padding: 8px 10px;
+        font-size: 11px;
+      }
+
+      .button {
+        width: 100%;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      *,
+      *::before,
+      *::after {
+        transition-duration: .01ms !important;
+      }
+    }
+
+    @media print {
+      @page {
+        size: A4;
+        margin: 12mm;
+      }
+
+      html {
+        scroll-behavior: auto;
+      }
+
+      body {
+        color: #111;
+        background: #fff;
+        font-size: 10pt;
+      }
+
+      .hero,
+      footer {
+        color: #111;
+        background: #fff;
+      }
+
+      .topnav,
+      .back-link,
+      .skip-link,
+      .button,
+      .rail,
+      .mobile-toc,
+      .hero-visual::before {
+        display: none !important;
+      }
+
+      .hero-grid,
+      .page,
+      .section-head,
+      .split {
+        display: block;
+      }
+
+      .hero-grid {
+        padding: 0 0 10mm;
+      }
+
+      .hero-bottom {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        color: #111;
+        border-color: #bbb;
+      }
+
+      .hero-stat strong {
+        color: #111;
+      }
+
+      .hero-stat span,
+      .hero-note,
+      .hero-lede,
+      .status-line {
+        color: #333;
+      }
+
+      .snapshot-inner {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .page {
+        padding: 0;
+      }
+
+      .section,
+      .section-head,
+      figure,
+      .claim,
+      .decision,
+      .boundary {
+        break-inside: avoid;
+      }
+
+      .section {
+        padding-bottom: 8mm;
+        margin-bottom: 8mm;
+      }
+
+      .section h2 {
+        font-size: 21pt;
+      }
+
+      figure {
+        box-shadow: none;
+      }
+
+      figure img {
+        max-height: 105mm;
+        object-fit: contain;
+        object-position: top;
+      }
+
+      a {
+        color: #111;
+        text-decoration: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到正文</a>
+
+  <header class="hero">
+    <div class="topbar">
+      <a class="brand" href="index.html">
+        <span class="brand-mark">LH</span>
+        <span>
+          李昕昊
+          <small>问需 · 项目详情</small>
+        </span>
+      </a>
+      <nav class="topnav" aria-label="项目章节">
+        <a href="#problem">问题</a>
+        <a href="#solution">方案</a>
+        <a href="#decisions">判断</a>
+        <a href="#evidence">证据</a>
+        <a href="#boundary">边界</a>
+      </nav>
+      <a class="back-link" href="index.html">返回作品集</a>
+    </div>
+
+    <div class="hero-grid">
+      <div>
+        <div class="status-line">B 端产品 / 三端链路 / 探索性研究</div>
+        <h1>把装修需求问全、问清、问定。</h1>
+        <p class="hero-lede">
+          从房主填写需求单，到设计师出门前拿到必问清单，再到现场逐项确认并把遗漏回流成下一轮规则。
+        </p>
+        <div class="hero-actions">
+          <a class="button primary" href="https://demand-studio.pages.dev" target="_blank" rel="noopener noreferrer">在线体验</a>
+          <a class="button" href="https://github.com/xinhao021121-web/zhuangxiu-demand" target="_blank" rel="noopener noreferrer">查看源码</a>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <img src="assets/askneed.png" alt="问需房主采集端：需求表单与需求发现助手">
+      </div>
+    </div>
+
+    <div class="hero-bottom">
+      <div class="hero-stat">
+        <strong>3 端</strong>
+        <span>房主采集、设计师解读、现场执行</span>
+      </div>
+      <div class="hero-stat">
+        <strong>3 位</strong>
+        <span>设计师访谈，探索性研究</span>
+      </div>
+      <p class="hero-note">
+        研究样本有限，不能代表所有设计师。项目重点是把真实漏项转成可执行流程，而不是宣称已经验证出规模化提升。
+      </p>
+    </div>
+  </header>
+
+  <section class="snapshot" aria-label="项目快照">
+    <div class="snapshot-inner">
+      <div class="snapshot-item">
+        <span>目标用户</span>
+        <p>房主、设计师、客服主管及需要管理遗漏的公司管理者。</p>
+      </div>
+      <div class="snapshot-item">
+        <span>我的职责</span>
+        <p>用户研究、产品范围、三端流程、规则与 AI 分工、原型和验收。</p>
+      </div>
+      <div class="snapshot-item">
+        <span>AI 的位置</span>
+        <p>只参与解读和建议；采集与现场端不调用模型，关键规则由确定性逻辑托底。</p>
+      </div>
+      <div class="snapshot-item">
+        <span>当前状态</span>
+        <p>三端有可访问的线上演示，尚未验证规模化效果与真实企业接入。</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="page">
+    <aside class="rail" aria-label="项目章节导航">
+      <p class="rail-label">项目阅读路径</p>
+      <nav>
+        <a href="#problem"><span>01</span>漏需求在哪里</a>
+        <a href="#solution"><span>02</span>三端链路</a>
+        <a href="#decisions"><span>03</span>关键判断</a>
+        <a href="#evidence"><span>04</span>证据</a>
+        <a href="#boundary"><span>05</span>边界</a>
+      </nav>
+      <p class="rail-note">
+        房主侧结论来自设计师转述，不能视为房主一手访谈。本页按探索性研究边界呈现结论。
+      </p>
+    </aside>
+
+    <main id="main">
+      <details class="mobile-toc">
+        <summary>本页目录</summary>
+        <nav aria-label="移动端项目章节">
+          <a href="#problem">漏需求在哪里</a>
+          <a href="#solution">三端链路</a>
+          <a href="#decisions">关键判断</a>
+          <a href="#evidence">证据</a>
+          <a href="#boundary">边界</a>
+        </nav>
+      </details>
+
+      <section class="section" id="problem">
+        <div class="section-head">
+          <div>
+            <p class="section-label">01 / 漏需求在哪里</p>
+            <h2>需求单填完了，为什么仍会返工？</h2>
+            <p class="section-deck">需求从房主到设计师会漏两次：一次说不清，一次问不全。</p>
+          </div>
+          <p class="section-side">
+            <strong>研究样本</strong><br>
+            3 位设计师，每人一场 46–58 分钟访谈。
+          </p>
+        </div>
+
+        <div class="split">
+          <div class="prose">
+            <p>
+              三家公司都有需求表，但三位设计师实际只稳定使用面积、户型和常住人口三个字段。房主面对大量专业字段，往往只能填写自己已经想到的部分；现场条件、预算口径和家庭成员的真实使用习惯仍会缺失。
+            </p>
+            <p>
+              三场访谈共整理出 15 个“该问而没问”的具体案例，全部在量房之后才暴露。问题不是设计师没有经验，而是量房当天缺少一张能兜住遗漏、又能快速执行的表。
+            </p>
+          </div>
+          <dl class="fact-list">
+            <div><dt>项目来源</dt><dd>22 个住宅项目现场经验</dd></div>
+            <div><dt>研究目标</dt><dd>找出漏问发生的环节，而不是堆功能</dd></div>
+            <div><dt>首要产物</dt><dd>必问清单、现场记录与遗漏回流</dd></div>
+          </dl>
+        </div>
+
+        <figure>
+          <img src="assets/askneed-summary.png" alt="问需需求摘要页：结构化展示房主填写的信息与待确认项" loading="lazy">
+          <figcaption>
+            <span><strong>需求单不是终点。</strong> 系统输出结构化摘要和待核实项，帮助设计师在出门前快速判断哪些信息需要当面确认。</span>
+            <code>问需 · 房主采集端</code>
+          </figcaption>
+        </figure>
+      </section>
+
+      <section class="section" id="solution">
+        <div class="section-head">
+          <div>
+            <p class="section-label">02 / 三端链路</p>
+            <h2>一份需求，穿过三个不同的现场。</h2>
+            <p class="section-deck">采集端补全事实，解读端形成判断，现场端把判断落实成记录。</p>
+          </div>
+          <p class="section-side">
+            <strong>同一份数据</strong><br>
+            字段、规则、来源标记和验收口径在三端保持一致。
+          </p>
+        </div>
+
+        <div class="flow" aria-label="问需主流程">
+          <div class="flow-step"><b>01</b><span>房主采集</span><small>填写、发现、逐条处理</small></div>
+          <div class="flow-step"><b>02</b><span>规则补全</span><small>从已填事实推导相关风险</small></div>
+          <div class="flow-step"><b>03</b><span>设计师解读</span><small>生成 5–8 条必问清单</small></div>
+          <div class="flow-step"><b>04</b><span>现场执行</span><small>逐空间问、记结论、回流遗漏</small></div>
+        </div>
+
+        <div class="split">
+          <div class="prose">
+            <p>
+              采集端不是缺项催填表。它先让房主处理与自己情况相关的发现，再把事实和待确认项交给设计师。解读端将候选合并、去重并按返工代价排序，现场端则按空间逐条执行，支持“问不上”和“记一笔”。
+            </p>
+            <p>
+              三端差异来自使用情境：房主在手机上填，设计师在电脑前准备，现场人员单手拿手机。字段和判据保持同一套，避免各端产生不同口径。
+            </p>
+          </div>
+          <dl class="fact-list">
+            <div><dt>房主端</dt><dd>小程序 / 手机版 / Web</dd></div>
+            <div><dt>解读端</dt><dd>桌面工作台</dd></div>
+            <div><dt>现场端</dt><dd>手机 PWA，可离线记录</dd></div>
+          </dl>
+        </div>
+
+        <figure>
+          <img src="assets/askneed-checklist.png" alt="问需设计师工作台：量房沟通清单、来源标记与现场核实项" loading="lazy">
+          <figcaption>
+            <span><strong>清单按返工代价排序，不按功能顺序排列。</strong> 必问、建议问和“这一家的风险项”分开呈现，每条都能追溯到房主填写或现场测量。</span>
+            <code>问需 · 设计师解读端</code>
+          </figcaption>
+        </figure>
+      </section>
+
+      <section class="section" id="decisions">
+        <div class="section-head">
+          <div>
+            <p class="section-label">03 / 关键判断</p>
+            <h2>不是把所有判断都交给模型。</h2>
+            <p class="section-deck">模型负责解释线索，代码负责规则、优先级和边界。</p>
+          </div>
+          <p class="section-side">
+            <strong>研究校正</strong><br>
+            3 位设计师都拒绝 30 条平铺清单，可接受量为 5–8 条。
+          </p>
+        </div>
+
+        <dl class="decision-list">
+          <div class="decision">
+            <dt>必问数量</dt>
+            <dd><strong>清单必须少，而且有优先顺序。</strong>必问按“不确认就会返工或影响报价”排序，控制在 5–8 条；30 条平铺会让设计师直接放弃使用。</dd>
+          </div>
+          <div class="decision">
+            <dt>AI 边界</dt>
+            <dd><strong>模型只在解读端提供候选和原因。</strong>档位、条数上限、来源合并和去重由确定性规则完成，避免每次生成不同口径。</dd>
+          </div>
+          <div class="decision">
+            <dt>现场分工</dt>
+            <dd><strong>“问客户”和“现场测量”分开。</strong>房主不知道管线、净高和洞口尺寸，强行要求其填写只会制造不可靠数据。</dd>
+          </div>
+          <div class="decision">
+            <dt>数据边界</dt>
+            <dd><strong>敏感字段外发前脱敏并留审计。</strong>三端共享同一份字段与规则，但不把完整私有数据无控制地传给模型。</dd>
+          </div>
+        </dl>
+
+        <p class="claim">
+          产品判断不是把问题问得更多，而是让设计师在有限时间内先确认最可能导致返工的事项。
+        </p>
+
+        <figure>
+          <img src="assets/askneed-onsite.png" alt="问需现场端：按空间逐条确认并记录已问、没问上和补充说明" loading="lazy">
+          <figcaption>
+            <span><strong>现场端为单手操作和离线场景设计。</strong> 每条问题只承担“已问、没问上、记一笔”三种行动，回公司后记录进入报表。</span>
+            <code>问需 · 现场执行端</code>
+          </figcaption>
+        </figure>
+      </section>
+
+      <section class="section" id="evidence">
+        <div class="section-head">
+          <div>
+            <p class="section-label">04 / 证据</p>
+            <h2>这项结论来自什么？</h2>
+            <p class="section-deck">证据来自访谈、项目记录和线上三端链路，不等于规模化用户验证。</p>
+          </div>
+          <p class="section-side">
+            <strong>研究性质</strong><br>
+            探索性研究，只报告方向与边界案例，不计算支持率。
+          </p>
+        </div>
+
+        <div class="research-grid">
+          <div class="research-stat">
+            <strong>3 位</strong>
+            <span>不同公司形态与资历的设计师</span>
+          </div>
+          <div class="research-stat">
+            <strong>22 项</strong>
+            <span>实习期间参与的住宅项目记录</span>
+          </div>
+          <div class="research-stat">
+            <strong>15 个</strong>
+            <span>漏项案例归纳为 5 类问题</span>
+          </div>
+        </div>
+
+        <div class="prose">
+          <p>
+            研究访谈覆盖独立工作室主理人、整装公司主任设计师和门店跑量设计师。三位都反馈现有需求表字段过多、真正可用信息少，且现场返工多发生在量房之后。
+          </p>
+          <p>
+            线上三端可以走通“采集 → 解读 → 现场 → 回流”的演示链路，并使用同一份浏览器内数据。它证明流程已经实现，不代表已经获得真实企业的长期使用或效率提升数据。
+          </p>
+        </div>
+      </section>
+
+      <section class="section" id="boundary">
+        <div class="section-head">
+          <div>
+            <p class="section-label">05 / 边界</p>
+            <h2>哪些已经完成，哪些没有。</h2>
+            <p class="section-deck">把研究限制和未验证部分留在作品集里。</p>
+          </div>
+          <p class="section-side">
+            <strong>当前形态</strong><br>
+            可访问的三端线上演示，不等于生产部署。
+          </p>
+        </div>
+
+        <div class="boundary-grid">
+          <div class="boundary">
+            <h3>已经完成</h3>
+            <ul>
+              <li>完成房主采集、设计师解读和现场执行三端可访问演示。</li>
+              <li>形成 5 类遗漏台账，并把必问数量收敛到 5–8 条。</li>
+              <li>规则、来源标记、脱敏和遗漏回流进入同一条产品链路。</li>
+            </ul>
+          </div>
+          <div class="boundary">
+            <h3>尚未验证</h3>
+            <ul>
+              <li>仅访谈 3 位设计师，不能代表全部用户。</li>
+              <li>房主侧结论来自设计师转述，不是房主一手访谈。</li>
+              <li>尚未证明实际降低返工率，也未完成企业级接入和规模化使用。</li>
+            </ul>
+          </div>
+        </div>
+
+        <details>
+          <summary>研究里没有完成的部分</summary>
+          <ul>
+            <li>必问具体条目的卡片分档测试未完成，当前规则仍需用真实使用数据校准。</li>
+            <li>发现卡片的独立判定测试未完成，不能把设计假设写成已验证结论。</li>
+            <li>没有对外宣称返工率下降；现有数字只用于理解单次返工代价。</li>
+          </ul>
+        </details>
+
+        <div class="source-row">
+          <a href="https://github.com/xinhao021121-web/zhuangxiu-demand" target="_blank" rel="noopener noreferrer">项目源码</a>
+          <a href="https://demand-studio.pages.dev" target="_blank" rel="noopener noreferrer">三端在线体验</a>
+          <a href="其他实践.html">查看其他实践</a>
+        </div>
+
+        <div class="end-actions">
+          <a class="button primary" href="https://demand-studio.pages.dev" target="_blank" rel="noopener noreferrer">在线体验问需</a>
+          <a class="button" href="index.html">返回作品集</a>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <footer>
+    <div class="footer-inner">
+      <span>李昕昊 · 问需 · B 端 AI 产品</span>
+      <span><a href="index.html">作品集首页</a> · <a href="其他实践.html">其他实践</a></span>
+    </div>
+  </footer>
+
+  <script>
+    (() => {
+      const links = [...document.querySelectorAll(".rail a")];
+      const sections = links
+        .map(link => document.querySelector(link.getAttribute("href")))
+        .filter(Boolean);
+
+      if (!("IntersectionObserver" in window) || sections.length === 0) return;
+
+      const observer = new IntersectionObserver(entries => {
+        const visible = entries
+          .filter(entry => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        if (!visible) return;
+        for (const link of links) {
+          const active = link.getAttribute("href") === `#${visible.target.id}`;
+          link.classList.toggle("is-active", active);
+          if (active) {
+            link.setAttribute("aria-current", "location");
+          } else {
+            link.removeAttribute("aria-current");
+          }
+        }
+      }, {
+        rootMargin: "-18% 0px -62% 0px",
+        threshold: [0, .2, .5]
+      });
+
+      for (const section of sections) observer.observe(section);
+    })();
+  </script>
+</body>
+</html>

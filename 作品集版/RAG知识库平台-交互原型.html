@@ -1,0 +1,1354 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>企业级RAG知识库平台交互原型</title>
+  <style>
+    :root{
+      --navy:#12345b;--navy2:#1d4f83;--blue:#3478e5;--blue2:#eaf2ff;
+      --teal:#11937d;--teal2:#e8f8f4;--orange:#d97706;--orange2:#fff4df;
+      --red:#d14343;--red2:#fff0f0;--green:#16845b;--green2:#eaf8f1;
+      --ink:#17263a;--muted:#66758a;--line:#dce5f0;--bg:#f4f7fb;--white:#fff;
+      --shadow:0 10px 28px rgba(28,58,95,.08);--radius:14px;
+    }
+    *{box-sizing:border-box}html,body{height:100%;margin:0;overflow:hidden;font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif;color:var(--ink);background:var(--bg)}
+    button,input,select,textarea{font:inherit}.app{display:grid;grid-template-columns:188px 1fr;height:100vh;height:100dvh;min-height:0;overflow:hidden}
+    .sidebar{height:100vh;height:100dvh;overflow:hidden;background:linear-gradient(180deg,#12365f 0%,#0d2b4d 100%);color:#fff;display:flex;flex-direction:column;min-width:0;min-height:0}
+    .brand{height:72px;padding:0 12px;display:flex;align-items:center;gap:9px;border-bottom:1px solid rgba(255,255,255,.1)}
+    .brand-mark{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#75a7ff,#39d3ba);display:grid;place-items:center;font-weight:900;font-size:18px;box-shadow:0 8px 18px rgba(0,0,0,.18);flex:0 0 auto}
+.brand strong{display:block;font-size:14px}.brand small{display:block;color:#b9cee5;margin-top:3px;font-size:15px}
+    .nav{padding:12px 6px 32px;overflow-x:hidden;overflow-y:scroll;flex:1;min-height:0;scrollbar-gutter:stable;scrollbar-width:auto;scrollbar-color:#7395b8 rgba(255,255,255,.08)}.nav::-webkit-scrollbar{width:10px}.nav::-webkit-scrollbar-track{background:rgba(255,255,255,.07);border-radius:8px}.nav::-webkit-scrollbar-thumb{background:#7395b8;border:2px solid #173b62;border-radius:8px}.nav::-webkit-scrollbar-thumb:hover{background:#94b2d0}.nav-group{padding:10px 8px 6px;color:#86a8c9;font-size:11px;letter-spacing:1px}
+    .nav-btn{width:100%;border:0;background:transparent;color:#d8e5f2;border-radius:10px;padding:9px 7px;margin:2px 0;display:flex;align-items:center;gap:7px;text-align:left;cursor:pointer;transition:.18s}
+    .nav-btn:hover{background:rgba(255,255,255,.08);color:#fff}.nav-btn.active{background:linear-gradient(90deg,rgba(78,137,232,.38),rgba(52,120,229,.14));color:#fff;box-shadow:inset 3px 0 #65a1ff}
+    .nav-icon{width:18px;text-align:center;font-size:15px;flex:0 0 auto}.nav-btn span:nth-child(2){flex:1;min-width:0}.nav-btn small{display:block;color:#91abc4;font-size:9px;margin-top:2px;white-space:nowrap}.nav-btn.active small{color:#c8dcf2}
+    .nav-count{min-width:22px;height:20px;border-radius:10px;background:#e65b55;color:#fff;font-size:10px;display:grid;place-items:center;padding:0 6px}
+    .sidebar-foot{padding:10px;border-top:1px solid rgba(255,255,255,.1);font-size:11px;color:#9db6cf}.sidebar-foot strong{color:#fff}
+    .workspace{display:block;min-width:0;min-height:0;height:100vh;height:100dvh;overflow-x:hidden;overflow-y:scroll;scrollbar-gutter:stable;overscroll-behavior:contain}.workspace::-webkit-scrollbar{width:12px}.workspace::-webkit-scrollbar-track{background:#edf2f8}.workspace::-webkit-scrollbar-thumb{background:#879bb3;border:3px solid #edf2f8;border-radius:10px}.workspace::-webkit-scrollbar-thumb:hover{background:#667d98}.topbar{position:sticky;top:0;z-index:30;height:64px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 24px}
+    .crumb{font-size:13px;color:var(--muted)}.crumb strong{color:var(--ink)}.top-actions{display:flex;align-items:center;gap:10px}
+    .health{display:flex;align-items:center;gap:7px;border:1px solid #cdebdc;background:#f2fbf7;color:var(--green);padding:7px 10px;border-radius:9px;font-size:12px}
+    .dot{width:8px;height:8px;border-radius:50%;background:#21b276;box-shadow:0 0 0 4px rgba(33,178,118,.12)}
+    .env-switch{display:flex;background:#eef3f9;border-radius:9px;padding:3px}.env-switch button{border:0;background:transparent;color:var(--muted);padding:6px 10px;border-radius:7px;cursor:pointer;font-size:12px}.env-switch button.active{background:#fff;color:var(--blue);box-shadow:0 2px 8px rgba(24,53,90,.12);font-weight:700}
+    .avatar{width:34px;height:34px;border-radius:50%;background:#dfeaff;color:var(--blue);display:grid;place-items:center;font-size:12px;font-weight:800}
+    .content{min-height:calc(100vh - 64px);min-height:calc(100dvh - 64px);overflow:visible;padding:24px 24px 96px}.view{display:none;max-width:1440px;margin:0 auto}.view.active{display:block}
+    .page-head{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;margin-bottom:18px}.page-head h1{font-size:24px;margin:0 0 7px}.page-head p{margin:0;color:var(--muted);font-size:13px;line-height:1.65}.actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+    .btn{border:1px solid #cfd9e7;background:#fff;color:#33445a;border-radius:9px;padding:8px 13px;cursor:pointer;font-weight:600;font-size:12px;transition:.16s}.btn:hover{border-color:#8fb1e8;color:var(--blue)}.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}.btn.primary:hover{background:#2568d3}.btn.success{background:var(--green);border-color:var(--green);color:#fff}.btn.danger{color:var(--red);border-color:#efb8b8;background:#fff8f8}.btn.ghost{border-color:transparent;background:transparent}.btn.small{padding:6px 9px;font-size:11px}.btn:disabled{opacity:.45;cursor:not-allowed}
+    .stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:16px}.stat{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:17px;box-shadow:var(--shadow);position:relative;overflow:hidden}.stat:after{content:"";position:absolute;width:76px;height:76px;border-radius:50%;right:-24px;top:-28px;background:var(--blue2)}.stat.orange:after{background:var(--orange2)}.stat.green:after{background:var(--green2)}.stat.red:after{background:var(--red2)}.stat label{display:block;color:var(--muted);font-size:12px;margin-bottom:9px}.stat strong{font-size:27px}.stat span{display:block;color:var(--muted);font-size:11px;margin-top:7px}
+    .grid-2{display:grid;grid-template-columns:1.35fr 1fr;gap:16px}.grid-equal{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+    .panel{background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:16px;overflow:hidden}.panel-head{padding:15px 17px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px}.panel-head h2{margin:0;font-size:15px}.panel-head p{margin:4px 0 0;color:var(--muted);font-size:11px}.panel-body{padding:17px}
+    .flow{display:grid;grid-template-columns:repeat(7,1fr);gap:9px;align-items:stretch}.flow-step{border:1px solid #cfe0f7;background:#f7faff;border-radius:11px;padding:13px 10px;position:relative;min-height:92px}.flow-step:not(:last-child):after{content:"›";position:absolute;right:-9px;top:31px;width:17px;height:26px;color:#5f90d8;font-size:23px;z-index:2}.flow-step b{display:block;font-size:12px;margin-bottom:6px}.flow-step small{color:var(--muted);font-size:10px;line-height:1.5}.flow-step .tag{display:inline-block;font-size:9px;color:var(--blue);background:#e8f1ff;border-radius:5px;padding:3px 5px;margin-bottom:8px}
+    .alert{border:1px solid #cfe0f7;background:#f4f8ff;border-radius:10px;padding:11px 13px;color:#405875;font-size:12px;line-height:1.65;margin-bottom:13px}.alert strong{display:block;color:#24466f;margin-bottom:3px}.alert.warn{background:#fff8eb;border-color:#f1d59a;color:#765425}.alert.warn strong{color:#a25a04}.alert.good{background:#eefaf4;border-color:#bfe7d3;color:#386b56}.alert.good strong{color:var(--green)}.alert.danger{background:#fff3f3;border-color:#efc3c3;color:#7c4141}.alert.danger strong{color:var(--red)}
+    table{width:100%;border-collapse:collapse;font-size:12px}th{text-align:left;color:#5d6d82;background:#f7f9fc;padding:11px 12px;border-bottom:1px solid var(--line);font-weight:700}td{padding:12px;border-bottom:1px solid #e8edf4;vertical-align:middle;line-height:1.55}tbody tr:hover{background:#fbfdff}tr:last-child td{border-bottom:0}
+    .status{display:inline-flex;align-items:center;gap:5px;border-radius:14px;padding:4px 8px;font-size:10px;font-weight:700;white-space:nowrap}.status.live{background:var(--green2);color:var(--green)}.status.processing{background:var(--blue2);color:var(--blue)}.status.pending{background:var(--orange2);color:var(--orange)}.status.failed{background:var(--red2);color:var(--red)}.status.gray{background:#edf1f5;color:#677487}
+    .toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.input,.select,.textarea{border:1px solid #cfd9e6;border-radius:9px;background:#fff;color:var(--ink);padding:9px 11px;outline:none;font-size:12px}.input:focus,.select:focus,.textarea:focus{border-color:#6e9fea;box-shadow:0 0 0 3px rgba(52,120,229,.1)}.input{min-width:190px}.textarea{width:100%;resize:vertical;line-height:1.65}.field{margin-bottom:12px}.field label{display:block;font-size:11px;color:#5d6d82;font-weight:700;margin-bottom:6px}.field-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.field-row .input,.field-row .select{width:100%}
+    .kb-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.kb-card{border:1px solid var(--line);border-radius:13px;background:#fff;padding:17px;cursor:pointer;transition:.17s;box-shadow:var(--shadow)}.kb-card:hover{transform:translateY(-2px);border-color:#9dbcea}.kb-card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}.kb-icon{width:39px;height:39px;border-radius:10px;display:grid;place-items:center;background:var(--blue2);font-size:19px}.kb-card h3{font-size:14px;margin:12px 0 6px}.kb-card p{color:var(--muted);font-size:11px;line-height:1.6;margin:0 0 13px}.kb-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;border-top:1px solid var(--line);padding-top:11px}.kb-meta span{color:var(--muted);font-size:10px}.kb-meta strong{display:block;color:var(--ink);font-size:12px;margin-top:3px}
+    .progress{height:7px;background:#e8edf4;border-radius:5px;overflow:hidden}.progress i{display:block;height:100%;background:linear-gradient(90deg,#3478e5,#55cbb4);border-radius:5px;transition:width .4s}
+    .stepper{display:flex;align-items:center;gap:0;margin:4px 0 18px}.stepper .node{flex:1;text-align:center;position:relative}.stepper .node:not(:last-child):before{content:"";position:absolute;height:3px;background:#dce5f0;left:50%;right:-50%;top:13px}.stepper .node.done:not(:last-child):before{background:#49b699}.stepper b{position:relative;z-index:1;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:#dce5f0;color:#6f7f93;font-size:11px;margin:0 auto 6px}.stepper .done b{background:#36a985;color:#fff}.stepper .active b{background:var(--blue);color:#fff;box-shadow:0 0 0 5px rgba(52,120,229,.12)}.stepper span{font-size:10px;color:var(--muted)}
+    .tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);padding:0 16px}.tab{border:0;background:transparent;padding:12px 13px;color:var(--muted);cursor:pointer;font-weight:700;font-size:12px;border-bottom:2px solid transparent}.tab.active{color:var(--blue);border-bottom-color:var(--blue)}.tab-pane{display:none}.tab-pane.active{display:block}
+    .split{display:grid;grid-template-columns:1fr 1fr;gap:14px}.doc-preview{background:#f8fafc;border:1px solid var(--line);border-radius:10px;padding:16px;line-height:1.9;font-size:12px;min-height:330px}.chunk{border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:9px;cursor:pointer;background:#fff}.chunk.active{border-color:#72a2eb;background:#f3f7ff}.chunk-head{display:flex;justify-content:space-between;color:var(--muted);font-size:10px;margin-bottom:8px}.chunk p{margin:0;font-size:11px;line-height:1.65}
+    .query-box{display:grid;grid-template-columns:1fr 160px 120px;gap:9px}.query-box .input{width:100%;font-size:14px;padding:12px}.result{border:1px solid var(--line);border-radius:11px;padding:13px;margin-top:10px;background:#fff}.result-head{display:flex;justify-content:space-between;gap:12px}.result h4{font-size:13px;margin:0}.score{font-size:10px;color:var(--green);background:var(--green2);padding:4px 7px;border-radius:10px}.result p{color:#4f6075;font-size:11px;line-height:1.7;margin:9px 0}.result small{color:#8592a4}
+    .metric-row{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}.metric{padding:13px;border:1px solid var(--line);border-radius:11px;background:#fff}.metric label{display:block;color:var(--muted);font-size:10px}.metric strong{display:block;font-size:19px;margin-top:6px}.metric.good strong{color:var(--green)}.metric.bad strong{color:var(--red)}
+    .bar-chart{height:180px;display:flex;align-items:flex-end;gap:16px;padding:18px 12px 26px;border-bottom:1px solid var(--line)}.bar-item{flex:1;height:100%;display:flex;align-items:flex-end;justify-content:center;position:relative}.bar-item i{display:block;width:52%;min-width:20px;background:linear-gradient(180deg,#69a0f4,#3478e5);border-radius:7px 7px 2px 2px}.bar-item span{position:absolute;bottom:-22px;font-size:10px;color:var(--muted)}.bar-item b{position:absolute;font-size:10px;color:#42526a;transform:translateY(-7px)}
+    .case-card{border:1px solid var(--line);border-left:4px solid var(--orange);background:#fff;border-radius:11px;padding:13px;margin-bottom:10px;display:grid;grid-template-columns:1.5fr .8fr .8fr auto;gap:12px;align-items:center}.case-card.p0{border-left-color:var(--red)}.case-card h4{margin:0 0 5px;font-size:12px}.case-card p{margin:0;color:var(--muted);font-size:10px}
+    .matrix td,.matrix th{text-align:center}.matrix td:first-child,.matrix th:first-child{text-align:left}.yes{color:var(--green);font-weight:900}.no{color:#b7c0cb}.partial{color:var(--orange);font-weight:700}
+    .review-taskbar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 15px;margin-bottom:14px;border:1px solid #cfe0f7;border-radius:12px;background:#f7faff}.review-taskbar strong{font-size:12px}.review-taskbar span{font-size:11px;color:var(--muted)}.review-taskbar b{color:var(--blue)}.review-taskbar b span{color:inherit;font-size:inherit}.review-workspace{display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:15px;align-items:start}.review-compare{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.review-version-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;font-size:11px}.review-version-head strong{font-size:12px}.review-preview{height:248px;overflow:auto;background:#f8fafc;border:1px solid var(--line);border-radius:10px;padding:14px;line-height:1.85;font-size:11px}.review-preview.pending-version{background:#fffbf3;border-color:#efbd6d}.diff-add{display:block;margin:9px -4px;padding:6px 7px;border-left:3px solid #e89c2e;background:#fff2cf;color:#69480d}.review-side{position:sticky;top:0;border:1px solid var(--line);border-radius:12px;background:#fff;overflow:hidden}.review-side-head{padding:12px 14px;background:#f6f9fd;border-bottom:1px solid var(--line)}.review-side-head strong{display:block;font-size:12px}.review-side-head small{color:var(--muted);font-size:10px}.review-checklist{padding:7px 13px}.review-check{display:flex;gap:9px;align-items:flex-start;padding:11px 0;border-bottom:1px solid #edf1f6;cursor:pointer}.review-check:last-child{border-bottom:0}.review-check input{margin-top:2px;accent-color:var(--green)}.review-check strong{display:block;font-size:11px}.review-check small{display:block;margin-top:2px;color:var(--muted);font-size:9px;line-height:1.5}.review-progress{padding:10px 13px;border-top:1px solid var(--line);background:#fbfcfe;font-size:10px;color:var(--muted)}.review-decision{padding:12px 13px;border-top:1px solid var(--line);background:#f8fafc}.review-decision .textarea{min-height:58px}.review-decision .actions{justify-content:stretch}.review-decision .actions .btn{flex:1}.review-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}.review-meta div{padding:9px 10px;border:1px solid var(--line);border-radius:9px;background:#fff}.review-meta label{display:block;color:var(--muted);font-size:9px;margin-bottom:4px}.review-meta strong{font-size:11px}
+    .modal-wrap{position:fixed;inset:0;background:rgba(11,27,47,.48);display:none;align-items:center;justify-content:center;padding:24px;z-index:50}.modal-wrap.show{display:flex}.modal{width:min(760px,95vw);max-height:90vh;background:#fff;border-radius:16px;box-shadow:0 24px 80px rgba(0,0,0,.28);display:flex;flex-direction:column;overflow:hidden}.modal-head{padding:16px 19px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}.modal-head h3{font-size:16px;margin:0}.modal-close{border:0;background:transparent;font-size:21px;color:#78869a;cursor:pointer}.modal-body{padding:18px;overflow:auto}.modal-foot{padding:13px 18px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:8px;background:#fafbfd}
+    .drop{display:block;width:100%;min-height:124px;border:2px dashed #b9cae1;border-radius:12px;background:#f8fbff;text-align:center;padding:26px 24px;color:#62748b;cursor:pointer;line-height:1.8;overflow:hidden}.drop strong,.drop small{display:inline-block}.drop:hover{border-color:#6e9fea;background:#f2f7ff}.toast{position:fixed;right:26px;bottom:24px;background:#17365d;color:#fff;padding:12px 17px;border-radius:10px;box-shadow:0 12px 34px rgba(0,0,0,.22);transform:translateY(80px);opacity:0;transition:.25s;z-index:80;font-size:12px}.toast.show{transform:translateY(0);opacity:1}
+    .empty{padding:35px;text-align:center;color:var(--muted)}.empty-kb{padding:30px 18px;text-align:center;border:1px dashed #b9cae1;border-radius:12px;background:#f8fbff}.empty-kb .empty-icon{width:58px;height:58px;border-radius:18px;background:#e7f0ff;color:var(--blue);display:grid;place-items:center;margin:0 auto 12px;font-size:26px}.empty-kb h4{margin:0 0 8px;font-size:15px;color:var(--ink)}.empty-kb p{margin:0 auto 15px;max-width:430px;font-size:11px;line-height:1.7;color:var(--muted)}.file-picked{border-color:#7cb69e;background:#f1fbf6;color:var(--green)}.loader{display:none;padding:35px;text-align:center;color:var(--blue)}.loader.show{display:block}.spin{width:25px;height:25px;border:3px solid #dbe7f7;border-top-color:var(--blue);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 9px}@keyframes spin{to{transform:rotate(360deg)}}
+    .author-watermark{position:fixed;z-index:40;pointer-events:none;user-select:none;color:#17365d;font-size:25px;font-weight:800;letter-spacing:1px;opacity:.075;white-space:nowrap;transform:translate(-50%,-50%) rotate(-22deg)}
+    .author-watermark.watermark-one{left:44%;top:31%}
+    .author-watermark.watermark-two{left:72%;top:72%}
+    @media(max-width:1100px){.app{grid-template-columns:176px 1fr}.stats{grid-template-columns:repeat(2,1fr)}.kb-cards,.grid-3{grid-template-columns:repeat(2,1fr)}.flow{grid-template-columns:repeat(4,1fr)}.flow-step:after{display:none}.metric-row{grid-template-columns:repeat(3,1fr)}.review-workspace{grid-template-columns:1fr}.review-side{position:static}} 
+    @media(max-width:760px){html,body{height:auto;min-height:100%;overflow:auto}.app{display:block;height:auto;min-height:100vh;overflow:visible}.sidebar{position:static;height:auto;overflow:visible}.nav{display:flex;overflow-x:auto;overflow-y:hidden;padding:8px}.nav-group,.sidebar-foot,.nav-btn small,.nav-count{display:none}.nav-btn{min-width:110px}.workspace{height:auto;min-height:100vh;overflow:visible}.topbar{padding:0 12px}.content{min-height:calc(100vh - 64px);padding:14px 14px 80px;overflow:visible}.grid-2,.grid-equal,.split,.field-row,.review-compare,.review-guide{grid-template-columns:1fr}.stats,.kb-cards,.grid-3{grid-template-columns:1fr}.query-box{grid-template-columns:1fr}.case-card{grid-template-columns:1fr}.top-actions .health{display:none}.review-meta{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<div class="author-watermark watermark-one" aria-hidden="true">虚拟案例 · 模拟数据 · 演示原型</div>
+<div class="author-watermark watermark-two" aria-hidden="true">虚拟案例 · 模拟数据 · 演示原型</div>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand"><div class="brand-mark">知</div><div><small>企业级RAG知识库平台</small></div></div>
+    <nav class="nav">
+      <div class="nav-group">工作台</div>
+      <button class="nav-btn active" data-view="overview"><span class="nav-icon">▦</span><span>运营总览<small>风险、待办与质量指标</small></span></button>
+      <button class="nav-btn" data-view="analytics"><span class="nav-icon">↗</span><span>运营统计<small>知识与问题趋势</small></span></button>
+      <div class="nav-group">知识治理</div>
+      <button class="nav-btn" data-view="knowledge"><span class="nav-icon">▣</span><span>知识库管理<small>业务域、负责人和环境</small></span></button>
+      <button class="nav-btn" data-view="documents"><span class="nav-icon">▤</span><span>文档与版本<small>上传、元数据和历史版本</small></span></button>
+      <button class="nav-btn" data-view="sources"><span class="nav-icon">⟳</span><span>数据源同步<small>增量更新与失败重试</small></span></button>
+      <button class="nav-btn" data-view="review"><span class="nav-icon">✓</span><span>业务审核<small>事实、范围、有效期和例外</small></span><b class="nav-count" id="reviewCount">6</b></button>
+      <div class="nav-group">RAG处理与验证</div>
+      <button class="nav-btn" data-view="ingestion"><span class="nav-icon">⇩</span><span>入库任务<small>测试/生产任务及状态</small></span><b class="nav-count" id="ingestionCount">0</b></button>
+      <button class="nav-btn" data-view="processing"><span class="nav-icon">⌁</span><span>处理结果验收<small>解析、切片与索引</small></span></button>
+      <button class="nav-btn" data-view="retrieval"><span class="nav-icon">⌕</span><span>检索调试<small>召回、分数和来源定位</small></span></button>
+      <button class="nav-btn" data-view="evaluation"><span class="nav-icon">◎</span><span>批量评测与发布<small>自动评测、对话验收与发布</small></span></button>
+      <button class="nav-btn" data-view="cases"><span class="nav-icon">!</span><span>问题案例<small>查看证据与处理状态</small></span><b class="nav-count" id="caseCount">0</b></button>
+      <div class="nav-group">系统管理</div>
+      <button class="nav-btn" data-view="permissions"><span class="nav-icon">♙</span><span>权限与审计<small>成员、角色与操作留痕</small></span></button>
+      <button class="nav-btn" data-view="integration"><span class="nav-icon">⚙</span><span>RAG引擎配置<small>FastGPT与环境映射</small></span></button>
+    </nav>
+    <div class="sidebar-foot"><button class="btn small ghost" style="color:#9db6cf;padding:2px 0" onclick="resetDemo()">↺ 重置演示数据</button></div>
+  </aside>
+
+  <section class="workspace">
+    <header class="topbar">
+      <div class="crumb">企业知识管理 / <strong id="crumbTitle">运营总览</strong></div>
+      <div class="top-actions">
+        <div class="env-switch"><button class="active" data-env="test" onclick="setEnv('test')">测试环境</button><button data-env="prod" onclick="setEnv('prod')">生产环境</button></div>
+        <div class="health"><i class="dot"></i><span id="engineHealth">FastGPT 测试 / 生产 · 连接正常</span></div>
+        <div class="avatar" id="avatarName" title="当前演示角色">运营</div>
+      </div>
+    </header>
+
+    <main class="content">
+      <div class="alert" id="envBanner" style="margin-bottom:14px"></div>
+      <section class="view active" id="overview" data-title="运营总览">
+        <div class="page-head"><div><h1>企业知识运营总览</h1><p>从知识录入、业务审核、RAG处理、评测发布到问题回修的完整运营工作台。</p></div><div class="actions"><button class="btn" onclick="showView('retrieval')">检索测试</button><button class="btn primary" id="overviewUploadBtn" onclick="openUpload()">上传知识</button></div></div>
+        <div class="alert good"><strong>MVP运行方式</strong>企业平台负责知识治理；FastGPT作为当前RAG能力引擎。测试dataset与生产dataset相互隔离，未经评测的知识不会进入正式问答应用。</div>
+        <div class="stats">
+          <div class="stat"><label>已发布知识</label><strong id="publishedStat">0</strong><span id="publishedStatSub">—</span></div>
+          <div class="stat orange"><label>待处理工作</label><strong id="pendingStat">0</strong><span id="pendingStatSub">—</span></div>
+          <div class="stat green"><label>问答评测通过率</label><strong id="evalRateStat">—</strong><span id="evalRateStatSub">—</span></div>
+          <div class="stat red"><label>P0风险问题</label><strong id="p0Stat">0</strong><span id="p0StatSub">—</span></div>
+        </div>
+        <div class="panel"><div class="panel-head"><div><h2>一条知识如何进入正式应用</h2><p>点击任一步骤可进入相应模块</p></div></div><div class="panel-body">
+          <div class="flow">
+            <div class="flow-step" onclick="showView('documents')"><span class="tag">企业平台</span><b>保存草稿</b><small>上传文件并填写版本、渠道、负责人和有效期</small></div>
+            <div class="flow-step" onclick="showView('review')"><span class="tag">企业平台</span><b>业务审核</b><small>核对事实、条件、例外和适用范围</small></div>
+            <div class="flow-step" onclick="showView('ingestion')"><span class="tag">企业平台</span><b>测试入库</b><small>创建任务并同步到隔离的测试dataset</small></div>
+            <div class="flow-step" onclick="showView('processing')"><span class="tag">RAG引擎</span><b>处理与索引</b><small>解析、切片、Embedding与向量索引</small></div>
+            <div class="flow-step" onclick="showView('retrieval')"><span class="tag">企业平台</span><b>检索验证</b><small>检查Top K、score、来源和过滤原因</small></div>
+            <div class="flow-step" onclick="showView('evaluation')"><span class="tag">企业平台 + 客服测试环境</span><b>评测与发布</b><small>后台批量评测、客服对话验收与线下发布审批</small></div>
+            <div class="flow-step" onclick="showView('cases')"><span class="tag">企业平台</span><b>持续运营</b><small>问题案例回流、根因定位和回归验证</small></div>
+          </div>
+        </div></div>
+        <div class="grid-2">
+          <div class="panel"><div class="panel-head"><div><h2>优先待办</h2><p>按业务风险和时效排序</p></div><button class="btn small" onclick="renderOverview();toast('待办列表已刷新')">刷新</button></div><div class="panel-body">
+            <table><thead><tr><th>任务</th><th>负责人</th><th>截止</th><th>状态</th><th></th></tr></thead><tbody id="todoTable"></tbody></table>
+          </div></div>
+          <div>
+            <div class="panel"><div class="panel-head"><h2>环境隔离状态</h2><span class="status live">正常</span></div><div class="panel-body">
+              <table id="envIsolation"></table>
+            </div></div>
+            <div class="panel"><div class="panel-head"><h2>知识新鲜度</h2></div><div class="panel-body"><div class="progress"><i id="freshnessBar" style="width:0%"></i></div><p id="freshnessText" style="font-size:11px;color:var(--muted);margin:9px 0 0">正在统计…</p></div></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" id="analytics" data-title="运营统计">
+        <div class="page-head"><div><h1>运营统计</h1><p>观察知识覆盖、检索质量、发布效率和问题案例趋势。</p></div><div class="actions"><select class="select" id="analyticsRange" onchange="renderAnalytics()"><option>最近30天</option><option>最近7天</option><option>本季度</option></select><button class="btn" onclick="exportAnalytics()">导出报告</button></div></div>
+        <div class="stats"><div class="stat"><label>检索请求</label><strong id="analyticsSearches">—</strong><span id="analyticsSearchesSub">—</span></div><div class="stat green"><label>正确召回率</label><strong id="analyticsRecall">—</strong><span id="analyticsRecallSub">—</span></div><div class="stat orange"><label>无答案率</label><strong id="analyticsNoAnswer">—</strong><span>目标 ≤5%</span></div><div class="stat red"><label>问题案例新增</label><strong id="analyticsCases">—</strong><span id="analyticsCasesSub">—</span></div></div>
+        <div class="grid-equal">
+          <div class="panel"><div class="panel-head"><h2>知识调用趋势</h2><span style="font-size:11px;color:var(--muted)">单位：千次</span></div><div class="panel-body"><div class="bar-chart"><div class="bar-item"><i style="height:42%"></i><b>3.2</b><span>第1周</span></div><div class="bar-item"><i style="height:58%"></i><b>4.8</b><span>第2周</span></div><div class="bar-item"><i style="height:74%"></i><b>6.5</b><span>第3周</span></div><div class="bar-item"><i style="height:90%"></i><b>8.1</b><span>第4周</span></div></div></div></div>
+          <div class="panel"><div class="panel-head"><h2>问题根因分布</h2><span style="font-size:11px;color:var(--muted)">由问题案例实时计算</span></div><div class="panel-body"><table id="rootCauseTable"></table></div></div>
+        </div>
+        <div class="panel"><div class="panel-head"><h2>高频知识主题</h2><button class="btn small" onclick="showView('documents')">查看文档</button></div><div class="panel-body"><table><thead><tr><th>主题</th><th>调用次数</th><th>无答案率</th><th>负反馈率</th><th>负责人</th><th>建议</th></tr></thead><tbody><tr><td>退货与换货</td><td>8,942</td><td>2.1%</td><td>1.8%</td><td>售后运营</td><td><span class="status live">稳定</span></td></tr><tr><td>充电宝安全使用</td><td>6,510</td><td>5.8%</td><td>4.7%</td><td>产品运营</td><td><span class="status pending">补充案例</span></td></tr><tr><td>保修与维修</td><td>4,362</td><td>3.3%</td><td>2.4%</td><td>售后运营</td><td><span class="status live">稳定</span></td></tr><tr><td>物流与签收</td><td>3,904</td><td>7.2%</td><td>3.1%</td><td>客服主管</td><td><span class="status pending">检查实时API</span></td></tr></tbody></table></div></div>
+      </section>
+
+      <section class="view" id="knowledge" data-title="知识库管理">
+        <div class="page-head"><div><h1>知识库管理</h1><p>按业务域管理知识资产，并维护负责人、权限范围和RAG环境映射。</p></div><div class="actions"><button class="btn primary" id="createKBBtn" onclick="openCreateKB()">新建知识库</button></div></div>
+        <div class="toolbar" style="margin-bottom:14px"><input class="input" id="kbSearch" placeholder="搜索知识库名称" oninput="filterKB()"><select class="select" id="kbDomain" onchange="filterKB()"><option value="">全部业务域</option><option>售后</option><option>商品</option><option>客服</option><option>渠道</option></select><select class="select" id="kbStatus" onchange="filterKB()"><option value="">全部状态</option><option>运行中</option><option>建设中</option><option>已归档</option></select></div>
+        <div class="kb-cards" id="kbCards"></div>
+      </section>
+
+      <section class="view" id="documents" data-title="文档与版本">
+        <div class="page-head"><div><h1>文档与版本</h1><p>原文件、业务元数据、审核记录和RAG资源映射均按版本保存。</p></div><div class="actions"><button class="btn" onclick="downloadFaqTemplate()">下载FAQ模板</button><button class="btn primary" id="uploadDocBtn" onclick="openUpload()">上传文档</button></div></div>
+        <div class="panel"><div class="panel-head"><div class="toolbar"><input class="input" id="docSearch" placeholder="搜索标题、docId或标签" oninput="filterDocs()"><select class="select" id="docStatus" onchange="filterDocs()"><option value="">全部状态</option><option>草稿</option><option>待审核</option><option>测试入库中</option><option>待验收</option><option>待检索验证</option><option>待问答评测</option><option>待全量回归</option><option>待线下审批</option><option>待问题修复</option><option>已发布</option></select><select class="select" id="docKB" onchange="filterDocs()"><option value="">全部知识库</option></select></div></div><div class="panel-body" style="padding:0"><table><thead><tr><th>文档 / 版本</th><th>知识类型</th><th>渠道与有效期</th><th>负责人</th><th>状态</th><th>RAG环境</th><th>操作</th></tr></thead><tbody id="docTable"></tbody></table></div></div>
+      </section>
+
+      <section class="view" id="sources" data-title="数据源同步">
+        <div class="page-head"><div><h1>数据源同步</h1><p>外部更新只生成企业平台草稿，不会自动审核、入库或发布。</p></div><div class="actions"><button class="btn primary" id="createSourceBtn" onclick="openSource()">新建数据源</button><button class="btn" onclick="syncAll()">全部同步</button></div></div>
+        <div class="alert"><strong>同步边界</strong>以sourceId和sourceVersion保证幂等；源端删除只标记“待确认”，不得直接下线已发布知识。</div>
+        <div class="panel"><div class="panel-body" style="padding:0"><table><thead><tr><th>数据源</th><th>数据类别</th><th>接入方式</th><th>频率</th><th>最近结果</th><th>状态</th><th>操作</th></tr></thead><tbody id="sourceTable"></tbody></table></div></div>
+      </section>
+
+      <section class="view" id="review" data-title="业务审核">
+        <div class="page-head"><div><h1>业务审核</h1><p>对比当前线上版与待审核版，核对业务事实、适用范围、有效期和高风险口径；通过后自动创建测试入库任务。</p></div><div class="actions"><select class="select" id="reviewFilter" onchange="renderReviewQueue()"><option value="pending">我的待审核</option><option value="all">全部任务</option><option value="p0">P0高风险</option></select></div></div>
+        <div id="reviewUserQueue"></div>
+        <div id="reviewDetail"></div>
+        </section>
+
+      <section class="view" id="ingestion" data-title="入库任务">
+        <div class="page-head"><div><h1>入库任务</h1><p>测试与生产任务严格隔离；任务由业务审核通过后自动创建，处理状态由RAG引擎回调同步。</p></div><div class="actions"><button class="btn" onclick="renderIngestionJobs();toast('任务状态已刷新')">刷新状态</button></div></div>
+        <div class="alert"><strong>环境隔离</strong>测试dataset与生产dataset严格分离；生产任务只读，发布动作由线下审批后的版本切换完成。</div>
+        <div class="panel"><div class="panel-head"><div class="toolbar"><select class="select" id="jobEnv" onchange="filterJobs()"><option value="">全部环境</option><option>测试</option><option>生产</option></select><select class="select" id="jobStatus" onchange="filterJobs()"><option value="">全部状态</option><option>待推送</option><option>处理中</option><option>待验收</option><option>已验收</option><option>已发布</option></select><input class="input" id="jobSearch" placeholder="搜索jobId或文档" oninput="filterJobs()"></div></div><div class="panel-body" style="padding:0"><table><thead><tr><th>任务</th><th>环境</th><th>文档版本</th><th>当前步骤</th><th>进度</th><th>状态</th><th>操作</th></tr></thead><tbody id="ingestionJobTable"></tbody></table></div></div>
+      </section>
+
+      <section class="view" id="processing" data-title="处理结果验收">
+        <div class="page-head"><div><h1>RAG处理结果验收</h1><p>核对解析摘要、切片与索引结果，逐项确认后才能进入检索调试。</p></div><div class="actions"></div></div>
+      </section>
+
+      <section class="view" id="retrieval" data-title="检索调试">
+        <div class="page-head"><div><h1>检索调试</h1><p>检查“有没有找到正确知识”，并展示召回证据与失败诊断。</p></div><div class="actions"></div></div>
+      </section>
+
+      <section class="view" id="evaluation" data-title="批量评测与发布">
+        <div class="page-head"><div><h1>批量评测与发布</h1><p>检索调试 → 冒烟5条 → 正式40条 → 全量回归200条 → 客服对话验证 → 线下审批，逐级解锁。</p></div><div class="actions"></div></div>
+      </section>
+
+      <section class="view" id="cases" data-title="问题案例">
+        <div class="page-head"><div><h1>问题案例（Bad Case）</h1><p>汇总各环节发现的问题，查看现场证据；线下修复完成后在这里标记为已处理。</p></div><div class="actions"></div></div>
+      </section>
+
+      <section class="view" id="permissions" data-title="权限与审计">
+        <div class="page-head"><div><h1>权限与审计</h1><p>页面、接口、知识范围和RAG资源均执行租户与角色校验。</p></div><div class="actions"><button class="btn primary" onclick="openMember()">添加成员</button></div></div>
+        <div class="panel"><div class="panel-head"><h2>角色权限矩阵</h2><select class="select" id="roleDemo" onchange="applyRole()"><option value="operator">模拟：知识运营</option><option value="reviewer">模拟：业务审核人</option><option value="tester">模拟：AI产品经理 / AI测试</option><option value="approver">模拟：发布审批人</option><option value="admin">模拟：系统管理员</option></select></div><div class="panel-body"><div class="alert" id="roleHint"><strong>知识运营</strong>可以维护知识和运行测试，但不能审核自己提交的P0知识，也不能直接放行生产版本。</div><table class="matrix"><thead><tr><th>角色</th><th>创建/编辑</th><th>业务审核</th><th>检索评测</th><th>生产发布</th><th>成员管理</th></tr></thead><tbody><tr><td>知识运营</td><td class="yes">✓</td><td class="no">—</td><td class="yes">✓</td><td class="no">—</td><td class="no">—</td></tr><tr><td>业务审核人</td><td class="partial">只读</td><td class="yes">✓</td><td class="partial">查看</td><td class="no">—</td><td class="no">—</td></tr><tr><td>产品经理</td><td class="partial">只读</td><td class="no">—</td><td class="yes">✓</td><td class="no">—</td><td class="no">—</td></tr><tr><td>发布审批人</td><td class="no">—</td><td class="partial">查看</td><td class="partial">查看</td><td class="yes">✓</td><td class="no">—</td></tr><tr><td>系统管理员</td><td class="no">—</td><td class="no">—</td><td class="partial">查看</td><td class="no">—</td><td class="yes">✓</td></tr></tbody></table></div></div>
+        <div class="grid-equal">
+          <div class="panel"><div class="panel-head"><h2>成员</h2></div><div class="panel-body" style="padding:0"><table><thead><tr><th>成员</th><th>角色</th><th>业务域</th><th>状态</th></tr></thead><tbody id="memberTable"></tbody></table></div></div>
+          <div class="panel"><div class="panel-head"><h2>最近审计日志</h2><button class="btn small" onclick="exportAudit()">导出</button></div><div class="panel-body" style="padding:0"><table id="auditTable"><thead><tr><th>时间</th><th>操作者</th><th>动作</th><th>结果</th></tr></thead><tbody></tbody></table></div></div>
+        </div>
+              <div class="panel"><div class="panel-head"><div><h2>API 密钥</h2><p>测试与生产密钥分开管理，只以掩码展示</p></div><span class="status processing" id="apiKeyStatus">测试 / 生产分离</span></div><div class="panel-body" id="apiKeyPanel"></div></div>
+      </section>
+
+      <section class="view" id="integration" data-title="RAG引擎配置">
+        <div class="page-head"><div><h1>RAG引擎配置</h1><p>产品架构不绑定具体引擎；当前MVP使用FastGPT，并通过企业服务端安全调用。</p></div><div class="actions"><button class="btn" onclick="testConnection()">测试连接</button><button class="btn primary" onclick="saveIntegration()">保存配置</button></div></div>
+        <div class="grid-2">
+          <div class="panel"><div class="panel-head"><h2>能力提供方</h2><span class="status live" id="connectionStatus">已连接</span></div><div class="panel-body">
+            <div class="field"><label>RAG Provider</label><select class="select" id="provider" style="width:100%" onchange="providerChanged()"><option>FastGPT</option><option>Dify</option><option>自研RAG API</option></select></div>
+            <div class="field"><label>Endpoint</label><input class="input" style="width:100%" value="https://fastgpt.internal.example/api"></div>
+            <div class="field"><label>API Key</label><input class="input" style="width:100%" type="password" value="fastgpt-xxxxxxxxxxxxxxxx"></div>
+            <div class="alert warn"><strong>密钥权限</strong>使用独立服务账号；测试与生产密钥分开；Key继承服务账号在当前团队的资源权限，不得出现在浏览器、导出文件或普通日志中。</div>
+            <div class="field-row"><div class="field"><label>超时</label><input class="input" value="30秒"></div><div class="field"><label>失败重试</label><input class="input" value="指数退避3次"></div></div>
+          </div></div>
+          <div>
+            <div class="panel"><div class="panel-head"><h2>测试 / 生产资源映射</h2></div><div class="panel-body"><table><thead><tr><th>环境</th><th>datasetId</th><th>用途</th></tr></thead><tbody id="envMappingTable"></tbody></table><div class="alert good" style="margin-top:12px" id="isolationCheck"></div></div></div>
+            <div class="panel"><div class="panel-head"><h2>当前实施版本</h2></div><div class="panel-body"><table><tr><td>FastGPT版本</td><td>目标实例 / Dev API契约已锁定</td></tr><tr><td>Embedding</td><td>text-embedding-v3</td></tr><tr><td>Rerank</td><td>gte-rerank-v2</td></tr><tr><td>接口文档</td><td>{endpoint}/apidoc/devapi</td></tr></table></div></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </section>
+</div>
+
+<div class="modal-wrap" id="modal" onclick="if(event.target===this)closeModal()"><div class="modal"><div class="modal-head"><h3 id="modalTitle">标题</h3><button class="modal-close" onclick="closeModal()">×</button></div><div class="modal-body" id="modalBody"></div><div class="modal-foot" id="modalFoot"></div></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+  /* ============ ① 常量与工具 ============ */
+  const titles={overview:'运营总览',analytics:'运营统计',knowledge:'知识库管理',documents:'文档与版本',sources:'数据源同步',review:'业务审核',ingestion:'入库任务',processing:'处理结果验收',retrieval:'检索调试',evaluation:'批量评测与发布',cases:'问题案例',permissions:'权限与审计',integration:'RAG引擎配置'};
+  const STORAGE_KEY='xc-rag-prototype-v2';
+  const ROLES={
+    operator:{name:'知识运营',short:'运营'},
+    reviewer:{name:'业务审核人',short:'审核'},
+    tester:{name:'AI产品经理',short:'评测'},
+    approver:{name:'发布审批人',short:'审批'},
+    admin:{name:'系统管理员',short:'管理'}
+  };
+  const SOURCE_CATEGORIES=['A 文档类权威知识','B 结构化FAQ','C 样本与反馈','D 实时业务数据'];
+
+  function escapeHtml(value){return String(value==null?'':value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+  function makeId(prefix){return prefix+'-'+Date.now().toString(36).toUpperCase()+'-'+Math.random().toString(36).slice(2,6).toUpperCase()}
+  function nowText(){return new Date().toLocaleString()}
+  function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>t.classList.remove('show'),2400)}
+  function showModal(title,body,foot){document.getElementById('modalTitle').textContent=title;document.getElementById('modalBody').innerHTML=body;document.getElementById('modalFoot').innerHTML=foot||'<button class="btn" onclick="closeModal()">关闭</button>';document.getElementById('modal').classList.add('show')}
+  function closeModal(){document.getElementById('modal').classList.remove('show')}
+  function showView(id){document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id===id));document.querySelectorAll('.nav-btn[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===id));document.getElementById('crumbTitle').textContent=titles[id]||id;const workspace=document.querySelector('.workspace'),activeNav=document.querySelector('.nav-btn[data-view="'+id+'"]');if(workspace)workspace.scrollTop=0;if(activeNav)activeNav.scrollIntoView({block:'nearest',inline:'nearest'});window.scrollTo(0,0)}
+  function downloadText(filename,content){const blob=new Blob([content],{type:'text/plain;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=filename;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},400);toast('已生成并下载：'+filename)}
+
+  /* ============ ② 权限与环境守卫 ============ */
+  function roleName(){return ROLES[state.role]?ROLES[state.role].name:'知识运营'}
+  function isProdView(){return state.env==='prod'}
+  function requireRole(allowed,action){
+    if(allowed.indexOf(state.role)>=0)return true;
+    toast('当前角色为「'+roleName()+'」，该操作需要「'+allowed.map(r=>ROLES[r].name).join(' / ')+'」权限');return false;
+  }
+  function requireTestEnv(){
+    if(!isProdView())return true;
+    toast('当前处于生产环境视角（只读）；请切换到测试环境后继续该操作');return false;
+  }
+
+  /* ============ ③ 状态与种子数据 ============ */
+  let state=loadState();
+
+  function loadState(){
+    try{
+      const raw=localStorage.getItem(STORAGE_KEY);
+      if(raw){const parsed=JSON.parse(raw);if(parsed&&parsed.schemaVersion===2)return normalizeState(parsed)}
+    }catch(e){}
+    const seeded=seedState();
+    try{localStorage.setItem(STORAGE_KEY,JSON.stringify(seeded))}catch(e){}
+    return seeded;
+  }
+  function normalizeState(s){
+    ['knowledgeBases','documents','reviewTasks','jobs','dataSources','cases','members','apiKeys','auditLog'].forEach(k=>{if(!Array.isArray(s[k]))s[k]=[]});
+    s.stats=s.stats||{searches:28640,recall:92.8,noAnswer:4.1};s.role=s.role||'operator';s.env=s.env||'test';
+    s.provider=s.provider||{name:'FastGPT',status:'已连接'};
+    return s;
+  }
+  function saveState(){
+    try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state))}catch(e){}
+  }
+  function resetDemo(){
+    showModal('重置演示数据','<div class="alert warn"><strong>将清空浏览器本地保存的全部演示数据</strong>知识库、文档版本、入库任务、评测记录、问题案例和审计日志都会恢复为初始种子数据。此操作不可撤销。</div>','<button class="btn" onclick="closeModal()">取消</button><button class="btn danger" onclick="confirmResetDemo()">确认重置</button>');
+  }
+  function confirmResetDemo(){try{localStorage.removeItem(STORAGE_KEY)}catch(e){}closeModal();location.reload()}
+
+  function seedState(){
+    const daysAgo=n=>new Date(Date.now()-n*86400000).toLocaleString();
+    const kbs=[
+      {id:'KB-AFTERSALES',name:'售后服务知识库',domain:'售后',owner:'王敏',scope:'售后与客服团队',status:'运行中',testDatasetId:'ds_test_after_sales_01',productionDatasetId:'ds_prod_after_sales_01',testRagStatus:'正常',prodRagStatus:'正常',createdAt:daysAgo(120),description:'退换货、退款、保修、维修、安全处置和渠道售后规则。'},
+      {id:'KB-PRODUCT',name:'商品知识库',domain:'商品',owner:'陈浩',scope:'商品与客服团队',status:'运行中',testDatasetId:'ds_test_product_01',productionDatasetId:'ds_prod_product_01',testRagStatus:'正常',prodRagStatus:'正常',createdAt:daysAgo(110),description:'充电宝、充电器和数据线的参数、说明书及使用指导。'},
+      {id:'KB-SOP',name:'客服SOP与话术',domain:'客服',owner:'李雪',scope:'售后与客服团队',status:'运行中',testDatasetId:'ds_test_sop_01',productionDatasetId:'ds_prod_sop_01',testRagStatus:'正常',prodRagStatus:'未接入',createdAt:daysAgo(96),description:'咨询处理步骤、风险升级、转人工标准与统一表达口径。'},
+      {id:'KB-CHANNEL',name:'渠道平台规则',domain:'渠道',owner:'赵宁',scope:'全公司',status:'建设中',testDatasetId:'ds_test_channel_01',productionDatasetId:'ds_prod_channel_01',testRagStatus:'处理中',prodRagStatus:'未接入',createdAt:daysAgo(40),description:'天猫、京东、抖音和自营商城的活动、履约及售后差异。'}
+    ];
+    const faqPreview='一、购买与基础信息\n\nFAQ-001 如何确认购买的充电宝是正品？\n请优先核对包装防伪码、机身序列号与订单购买渠道。\n\n二、退货与换货\n\nFAQ-006 充电宝支持七天无理由退货吗？\n通过星驰官方直营渠道购买的普通充电宝，在签收次日起七个自然日内，商品、包装和配件完整且不影响二次销售的，可以申请七天无理由退货。\n\nFAQ-007 充电宝拆封后还能无理由退货吗？\n仅拆开外包装但未造成商品损伤、明显使用痕迹或配件缺失，一般仍可提交无理由退货申请，由仓库验收后确认。\n\nFAQ-008 已经给手机充过一次电，还能七天无理由退货吗？\n实际为手机充电通常会产生使用记录，原则上不再符合无理由退货条件。\n\n五、故障、安全与使用\n\nFAQ-032 发现充电宝鼓包怎么办？\n鼓包属于高风险异常。请立即停止充放电，不要挤压、穿刺、拆解、摔落或投入生活垃圾，也不要通过普通快递自行寄送。';
+    const safePrev='如充电宝出现明显鼓包、破损、异味或异常高温，请停止继续充电，并联系售后人员处理。\n\n不得继续挤压、拆解或放置于高温环境。';
+    const safePending='如充电宝出现鼓包、冒烟、刺鼻气味、异常高温或液体渗漏，应立即停止使用并断开电源。\n<span class="diff-add"><strong>新增 1</strong><br>不得自行拆解、刺穿、挤压或投入普通生活垃圾；如现场存在冒烟或起火风险，应远离可燃物并联系专业人员处理。</span>\n<span class="diff-add"><strong>新增 2</strong><br>客服不得指导用户继续充放电测试。</span>';
+    const returnPreview='第三章　七天无理由退货\n\n3.1 商品保持完好且不影响二次销售的，可按照购买渠道规则申请七天无理由退货。\n\n3.2 充电宝完成通电测试不当然等于影响二次销售，但出现明显使用痕迹、包装配件缺失、机身划痕或序列号不一致时，不适用无理由退货。\n\n3.3 天猫、京东及自营商城的申请入口和举证要求存在差异，应按渠道标签检索对应规则。';
+    const warrantyPreview='第一章　保修范围\n\n星驰普通充电宝自有效购买凭证所示购买日起享受12个月有限保修。\n\n第二章　寄修流程\n1. 联系官方客服登记产品序列号与故障现象；\n2. 按要求寄送至指定维修网点；\n3. 检测确认属于非人为性能故障后安排维修或换新。';
+    const sopPreview='一、咨询处理步骤\n1. 确认用户身份与订单信息；\n2. 按问题类型检索知识库；\n3. 涉及安全风险时立即升级人工。\n\n二、统一表达口径\n不提前承诺退货结果；涉及政策差异时按渠道规则说明。';
+    const docs=[
+      {id:'DOC-FAQ-001',versionId:'VER-001-01',kbId:'KB-AFTERSALES',kbName:'售后服务知识库',title:'充电宝售后客服FAQ',fileName:'充电宝售后客服FAQ.docx',extension:'DOCX',type:'FAQ',channel:'全渠道',owner:'知识运营·王敏',version:'v1.0',validity:'2026-07-01 ～ 2026-12-31',status:'已发布',createdAt:daysAgo(88),publishedAt:daysAgo(80),releaseId:'release_20260724_03',contentPreview:faqPreview,versionHistory:[{version:'v1.0',note:'首次发布',createdAt:daysAgo(88),status:'已发布',author:'王敏'}]},
+      {id:'DOC-SAFE-008',versionId:'VER-008-02',kbId:'KB-PRODUCT',kbName:'商品知识库',title:'充电宝安全使用与异常处置',fileName:'充电宝安全使用与异常处置.pdf',extension:'PDF',type:'安全SOP',channel:'全渠道',owner:'产品运营·陈浩',version:'v2.1',validity:'2026-07-26 ～ 2027-07-25',status:'待审核',createdAt:daysAgo(30),submittedAt:daysAgo(2),prevText:safePrev,pendingHtml:safePending,p0:true,contentPreview:'如充电宝出现鼓包、冒烟、刺鼻气味、异常高温或液体渗漏，应立即停止使用并断开电源。',versionHistory:[{version:'v2.0',note:'线上版本',createdAt:daysAgo(60),status:'已发布',author:'陈浩'},{version:'v2.1',note:'新增鼓包、冒烟和高温风险提示',createdAt:daysAgo(2),status:'待审核',author:'陈浩'}]},
+      {id:'DOC-RETURN-013',versionId:'VER-013-03',kbId:'KB-AFTERSALES',kbName:'售后服务知识库',title:'七天无理由退货规则',fileName:'七天无理由退货规则.docx',extension:'DOCX',type:'售后政策',channel:'天猫/自营',owner:'售后运营·周琳',version:'v3.2',validity:'2026-07-20 ～ 2026-10-31',status:'待问答评测',createdAt:daysAgo(26),submittedAt:daysAgo(9),reviewedAt:daysAgo(8),contentPreview:returnPreview,versionHistory:[{version:'v3.2',note:'按渠道拆分举证要求',createdAt:daysAgo(9),status:'待问答评测',author:'周琳'}]},
+      {id:'DOC-WARRANTY-006',versionId:'VER-006-08',kbId:'KB-AFTERSALES',kbName:'售后服务知识库',title:'保修与寄修流程',fileName:'保修与寄修流程.pdf',extension:'PDF',type:'售后SOP',channel:'全渠道',owner:'售后运营·刘晨',version:'v1.8',validity:'2026-01-01 ～ 2026-12-31',status:'已发布',createdAt:daysAgo(210),publishedAt:daysAgo(200),releaseId:'release_20260720_01',contentPreview:warrantyPreview,versionHistory:[{version:'v1.8',note:'更新寄修网点',createdAt:daysAgo(200),status:'已发布',author:'刘晨'}]},
+      {id:'DOC-JD-021',versionId:'VER-021-01',kbId:'KB-CHANNEL',kbName:'渠道平台规则',title:'京东渠道退款时效',fileName:'京东渠道退款时效.html',extension:'HTML',type:'渠道规则',channel:'京东',owner:'渠道运营·赵宁',version:'v1.1',validity:'待补充',status:'草稿',createdAt:daysAgo(3),contentPreview:'京东渠道退款时效说明（草稿）：退款审核通过后原路退回，具体到账时间以渠道为准。',versionHistory:[{version:'v1.1',note:'草拟中',createdAt:daysAgo(3),status:'草稿',author:'赵宁'}]},
+      {id:'DOC-SOP-011',versionId:'VER-011-07',kbId:'KB-SOP',kbName:'客服SOP与话术',title:'售后标准话术',fileName:'售后标准话术.docx',extension:'DOCX',type:'客服话术',channel:'全渠道',owner:'客服主管·李雪',version:'v1.7',validity:'2026-06-01 ～ 2027-05-31',status:'待验收',createdAt:daysAgo(20),submittedAt:daysAgo(6),reviewedAt:daysAgo(5),contentPreview:sopPreview,versionHistory:[{version:'v1.7',note:'补充转人工口径',createdAt:daysAgo(6),status:'待验收',author:'李雪'}]},
+      {id:'DOC-MALL-004',versionId:'VER-004-04',kbId:'KB-CHANNEL',kbName:'渠道平台规则',title:'天猫渠道退货举证规则',fileName:'天猫渠道退货举证规则.docx',extension:'DOCX',type:'渠道规则',channel:'天猫',owner:'渠道运营·赵宁',version:'v2.0',validity:'2026-05-01 ～ 2027-04-30',status:'已发布',createdAt:daysAgo(70),publishedAt:daysAgo(60),releaseId:'release_20260710_02',contentPreview:'买家应通过订单售后入口提交申请；商家可要求提供商品外观、配件和包装状态照片。',versionHistory:[{version:'v2.0',note:'按天猫新规更新',createdAt:daysAgo(60),status:'已发布',author:'赵宁'}]}
+    ];
+    const chunks=buildReturnedChunks();
+    const jobs=[
+      {id:'JOB-TEST-0725-017',docId:'DOC-RETURN-013',docTitle:'七天无理由退货规则',version:'v3.2',environment:'测试',datasetId:'ds_test_after_sales_01',externalTaskId:'RAG-20260725-017',step:'检索验证通过',progress:100,status:'检索通过',collectionId:'col_t_7281',parseStatus:'成功',characterCount:18642,chunkCount:42,vectorCount:42,indexCount:43,customIndexCount:1,warningCount:1,chunks:chunks,lastRetrievalQuery:'充电宝拆封后充过一次电，还能七天无理由退货吗？',retrievalRan:true,retrievalPassedAt:daysAgo(1),lastRetrievalAt:daysAgo(1),lastRetrievalRunId:'RET-20260725-0831',lastRetrievalChunkId:'CH-007',retrievalMode:'混合检索',retrievalThreshold:'0.40',retrievalRerank:true,retrievalTitleIndex:true,createdAt:daysAgo(8),pushedAt:daysAgo(8),returnedAt:daysAgo(8),acceptedAt:daysAgo(7)},
+      {id:'JOB-TEST-0725-018',docId:'DOC-SOP-011',docTitle:'售后标准话术',version:'v1.7',environment:'测试',datasetId:'ds_test_sop_01',externalTaskId:'RAG-20260725-018',step:'RAG回调完成，等待验收',progress:100,status:'待验收',collectionId:'col_t_7392',parseStatus:'成功',characterCount:9216,chunkCount:42,vectorCount:42,indexCount:42,customIndexCount:0,warningCount:0,chunks:chunks,retrievalRan:false,createdAt:daysAgo(5),pushedAt:daysAgo(5),returnedAt:daysAgo(5)},
+      {id:'JOB-PROD-0724-011',docId:'DOC-WARRANTY-006',docTitle:'保修与寄修流程',version:'v1.8',environment:'生产',datasetId:'ds_prod_after_sales_01',externalTaskId:'RAG-20260724-011',step:'生产冒烟通过，版本已切换',progress:100,status:'已发布',collectionId:'col_p_6920',productionCollectionId:'col_p_6920',parseStatus:'成功',characterCount:8420,chunkCount:38,vectorCount:38,indexCount:38,customIndexCount:0,warningCount:0,chunks:chunks,retrievalRan:false,createdAt:daysAgo(200),pushedAt:daysAgo(200),returnedAt:daysAgo(200),releaseApprovedAt:daysAgo(200)}
+    ];
+    const cases=[
+      {id:'CASE-0725-018',sourceKey:'seed|dialogue|1',jobId:'',docId:'DOC-FAQ-001',docTitle:'充电宝售后客服FAQ',version:'v1.0',source:'客服对话验收',sourceMode:'dialogue',sourceRunId:'CHAT-SEED-01',evaluationCaseId:'CHAT-003',question:'鼓包或冒烟场景中出现危险建议或遗漏停止使用要求',aiAnswer:'建议再充电观察一次（错误示范）',expected:'必须明确停止使用，禁止继续充放电、拆解或普通快递寄送。',chunkId:'CH-032',risk:'P0安全',blocking:true,reason:'P0安全话术错误：客服测试环境发现危险建议',rootCause:'知识过期/冲突',owner:'陈浩',status:'待处理',createdAt:daysAgo(1)},
+      {id:'CASE-0725-016',sourceKey:'seed|formal|EV-040',jobId:'',docId:'DOC-RETURN-013',docTitle:'七天无理由退货规则',version:'v3.2',source:'批量问答评测',sourceMode:'formal',sourceRunId:'RUN-SEED-030',evaluationCaseId:'EV-040',question:'第三方渠道也适用官方七天退货规则吗？',aiAnswer:'请联系售后客服进一步处理。',expected:'官方直营渠道购买且商品、包装和配件完整、不影响二次销售时，可在规定期限内申请七天无理由退货；第三方渠道订单应以原购买平台规则为准。',chunkId:'CH-006',risk:'关键政策',blocking:true,reason:'回答遗漏了“第三方渠道以原平台规则为准”的适用条件',rootCause:'切片问题',owner:'周琳',status:'待处理',createdAt:daysAgo(2)},
+      {id:'CASE-0724-009',sourceKey:'seed|retrieval|RET-81920',jobId:'',docId:'DOC-JD-021',docTitle:'京东渠道退款时效',version:'v1.1',source:'检索调试',sourceMode:'retrieval',sourceRunId:'RET-81920',evaluationCaseId:'RET-81920',question:'京东退款多久到账？',aiAnswer:'实际Top 1：天猫渠道退货举证规则 · CH_0114',expected:'预期Top 1：京东渠道退款时效 · CH-021',chunkId:'CH-021',actualChunkId:'CH-0114',risk:'普通',blocking:false,reason:'渠道过滤未生效，召回了天猫规则',rootCause:'权限/渠道过滤',owner:'赵宁',status:'待处理',createdAt:daysAgo(3)},
+      {id:'CASE-0723-006',sourceKey:'seed|retrieval|RET-80117',jobId:'',docId:'DOC-FAQ-001',docTitle:'充电宝售后客服FAQ',version:'v1.0',source:'检索调试',sourceMode:'retrieval',sourceRunId:'RET-80117',evaluationCaseId:'RET-80117',question:'防伪码显示已经查询多次，是不是假货？',aiAnswer:'实际Top 1：FAQ-001 · CH-001',expected:'知识库未覆盖“多次查询”场景，已补充FAQ-001说明',chunkId:'CH-001',risk:'普通',blocking:false,reason:'知识缺失：原切片未覆盖多次查询的解释口径',rootCause:'知识缺失',owner:'王敏',status:'已处理',createdAt:daysAgo(4),processedAt:daysAgo(3)}
+    ];
+    const dataSources=[
+      {id:'SRC-CMS-001',name:'商品CMS',category:'A 文档类权威知识',method:'REST API / 增量游标',frequency:'每小时',endpoint:'https://cms.internal/api/knowledge',lastResult:'新增10 · 更新4 · 0失败',status:'正常',owner:'商品运营'},
+      {id:'SRC-DOC-003',name:'售后政策在线文档',category:'A 文档类权威知识',method:'Webhook',frequency:'实时',endpoint:'https://docs.internal/hooks/policy',lastResult:'更新2 · 已生成草稿',status:'正常',owner:'售后运营'},
+      {id:'SRC-TICKET-005',name:'历史客服工单',category:'C 样本与反馈',method:'数据库脱敏副本',frequency:'每天',endpoint:'db-readonly.internal/tickets',lastResult:'980成功 · 20条脱敏失败',status:'部分失败',owner:'客服主管'},
+      {id:'SRC-WEB-008',name:'渠道规则采集',category:'A 文档类权威知识',method:'网页链接 / 人工确认',frequency:'每周',endpoint:'https://rule.internal/crawl',lastResult:'无变更',status:'已暂停',owner:'渠道运营'},
+      {id:'SRC-API-009',name:'订单物流实时API',category:'D 实时业务数据',method:'REST API（运行时调用）',frequency:'实时',endpoint:'https://api.internal/orders',lastResult:'仅运行时调用，不写入索引',status:'正常',owner:'系统管理员'}
+    ];
+    const members=[
+      {id:'M-001',name:'王敏',role:'知识运营',domain:'售后/客服',status:'启用'},
+      {id:'M-002',name:'周琳',role:'业务审核人',domain:'售后',status:'启用'},
+      {id:'M-003',name:'陈浩',role:'产品运营',domain:'商品',status:'启用'},
+      {id:'M-004',name:'刘晨',role:'售后运营',domain:'售后',status:'启用'},
+      {id:'M-005',name:'李雪',role:'客服主管',domain:'客服',status:'启用'},
+      {id:'M-006',name:'赵宁',role:'渠道运营',domain:'渠道',status:'停用'}
+    ];
+    return {
+      schemaVersion:2,role:'operator',env:'test',
+      knowledgeBases:kbs,documents:docs,reviewTasks:[],jobs:jobs,dataSources:dataSources,cases:cases,members:members,
+      apiKeys:[{env:'测试',name:'测试环境密钥',mask:'fastgpt-test-••••••••3f7a',scope:'test dataset 读写',createdAt:daysAgo(30)},{env:'生产',name:'生产环境密钥',mask:'fastgpt-prod-••••••••9c2e',scope:'prod dataset 读写（需审批）',createdAt:daysAgo(30)}],
+      auditLog:[{time:daysAgo(1),operator:'周琳',action:'审核通过 DOC-SAFE-008 v2.0',result:'成功'},{time:daysAgo(1),operator:'王敏',action:'运行测试dataset检索',result:'成功'},{time:daysAgo(2),operator:'系统',action:'重试JOB-TEST-017',result:'失败'}],
+      stats:{searches:28640,recall:92.8,noAnswer:4.1},provider:{name:'FastGPT',status:'已连接'}
+    };
+  }
+
+  /* ============ ④ 全局渲染 ============ */
+  function renderAll(){renderEnvBanner();renderOverview();renderAnalytics();renderKnowledgeBases();renderDocuments();renderDataSources();renderReviewQueue();renderIngestionJobs();renderProcessingResults();renderRetrievalWorkbench();renderEvaluationWorkbench();renderProblemCases();renderMembers();renderAuditLog();renderApiKeys();renderIntegration();updateBadges();syncUiState()}
+  function renderEnvBanner(){
+    const el=document.getElementById('envBanner');if(!el)return;
+    if(isProdView()){el.className='alert warn';el.innerHTML='<strong>生产环境 · 只读线上视图</strong>只展示已发布知识、生产入库任务和线上版本。上传、审核、入库推送、检索调试、批量评测等治理操作请在测试环境完成；发布审批在“文档与版本”的已提交文档上进行。'}
+    else{el.className='alert good';el.innerHTML='<strong>测试环境 · 知识治理工作区</strong>测试dataset与生产dataset相互隔离。上传、业务审核、RAG入库、处理验收、检索调试、批量评测与客服对话验收都在这里完成，通过线下发布审批后才会进入生产环境。'}
+  }
+  function syncUiState(){
+    document.querySelectorAll('.env-switch button').forEach(b=>b.classList.toggle('active',b.dataset.env===state.env));
+    const sel=document.getElementById('roleDemo');if(sel&&ROLES[state.role])sel.value=state.role;
+    const prod=isProdView();
+    ['overviewUploadBtn','uploadDocBtn','createKBBtn','createSourceBtn'].forEach(function(id){const el=document.getElementById(id);if(el){el.disabled=prod;el.title=prod?'生产环境只读，请切换测试环境':''}});
+  }
+  function updateBadges(){
+    const reviewCount=document.getElementById('reviewCount'),ingestionCount=document.getElementById('ingestionCount'),caseCount=document.getElementById('caseCount');
+    if(reviewCount)reviewCount.textContent=String(state.documents.filter(d=>d.status==='待审核').length);
+    if(ingestionCount)ingestionCount.textContent=String(state.jobs.filter(j=>['待推送','处理中','待验收'].includes(j.status)).length);
+    if(caseCount)caseCount.textContent=String(state.cases.filter(c=>c.status!=='已处理').length);
+    const avatar=document.getElementById('avatarName');if(avatar)avatar.textContent=ROLES[state.role].short;
+  }
+  function addAudit(action,result){
+    result=result||'成功';
+    state.auditLog.unshift({time:nowText(),operator:roleName(),action:action,result:result});
+    if(state.auditLog.length>120)state.auditLog=state.auditLog.slice(0,120);
+    saveState();renderAuditLog();
+  }
+
+  /* ============ ⑤ 运营总览 ============ */
+  function renderOverview(){
+    const published=state.documents.filter(d=>d.status==='已发布').length;
+    const pendingReview=state.documents.filter(d=>d.status==='待审核').length;
+    const pendingJobs=state.jobs.filter(j=>['待推送','处理中','待验收'].includes(j.status)).length;
+    const pendingCases=state.cases.filter(c=>c.status!=='已处理').length;
+    const p0Cases=state.cases.filter(c=>c.status!=='已处理'&&c.risk&&c.risk.indexOf('P0')>=0).length;
+    const lastFormal=(state.jobs.map(j=>j.evaluationRuns&&j.evaluationRuns.formal).filter(Boolean).sort((a,b)=>String(b.finishedAt).localeCompare(String(a.finishedAt)))[0]);
+    const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v};
+    set('publishedStat',String(published));
+    set('publishedStatSub','累计 '+state.documents.length+' 份文档 · '+state.knowledgeBases.length+' 个知识库');
+    if(isProdView()){
+      const productionJobs=state.jobs.filter(j=>j.environment==='生产').length;
+      set('pendingStat',String(productionJobs));
+      set('pendingStatSub','生产入库任务 '+productionJobs+' 条 · 治理待办请切测试环境');
+    }else{
+      set('pendingStat',String(pendingReview+pendingJobs+pendingCases));
+      set('pendingStatSub','审核'+pendingReview+' · 入库'+pendingJobs+' · 问题案例'+pendingCases);
+    }
+    set('evalRateStat',lastFormal?lastFormal.passRate:'—');
+    set('evalRateStatSub',lastFormal?'最近正式评测 '+lastFormal.passedCount+'/'+lastFormal.count:'尚未运行正式评测');
+    set('p0Stat',String(p0Cases));
+    set('p0StatSub',p0Cases?'存在P0安全类待处理问题':'无P0风险问题');
+    const todo=[];
+    state.cases.filter(c=>c.status!=='已处理'&&c.risk&&c.risk.indexOf('P0')>=0).forEach(c=>todo.push({title:'处理 P0 问题案例：'+c.question,owner:'产品经理',due:'今天',tag:'P0',cls:'failed',view:'cases',btn:'处理'}));
+    state.documents.filter(d=>d.status==='待审核').forEach(d=>todo.push({title:'审核《'+d.title+'》'+d.version,owner:'业务审核人',due:'今天 16:00',tag:d.p0?'P0':'待审',cls:d.p0?'failed':'pending',view:'review',btn:'审核'}));
+    state.jobs.filter(j=>j.status==='待推送').forEach(j=>todo.push({title:'推送API：'+j.docTitle+' '+j.version,owner:'知识运营',due:'今天',tag:'待推送',cls:'pending',view:'ingestion',btn:'推送'}));
+    state.jobs.filter(j=>j.status==='待验收').forEach(j=>todo.push({title:'验收RAG处理结果：'+j.docTitle+' '+j.version,owner:'知识运营',due:'今天',tag:'待验收',cls:'processing',view:'processing',btn:'验收'}));
+    state.cases.filter(c=>c.status!=='已处理').forEach(c=>{if(!(c.risk&&c.risk.indexOf('P0')>=0))todo.push({title:'复测问题案例：'+c.question,owner:c.owner||'待分配',due:'明天',tag:'待验证',cls:'processing',view:'cases',btn:'查看'})});
+    const todoBody=document.getElementById('todoTable');
+    if(todoBody)todoBody.innerHTML=isProdView()?'<tr><td colspan="5"><div class="empty"><strong>生产环境只读</strong><br><small>待办处理与知识治理请切换到测试环境。</small></div></td></tr>':todo.length?todo.slice(0,5).map(t=>'<tr><td><strong>'+escapeHtml(t.title)+'</strong><br><small>'+escapeHtml(t.tag)+'</small></td><td>'+escapeHtml(t.owner)+'</td><td>'+escapeHtml(t.due)+'</td><td><span class="status '+t.cls+'">'+escapeHtml(t.tag)+'</span></td><td><button class="btn small" onclick="showView(\''+t.view+'\')">'+t.btn+'</button></td></tr>').join(''):'<tr><td colspan="5"><div class="empty"><strong>暂无待处理事项</strong><br><small>上传文档并提交审核后，待办会出现在这里。</small></div></td></tr>';
+    const envTable=document.getElementById('envIsolation');
+    if(envTable)envTable.innerHTML='<tr><td><strong>测试dataset</strong><br><small>'+state.knowledgeBases.length+' 个知识库已绑定</small></td><td><span class="status processing">内部可见</span></td></tr><tr><td><strong>生产dataset</strong><br><small>'+state.documents.filter(d=>d.status==='已发布').length+' 份已发布文档</small></td><td><span class="status live">正式服务</span></td></tr><tr><td><strong>当前生产版本</strong></td><td>'+escapeHtml((state.documents.filter(d=>d.releaseId).sort((a,b)=>String(b.publishedAt).localeCompare(String(a.publishedAt)))[0]||{}).releaseId||'—')+'</td></tr>';
+    const totalDocs=state.documents.length||1,validDocs=state.documents.filter(d=>d.validity&&d.validity!=='待补充').length,pct=Math.round(validDocs/totalDocs*100);
+    const freshnessBar=document.getElementById('freshnessBar'),freshnessText=document.getElementById('freshnessText');
+    if(freshnessBar)freshnessBar.style.width=pct+'%';
+    if(freshnessText)freshnessText.textContent=pct+'%知识已登记有效期 · '+(totalDocs-validDocs)+'份文档有效期待补充';
+  }
+
+  /* ============ ⑥ 运营统计 ============ */
+  function renderAnalytics(){
+    const rangeEl=document.getElementById('analyticsRange'),range=rangeEl?rangeEl.value:'最近30天';
+    const factor=range==='最近7天'?0.24:range==='本季度'?2.8:1;
+    const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v};
+    set('analyticsSearches',Math.round(state.stats.searches*factor).toLocaleString());
+    set('analyticsSearchesSub',range==='最近7天'?'环比 +6.2%':range==='本季度'?'环比 +31.5%':'环比 +18.4%');
+    set('analyticsRecall',(state.stats.recall+(range==='最近7天'?0.4:range==='本季度'?-0.9:0)).toFixed(1)+'%');
+    set('analyticsRecallSub',range==='最近7天'?'较上期 +1.1%':'较上月 +3.2%');
+    set('analyticsNoAnswer',(state.stats.noAnswer+(range==='最近7天'?0.5:range==='本季度'?-0.3:0)).toFixed(1)+'%');
+    const all=state.cases,open=all.filter(c=>c.status!=='已处理').length;
+    set('analyticsCases',String(all.length));
+    set('analyticsCasesSub','待处理 '+open+' · 已处理 '+(all.length-open));
+    const groups={};all.forEach(c=>{const k=c.rootCause||'待归因';groups[k]=(groups[k]||0)+1});
+    const total=all.length||1,order=['知识缺失','知识过期/冲突','切片问题','生成问题','权限/渠道过滤','待归因'];
+    const rows=order.map(k=>{const n=groups[k]||0;return '<tr><td>'+k+'</td><td><div class="progress"><i style="width:'+Math.round(n/total*100)+'%"></i></div></td><td>'+Math.round(n/total*100)+'%</td></tr>'}).join('');
+    const rootTable=document.getElementById('rootCauseTable');
+    if(rootTable)rootTable.innerHTML=all.length?rows:'<tr><td colspan="3"><div class="empty"><strong>暂无问题案例</strong><br><small>检索调试、批量评测和客服对话发现的问题会在这里形成根因分布。</small></div></td></tr>';
+  }
+  function exportAnalytics(){
+    const lines=['# 运营统计报告','生成时间：'+nowText(),'','- 知识库：'+state.knowledgeBases.length+' 个','- 文档：'+state.documents.length+' 份','- 已发布：'+state.documents.filter(d=>d.status==='已发布').length+' 份','- 问题案例：'+state.cases.length+' 条（待处理 '+state.cases.filter(c=>c.status!=='已处理').length+'）','','## 问题案例明细'];
+    state.cases.forEach(c=>lines.push('- ['+c.source+'] '+c.question+' · 状态：'+c.status+' · 根因：'+(c.rootCause||'待归因')));
+    downloadText('运营统计报告.md',lines.join('\n'));
+    addAudit('导出运营统计报告');
+  }
+
+  /* ============ ⑦ 知识库管理 ============ */
+  function renderKnowledgeBases(){
+    const wrap=document.getElementById('kbCards');if(!wrap)return;
+    if(!state.knowledgeBases.length){wrap.innerHTML='<div class="empty-kb" style="grid-column:1/-1"><div class="empty-icon">＋</div><h4>还没有知识库</h4><p>创建第一个知识库后，再上传文档、提交审核并进入RAG处理。</p><button class="btn primary" onclick="openCreateKB()">新建知识库</button></div>';return}
+    wrap.innerHTML=state.knowledgeBases.map(kb=>{
+      const docs=isProdView()?state.documents.filter(d=>d.kbId===kb.id&&d.status==='已发布'):state.documents.filter(d=>d.kbId===kb.id),published=docs.filter(d=>d.status==='已发布').length,archived=kb.status==='已归档';
+      return '<article class="kb-card" data-name="'+escapeHtml(kb.name)+'" data-domain="'+escapeHtml(kb.domain)+'" data-status="'+escapeHtml(kb.status)+'" onclick="openKB(\''+kb.id+'\')" style="'+(archived?'opacity:.6':'')+'"><div class="kb-card-head"><div class="kb-icon">'+escapeHtml(kb.name.slice(0,1))+'</div><span class="status '+(archived?'gray':kb.status==='运行中'?'live':'pending')+'">'+escapeHtml(kb.status)+'</span></div><h3>'+escapeHtml(kb.name)+'</h3><p>'+escapeHtml(kb.description||'知识库')+'</p><div class="kb-meta"><span>文档<strong>'+docs.length+'</strong></span><span>已发布<strong>'+published+'</strong></span><span>负责人<strong>'+escapeHtml(kb.owner)+'</strong></span></div><div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap"><span class="status '+(kb.testRagStatus==='正常'?'processing':'gray')+'">测试RAG '+escapeHtml(kb.testRagStatus)+'</span><span class="status '+(kb.prodRagStatus==='正常'?'live':'gray')+'">生产RAG '+escapeHtml(kb.prodRagStatus)+'</span></div></article>';
+    }).join('');
+  }
+  function filterKB(){
+    const q=(document.getElementById('kbSearch').value||'').toLowerCase(),d=document.getElementById('kbDomain').value,s=document.getElementById('kbStatus').value;
+    document.querySelectorAll('#kbCards .kb-card').forEach(c=>{const show=(!q||c.dataset.name.toLowerCase().indexOf(q)>=0)&&(!d||c.dataset.domain===d)&&(!s||c.dataset.status===s);c.style.display=show?'':'none'});
+  }
+  function openKB(id){
+    const kb=state.knowledgeBases.find(k=>k.id===id);if(!kb){toast('知识库不存在或已删除');return}
+    const docs=isProdView()?state.documents.filter(d=>d.kbId===id&&d.status==='已发布'):state.documents.filter(d=>d.kbId===id),published=docs.filter(d=>d.status==='已发布').length;
+    let body='<div class="metric-row" style="grid-template-columns:repeat(3,1fr)"><div class="metric"><label>知识文档</label><strong>'+docs.length+'</strong></div><div class="metric good"><label>已发布</label><strong>'+published+'</strong></div><div class="metric"><label>进行中</label><strong>'+(docs.length-published)+'</strong></div></div><table style="margin-top:14px"><tr><td>业务域 / 负责人</td><td>'+escapeHtml(kb.domain)+' / '+escapeHtml(kb.owner)+'</td></tr><tr><td>可见范围</td><td>'+escapeHtml(kb.scope)+'</td></tr><tr><td>测试 RAG 资源</td><td>'+escapeHtml(kb.testDatasetId)+' · <span class="status '+(kb.testRagStatus==='正常'?'processing':'gray')+'">'+escapeHtml(kb.testRagStatus)+'</span></td></tr><tr><td>生产 RAG 资源</td><td>'+escapeHtml(kb.productionDatasetId)+' · <span class="status '+(kb.prodRagStatus==='正常'?'live':'gray')+'">'+escapeHtml(kb.prodRagStatus)+'</span></td></tr></table>';
+    if(docs.length){body+='<div class="panel" style="margin:14px 0 0;box-shadow:none"><div class="panel-head"><h2>文档（'+docs.length+'）</h2><button class="btn small primary" onclick="closeModal();openUpload(\''+escapeHtml(kb.name)+'\')">继续上传</button></div><div class="panel-body" style="padding:0"><table><thead><tr><th>文档</th><th>版本</th><th>状态</th><th></th></tr></thead><tbody>'+docs.map(d=>'<tr><td>'+escapeHtml(d.title)+'</td><td>'+escapeHtml(d.version)+'</td><td><span class="status '+documentStatusClass(d.status)+'">'+escapeHtml(d.status)+'</span></td><td><button class="btn small" onclick="closeModal();openUserDocument(\''+d.id+'\')">详情</button></td></tr>').join('')+'</tbody></table></div></div>'}else{body+='<div class="empty-kb" style="margin-top:14px"><div class="empty-icon">＋</div><h4>知识库已经创建，但还没有文档</h4><p>下一步上传产品手册、售后政策、FAQ或客服SOP。保存后文档先处于“草稿”，不会直接进入RAG引擎。</p><button class="btn primary" onclick="closeModal();openUpload(\''+escapeHtml(kb.name)+'\')">上传第一份文档</button></div>'}
+    const foot='<button class="btn" onclick="closeModal()">关闭</button>'+(isProdView()?'':'<button class="btn" onclick="closeModal();openEditKB(\''+kb.id+'\')">编辑</button>'+(kb.status==='已归档'?'<button class="btn" onclick="closeModal();setKBArchived(\''+kb.id+'\',false)">恢复</button>':'<button class="btn danger" onclick="closeModal();setKBArchived(\''+kb.id+'\',true)">归档</button>'))+(docs.length?'<button class="btn primary" onclick="closeModal();showView(\'documents\')">进入文档列表</button>':'');
+    showModal(kb.name,body,foot);
+  }
+  function openCreateKB(){
+    if(!requireRole(['operator','admin'],'新建知识库'))return;
+    showModal('新建知识库','<div class="field-row"><div class="field"><label>知识库名称</label><input class="input" id="newKBName" value="充电器产品知识库"></div><div class="field"><label>业务域</label><select class="select" id="newKBDomain"><option>商品</option><option>售后</option><option>客服</option><option>渠道</option></select></div></div><div class="field-row"><div class="field"><label>负责人</label><input class="input" id="newKBOwner" value="陈浩"></div><div class="field"><label>可见范围</label><select class="select" id="newKBScope"><option>商品与客服团队</option><option>全公司</option><option>仅项目组</option></select></div></div><div class="alert"><strong>创建后会发生什么？</strong>系统会自动分配测试与生产dataset；知识库先处于“建设中”，上传文档并完成发布流程后可切换为“运行中”。</div>','<button class="btn" onclick="closeModal()">取消</button><button class="btn primary" onclick="createKB()">创建知识库</button>');
+  }
+  function createKB(){
+    if(!requireRole(['operator','admin'],'新建知识库'))return;
+    const name=document.getElementById('newKBName').value.trim(),domain=document.getElementById('newKBDomain').value,owner=document.getElementById('newKBOwner').value.trim()||'待分配',scope=document.getElementById('newKBScope').value;
+    if(!name){toast('请填写知识库名称');return}
+    if(state.knowledgeBases.some(k=>k.name===name)){toast('知识库名称已存在，请更换名称');return}
+    const kb={id:makeId('KB'),name:name,domain:domain,owner:owner,scope:scope,status:'建设中',testDatasetId:'ds_test_'+Date.now().toString(36),productionDatasetId:'ds_prod_'+Date.now().toString(36),testRagStatus:'未接入',prodRagStatus:'未接入',createdAt:nowText(),description:'新建知识库，等待上传第一份知识文档。'};
+    state.knowledgeBases.unshift(kb);
+    saveState();renderAll();closeModal();addAudit('新建知识库：'+name);
+    showModal('知识库已创建','<div class="alert good"><strong>'+escapeHtml(name)+'</strong>已创建，测试/生产dataset已分配。下一步上传第一份文档并保存草稿。</div><table><tr><td>业务域</td><td>'+escapeHtml(domain)+'</td></tr><tr><td>负责人</td><td>'+escapeHtml(owner)+'</td></tr><tr><td>可见范围</td><td>'+escapeHtml(scope)+'</td></tr><tr><td>测试dataset</td><td>'+escapeHtml(kb.testDatasetId)+'</td></tr></table>','<button class="btn" onclick="closeModal()">稍后</button><button class="btn primary" onclick="closeModal();openUpload(\''+escapeHtml(name)+'\')">上传第一份文档</button>');
+  }
+  function openEditKB(id){
+    if(!requireRole(['operator','admin'],'编辑知识库'))return;
+    const kb=state.knowledgeBases.find(k=>k.id===id);if(!kb)return;
+    showModal('编辑知识库','<div class="field-row"><div class="field"><label>知识库名称</label><input class="input" id="editKBName" value="'+escapeHtml(kb.name)+'"></div><div class="field"><label>业务域</label><select class="select" id="editKBDomain"><option '+(kb.domain==='商品'?'selected':'')+'>商品</option><option '+(kb.domain==='售后'?'selected':'')+'>售后</option><option '+(kb.domain==='客服'?'selected':'')+'>客服</option><option '+(kb.domain==='渠道'?'selected':'')+'>渠道</option></select></div></div><div class="field-row"><div class="field"><label>负责人</label><input class="input" id="editKBOwner" value="'+escapeHtml(kb.owner)+'"></div><div class="field"><label>状态</label><select class="select" id="editKBStatus"><option '+(kb.status==='运行中'?'selected':'')+'>运行中</option><option '+(kb.status==='建设中'?'selected':'')+'>建设中</option><option '+(kb.status==='已归档'?'selected':'')+'>已归档</option></select></div></div><div class="field"><label>可见范围</label><input class="input" id="editKBScope" style="width:100%" value="'+escapeHtml(kb.scope)+'"></div>','<button class="btn" onclick="closeModal()">取消</button><button class="btn primary" onclick="saveKBEdit(\''+kb.id+'\')">保存</button>');
+  }
+  function saveKBEdit(id){
+    const kb=state.knowledgeBases.find(k=>k.id===id);if(!kb)return;
+    const name=document.getElementById('editKBName').value.trim();if(!name){toast('请填写知识库名称');return}
+    kb.name=name;kb.domain=document.getElementById('editKBDomain').value;kb.owner=document.getElementById('editKBOwner').value.trim()||'待分配';kb.status=document.getElementById('editKBStatus').value;kb.scope=document.getElementById('editKBScope').value.trim();
+    state.documents.filter(d=>d.kbId===id).forEach(d=>d.kbName=name);
+    saveState();renderAll();closeModal();toast('知识库已更新');addAudit('编辑知识库：'+name);
+  }
+  function setKBArchived(id,archived){
+    const kb=state.knowledgeBases.find(k=>k.id===id);if(!kb)return;
+    kb.status=archived?'已归档':'建设中';
+    saveState();renderAll();closeModal();toast(archived?'知识库已归档':'知识库已恢复');addAudit((archived?'归档':'恢复')+'知识库：'+kb.name);
+  }
+
+  /* ============ ⑧ 文档与版本 ============ */
+  function documentStatusClass(status){return status==='已发布'?'live':status==='草稿'?'gray':status==='待线下审批'?'pending':status==='待问题修复'?'failed':'processing'}
+  function documentRagEnvironment(status){return status==='已发布'?'测试 ✓ / 生产 ✓':status==='待线下审批'?'测试 ✓ / 生产 —':status==='草稿'||status==='待审核'?'尚未同步':'测试环境处理中'}
+  function documentRowActions(doc){
+    const d='<button class="btn small" onclick="event.stopPropagation();openUserDocument(\''+doc.id+'\')">详情</button> ',sp='event.stopPropagation();';
+    if(isProdView())return d;
+    if(doc.status==='草稿')return d+'<button class="btn small primary" onclick="'+sp+'submitNewDoc(\''+doc.id+'\')">提交审核</button>';
+    if(doc.status==='待审核')return d+'<button class="btn small" disabled>审核处理中</button>';
+    if(doc.status==='测试入库中')return d+'<button class="btn small" onclick="'+sp+'showView(\'ingestion\')">查看任务</button>';
+    if(doc.status==='待验收')return d+'<button class="btn small primary" onclick="'+sp+'showView(\'processing\')">验收结果</button>';
+    if(doc.status==='待检索验证')return d+'<button class="btn small primary" onclick="'+sp+'showView(\'retrieval\')">检索测试</button>';
+    if(doc.status==='待问答评测'||doc.status==='待全量回归')return d+'<button class="btn small primary" onclick="'+sp+'showView(\'evaluation\')">去评测</button>';
+    if(doc.status==='待线下审批')return d+'<button class="btn small primary" onclick="'+sp+'openReleaseApproval(\''+doc.id+'\')">审批</button>';
+    if(doc.status==='待问题修复')return d+'<button class="btn small" onclick="'+sp+'showView(\'evaluation\')">返回评测</button>';
+    if(doc.status==='已发布')return d+'<button class="btn small" onclick="'+sp+'newVersion(\''+doc.id+'\')">新版本</button>';
+    return d;
+  }
+  function renderDocuments(){
+    const body=document.getElementById('docTable');if(!body)return;
+    const kbSel=document.getElementById('docKB');
+    if(kbSel){const cur=kbSel.value;kbSel.innerHTML='<option value="">全部知识库</option>'+state.knowledgeBases.map(k=>'<option'+(k.name===cur?' selected':'')+'>'+escapeHtml(k.name)+'</option>').join('')}
+    if(!state.documents.length){body.innerHTML='<tr><td colspan="7"><div class="empty"><strong>暂无文档</strong><br><small>请先创建知识库，然后上传第一份知识文档。</small></div></td></tr>';return}
+    const list=isProdView()?state.documents.filter(d=>d.status==='已发布'):state.documents;
+    if(!list.length){body.innerHTML='<tr><td colspan="7"><div class="empty"><strong>生产环境暂无已发布文档</strong><br><small>生产dataset只包含已发布版本；请切换到测试环境完成知识治理。</small></div></td></tr>';return}
+    body.innerHTML=list.map(doc=>'<tr class="doc-row" data-name="'+escapeHtml(doc.title)+'" data-status="'+escapeHtml(doc.status)+'" data-kb="'+escapeHtml(doc.kbName)+'"><td><strong>'+escapeHtml(doc.title)+'</strong><br><small>'+escapeHtml(doc.id)+' · '+escapeHtml(doc.version)+' · '+escapeHtml(doc.extension)+'</small></td><td>'+escapeHtml(doc.type)+'</td><td>'+escapeHtml(doc.channel)+'<br><small>'+escapeHtml(doc.validity)+'</small></td><td>'+escapeHtml(doc.owner)+'</td><td><span class="status '+documentStatusClass(doc.status)+'">'+escapeHtml(doc.status)+'</span></td><td>'+documentRagEnvironment(doc.status)+'</td><td style="white-space:nowrap">'+documentRowActions(doc)+'</td></tr>').join('');
+  }
+  function filterDocs(){
+    const q=(document.getElementById('docSearch').value||'').toLowerCase(),s=document.getElementById('docStatus').value,kb=document.getElementById('docKB').value;
+    document.querySelectorAll('.doc-row').forEach(r=>{const show=(!q||r.dataset.name.toLowerCase().indexOf(q)>=0)&&(!s||r.dataset.status===s)&&(!kb||r.dataset.kb===kb);r.style.display=show?'':'none'});
+  }
+  function openUserDocument(id){
+    const d=state.documents.find(x=>x.id===id);if(!d){toast('文档不存在');return}
+    const job=state.jobs.filter(j=>j.docId===id).sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt)))[0];
+    const tabs=['基本信息','原文预览','版本记录','审核记录','RAG映射'];
+    let body='<div class="tabs" id="docDetailTabs">'+tabs.map((t,i)=>'<button class="tab'+(i===0?' active':'')+'" onclick="switchDocDetailTab('+i+',this)">'+t+'</button>').join('')+'</div>';
+    body+='<div class="doc-detail-pane" data-pane="0" style="padding-top:10px"><table><tr><td>所属知识库</td><td>'+escapeHtml(d.kbName)+'</td></tr><tr><td>docId / versionId</td><td>'+escapeHtml(d.id)+' / '+escapeHtml(d.versionId)+'</td></tr><tr><td>原文件</td><td>'+escapeHtml(d.fileName)+'</td></tr><tr><td>类型 / 渠道</td><td>'+escapeHtml(d.type)+' / '+escapeHtml(d.channel)+'</td></tr><tr><td>负责人 / 有效期</td><td>'+escapeHtml(d.owner)+' / '+escapeHtml(d.validity)+'</td></tr><tr><td>当前状态</td><td><span class="status '+documentStatusClass(d.status)+'">'+escapeHtml(d.status)+'</span></td></tr></table></div>';
+    body+='<div class="doc-detail-pane" data-pane="1" style="display:none;padding-top:10px"><div class="doc-preview" style="min-height:220px">'+escapeHtml(d.contentPreview||'（本原型未保存原文全文，仅保留元数据与预览摘要）')+'</div></div>';
+    body+='<div class="doc-detail-pane" data-pane="2" style="display:none;padding-top:10px"><table><thead><tr><th>版本</th><th>说明</th><th>创建时间</th><th>状态</th><th>操作人</th></tr></thead><tbody>'+((d.versionHistory||[]).map(v=>'<tr><td>'+escapeHtml(v.version)+'</td><td>'+escapeHtml(v.note||'—')+'</td><td>'+escapeHtml(v.createdAt||'—')+'</td><td>'+escapeHtml(v.status||'—')+'</td><td>'+escapeHtml(v.author||'—')+'</td></tr>').join('')||'<tr><td colspan="5">暂无版本记录</td></tr>')+'</tbody></table></div>';
+    const reviews=state.auditLog.filter(a=>a.action.indexOf(d.id)>=0||a.action.indexOf(d.title)>=0).slice(0,8);
+    body+='<div class="doc-detail-pane" data-pane="3" style="display:none;padding-top:10px"><table><thead><tr><th>时间</th><th>操作者</th><th>动作</th><th>结果</th></tr></thead><tbody>'+((reviews.map(a=>'<tr><td>'+escapeHtml(a.time)+'</td><td>'+escapeHtml(a.operator)+'</td><td>'+escapeHtml(a.action)+'</td><td><span class="status '+(a.result==='成功'?'live':'failed')+'">'+escapeHtml(a.result)+'</span></td></tr>').join(''))||'<tr><td colspan="4">暂无审核记录</td></tr>')+'</tbody></table></div>';
+    body+='<div class="doc-detail-pane" data-pane="4" style="display:none;padding-top:10px">'+(job?'<table><tr><td>测试dataset</td><td>'+escapeHtml(job.datasetId)+'</td></tr><tr><td>测试collection</td><td>'+escapeHtml(job.collectionId||'尚未返回')+'</td></tr><tr><td>生产collection</td><td>'+escapeHtml(job.productionCollectionId||'—')+'</td></tr><tr><td>切片 / 向量 / 索引</td><td>'+escapeHtml(job.chunkCount||0)+' / '+escapeHtml(job.vectorCount||0)+' / '+escapeHtml(job.indexCount||0)+'（含自定义问法索引 '+escapeHtml(job.customIndexCount||0)+' 条）</td></tr><tr><td>任务状态</td><td>'+escapeHtml(job.status)+'</td></tr></table>':'<div class="alert">该文档尚未创建RAG入库任务。</div>')+'</div>';
+    const foot='<button class="btn" onclick="closeModal()">关闭</button>'+(d.status==='草稿'?'<button class="btn primary" onclick="closeModal();submitNewDoc(\''+d.id+'\')">提交审核</button>':d.status==='待线下审批'?'<button class="btn primary" onclick="closeModal();openReleaseApproval(\''+d.id+'\')">进入发布审批</button>':d.status==='已发布'?'<button class="btn primary" onclick="closeModal();newVersion(\''+d.id+'\')">创建新版本</button>':'');
+    showModal(d.title,body,foot);
+  }
+  function switchDocDetailTab(index,button){
+    document.querySelectorAll('#docDetailTabs .tab').forEach((b,i)=>b.classList.toggle('active',i===index));
+    document.querySelectorAll('.doc-detail-pane').forEach(p=>p.style.display=p.dataset.pane===String(index)?'block':'none');
+  }
+  function newVersion(id){
+    if(!requireRole(['operator','admin'],'创建新版本'))return;
+    const d=state.documents.find(x=>x.id===id);if(!d)return;
+    const next=d.version.replace(/v(\d+)\.(\d+)/,(m,a,b)=>'v'+a+'.'+(Number(b)+1));
+    showModal('创建新版本','<div class="alert"><strong>不会覆盖当前线上版本</strong>系统将复制元数据并创建新的versionId；新版本完成审核、测试入库和评测之前，'+escapeHtml(d.version)+'继续服务。</div><div class="field"><label>新版本号</label><input class="input" id="newVersionNo" style="width:100%" value="'+escapeHtml(next)+'"></div><div class="field"><label>变更说明</label><textarea class="textarea" id="newVersionNote" rows="3">补充航空携带、鼓包处置和防伪查询相关FAQ。</textarea></div>','<button class="btn" onclick="closeModal()">取消</button><button class="btn primary" onclick="confirmNewVersion(\''+d.id+'\')">创建草稿版本</button>');
+  }
+  function confirmNewVersion(id){
+    const d=state.documents.find(x=>x.id===id);if(!d)return;
+    const version=document.getElementById('newVersionNo').value.trim()||'v1.1',note=document.getElementById('newVersionNote').value.trim()||'新版本';
+    const copy=JSON.parse(JSON.stringify(d));
+    copy.id=makeId('DOC');copy.versionId=makeId('VER');copy.version=version;copy.status='草稿';copy.createdAt=nowText();delete copy.publishedAt;delete copy.releaseId;
+    copy.versionHistory=(copy.versionHistory||[]).concat([{version:version,note:note,createdAt:nowText(),status:'草稿',author:roleName()}]);
+    state.documents.unshift(copy);
+    saveState();renderAll();closeModal();toast(version+' 草稿已创建，'+d.version+' 线上版本继续服务');addAudit('创建新版本 '+copy.id+' '+version);
+    setTimeout(()=>openUserDocument(copy.id),220);
+  }
+  function submitNewDoc(id){
+    if(!requireTestEnv()||!requireRole(['operator','admin'],'提交业务审核'))return;
+    const d=state.documents.find(x=>x.id===id);if(!d||d.status!=='草稿')return;
+    d.status='待审核';d.submittedAt=nowText();
+    saveState();renderAll();closeModal();toast('文档已提交业务审核，正在打开审核队列');addAudit('提交业务审核 '+d.id);
+    setTimeout(()=>showView('review'),350);
+  }
+  function downloadFaqTemplate(){
+    downloadText('FAQ导入模板.csv','问题,标准答案,关键词,适用渠道,生效日期,失效日期,负责人\n如何确认购买的充电宝是正品？,请核对包装防伪码与机身序列号。,正品;防伪;序列号,全渠道,2026-08-01,2027-07-31,王敏\n');
+    addAudit('下载FAQ导入模板');
+  }
+
+  /* ============ ⑨ 业务审核 ============ */
+  function renderReviewQueue(){
+    const box=document.getElementById('reviewUserQueue');if(!box)return;
+    if(isProdView()){const detail=document.getElementById('reviewDetail');if(detail)detail.innerHTML='';box.innerHTML='<div class="panel"><div class="empty-kb"><div class="empty-icon">✓</div><h4>生产环境不提供业务审核</h4><p>业务审核针对待发布版本，在测试环境完成；发布审批在“文档与版本”的待线下审批文档上登记。</p><button class="btn primary" onclick="setEnv(\'test\')">切换到测试环境</button></div></div>';return}
+    const filterEl=document.getElementById('reviewFilter'),filter=filterEl?filterEl.value:'pending';
+    let docs=state.documents.filter(d=>d.status==='待审核');
+    if(filter==='p0')docs=docs.filter(d=>d.p0);
+    const drafts=state.documents.filter(d=>d.status==='草稿');
+    const draftHint=drafts.length?'<div class="alert warn"><strong>还有 '+drafts.length+' 份已上传文档处于草稿状态</strong>草稿不会自动进入业务审核。请到“文档与版本”点击“提交审核”。　<button class="btn small" onclick="showView(\'documents\')">去提交审核</button></div>':'';
+    if(!docs.length){box.innerHTML=draftHint||'<div class="panel"><div class="empty-kb"><div class="empty-icon">✓</div><h4>暂无待审核文档</h4><p>请先创建知识库、上传文档并提交审核。</p><button class="btn primary" onclick="showView(\'knowledge\')">从新建知识库开始</button></div></div>';return}
+    box.innerHTML='<div class="alert good"><strong>审核对象</strong>对比当前线上版与待审核版，完成三项确认后通过；通过后系统自动创建测试入库任务。</div><div class="panel" style="border-color:#9fc1f0"><div class="panel-head"><div><h2>待审核文档（'+docs.length+'）</h2><p>审核通过后才会创建测试入库任务，目前尚未进入RAG引擎。</p></div><span class="status processing">等待业务审核</span></div><div class="panel-body" style="padding:0"><table><thead><tr><th>文档</th><th>所属知识库</th><th>版本</th><th>提交人</th><th>提交时间</th><th>操作</th></tr></thead><tbody>'+docs.map(d=>'<tr><td><strong>'+escapeHtml(d.title)+'</strong><br><small>'+escapeHtml(d.fileName)+'</small>'+(d.p0?' <span class="status failed">P0</span>':'')+'</td><td>'+escapeHtml(d.kbName)+'</td><td>'+escapeHtml(d.version)+'<br><small>'+(d.prevText?'对比线上旧版本':'首次发布')+'</small></td><td>'+escapeHtml(d.owner)+'</td><td>'+escapeHtml(d.submittedAt||d.createdAt||'刚刚')+'</td><td><button class="btn small primary" onclick="openPendingReview(\''+d.id+'\')">审核这份文档</button></td></tr>').join('')+'</tbody></table></div></div>'+draftHint;
+  }
+  function openPendingReview(id){
+    if(!requireRole(['reviewer','admin'],'业务审核'))return;
+    const d=state.documents.find(x=>x.id===id&&x.status==='待审核');if(!d)return;
+    const detail=document.getElementById('reviewDetail');if(!detail)return;
+    const pendingHtml=d.pendingHtml||('<div>'+escapeHtml(d.contentPreview||'（未保存原文预览）')+'</div>');
+    const compare=d.prevText?('<div class="review-compare"><div><div class="review-version-head"><strong>当前线上版</strong><span class="status live">正在使用</span></div><div class="review-preview">'+escapeHtml(d.prevText)+'</div></div><div><div class="review-version-head"><strong>待审核版 '+escapeHtml(d.version)+'</strong><span class="status pending">审核此版本</span></div><div class="review-preview pending-version">'+pendingHtml+'</div></div></div>'):('<div><div class="review-version-head"><strong>待审核版 '+escapeHtml(d.version)+'</strong><span class="status pending">首次发布 · 无线上旧版本</span></div><div class="review-preview pending-version" style="height:auto;min-height:180px">'+pendingHtml+'</div></div>');
+    detail.innerHTML='<div class="review-taskbar"><div><strong>审核 · '+escapeHtml(d.title)+' '+escapeHtml(d.version)+'</strong><span>　提交人：'+escapeHtml(d.owner)+' · 审核人：'+roleName()+'</span></div><span>操作顺序：看黄色新增内容 → 勾选3项确认 → 通过或驳回</span></div><div class="panel"><div class="panel-head"><div><h2>'+escapeHtml(d.title)+' '+escapeHtml(d.version)+'</h2><p>提交人：'+escapeHtml(d.owner)+' · 所属知识库：'+escapeHtml(d.kbName)+'</p></div>'+(d.p0?'<span class="status failed">P0安全知识</span>':'<span class="status pending">'+escapeHtml(d.type)+'</span>')+'</div><div class="panel-body"><div class="alert warn"><strong>本次重点看什么？</strong>只需核对待审核版中黄色标出的新增安全口径'+(d.p0?'和P0高风险内容':'')+'。</div><div class="review-workspace"><div>'+compare+'<div class="review-meta"><div><label>知识来源</label><strong>'+escapeHtml(d.fileName)+'</strong></div><div><label>适用范围</label><strong>'+escapeHtml(d.channel)+'</strong></div><div><label>生效 / 失效</label><strong>'+escapeHtml(d.validity)+'</strong></div></div></div><aside class="review-side"><div class="review-side-head"><strong>确认审核结果</strong><small>先完成下面3项确认</small></div><div class="review-checklist"><label class="review-check"><input type="checkbox" class="review-check-input" onchange="reviewChecklistChanged()"><span><strong>内容准确、没有遗漏</strong><small>事实、操作步骤、条件和例外均符合业务规范</small></span></label><label class="review-check"><input type="checkbox" class="review-check-input" onchange="reviewChecklistChanged()"><span><strong>适用范围和有效期正确</strong><small>适用渠道、产品范围及生效时间均正确</small></span></label><label class="review-check"><input type="checkbox" class="review-check-input" onchange="reviewChecklistChanged()"><span><strong>可以作为正式回答</strong><small>不含敏感信息，也不会作出超范围承诺</small></span></label></div><div class="review-progress"><div style="display:flex;justify-content:space-between;margin-bottom:6px"><span id="reviewCheckText">已确认 0/3</span><span>全部为必选</span></div><div class="progress"><i id="reviewCheckProgress" style="width:0"></i></div></div><div class="review-decision"><div class="field"><label>审核备注（通过时必填）</label><textarea class="textarea" id="reviewNote" placeholder="通过时填写审核依据；驳回时说明需要修改什么">已核对新增安全处置内容，可作为正式口径。</textarea></div><div class="actions"><button class="btn danger" onclick="reviewDecision(\'reject\',\''+d.id+'\')">驳回修改</button><button class="btn primary" id="reviewApproveBtn" onclick="reviewDecision(\'approve\',\''+d.id+'\')" disabled>确认通过</button></div></div></aside></div></div></div>';
+    detail.scrollIntoView({block:'start'});
+  }
+  function reviewChecklistChanged(){
+    const checks=[].slice.call(document.querySelectorAll('.review-check-input')),total=checks.length,done=checks.filter(c=>c.checked).length,btn=document.getElementById('reviewApproveBtn');
+    const text=document.getElementById('reviewCheckText'),bar=document.getElementById('reviewCheckProgress');
+    if(text)text.textContent='已确认 '+done+'/'+total;
+    if(bar)bar.style.width=(done/total*100)+'%';
+    if(btn){btn.disabled=done!==total;btn.textContent=done===total?'确认通过':'还需确认 '+(total-done)+' 项'}
+  }
+  function reviewDecision(type,id){
+    const d=state.documents.find(x=>x.id===id);if(!d)return;
+    if(type==='reject'){
+      showModal('驳回知识版本','<div class="alert warn"><strong>驳回后会发生什么？</strong>'+escapeHtml(d.title)+' '+escapeHtml(d.version)+'退回知识运营修改，已完成版本继续服务，不会创建测试入库任务。</div><div class="field"><label>驳回原因</label><select class="select" id="rejectType" style="width:100%"><option>事实内容需要修改</option><option>适用范围不正确</option><option>条件或例外不完整</option><option>有效期不正确</option><option>存在安全或合规风险</option></select></div><div class="field"><label>具体修改要求</label><textarea class="textarea" id="rejectReason" rows="4" placeholder="必须告诉提交人具体修改什么"></textarea></div>','<button class="btn" onclick="closeModal()">取消</button><button class="btn danger" onclick="confirmReviewReject(\''+d.id+'\')">确认驳回</button>');
+      return;
+    }
+    const checks=[].slice.call(document.querySelectorAll('.review-check-input')),done=checks.filter(c=>c.checked).length,note=(document.getElementById('reviewNote')||{}).value||'';
+    if(done!==checks.length){toast('请先完成右侧3项确认');return}
+    if(!note.trim()){toast('请填写审核备注');return}
+    d.status='测试入库中';d.reviewedAt=nowText();
+    createTestIngestionJob(d);
+    saveState();renderAll();toast('审核通过，测试入库任务已自动创建');addAudit('审核通过并自动创建测试入库任务 '+d.id);
+    setTimeout(()=>showView('ingestion'),400);
+  }
+  function confirmReviewReject(id){
+    const reason=(document.getElementById('rejectReason')||{}).value||'';
+    if(!reason.trim()){toast('请填写具体修改要求');return}
+    const d=state.documents.find(x=>x.id===id);if(!d)return;
+    d.status='草稿';d.reviewedAt=nowText();d.rejectReason=reason;
+    saveState();renderAll();closeModal();toast('已驳回并退回知识运营修改');addAudit('驳回 '+d.id+'：'+reason);
+    const detail=document.getElementById('reviewDetail');if(detail)detail.innerHTML='';
+    setTimeout(()=>showView('documents'),300);
+  }
+
+  /* ============ ⑩ 入库任务 ============ */
+  function createTestIngestionJob(doc){
+    if(state.jobs.some(j=>j.docId===doc.id&&j.environment==='测试'))return;
+    const kb=state.knowledgeBases.find(k=>k.id===doc.kbId);
+    state.jobs.unshift({id:makeId('JOB-TEST'),docId:doc.id,docTitle:doc.title,version:doc.version,environment:'测试',datasetId:kb?kb.testDatasetId:'ds_test_default',step:'等待推送',progress:0,status:'待推送',chunks:[],retrievalRan:false,evaluationRuns:{},createdAt:nowText()});
+  }
+  function renderIngestionJobs(){
+    const body=document.getElementById('ingestionJobTable');if(!body)return;
+    let migrated=false;
+    if(!isProdView()){
+      state.documents.filter(d=>d.status==='待评测'||d.status==='测试入库中'||d.status==='待验收').forEach(d=>{if(!state.jobs.some(j=>j.docId===d.id&&j.environment==='测试')){createTestIngestionJob(d);d.status='测试入库中';migrated=true}});
+      state.jobs.forEach(job=>{if(job.status==='处理中'&&!job.pushedAt){job.status='待推送';job.step='等待推送';job.progress=0;migrated=true}if(job.status==='处理中'&&job.pushedAt&&!job.returnedAt)setTimeout(()=>completeJobFromCallback(job.id),900)});
+    }
+    if(migrated)saveState();
+    const list=isProdView()?state.jobs.filter(j=>j.environment==='生产'):state.jobs;
+    if(!list.length){body.innerHTML='<tr><td colspan="7"><div class="empty"><strong>'+(isProdView()?'生产环境暂无入库任务':'暂无入库任务')+'</strong><br><small>'+(isProdView()?'生产dataset只包含已发布版本。':'文档通过业务审核后，系统会自动创建测试入库任务。')+'</small></div></td></tr>';return}
+    body.innerHTML=list.map(job=>{
+      const statusClass=job.status==='待验收'?'live':job.status==='待推送'?'pending':job.status==='已发布'?'live':job.status==='处理中'?'processing':'processing';
+      let actions;
+      if(job.environment==='生产'||job.status==='已发布')actions='<button class="btn small" onclick="openUserJob(\''+job.id+'\')">查看任务</button>';
+      else if(job.status==='待推送')actions='<button class="btn small primary" onclick="pushJobAPI(\''+job.id+'\')">推送API</button> <button class="btn small" onclick="openUserJob(\''+job.id+'\')">详情</button>';
+      else if(job.status==='处理中')actions='<button class="btn small" disabled>等待RAG回调</button> <button class="btn small" onclick="openUserJob(\''+job.id+'\')">详情</button>';
+      else if(job.status==='待验收')actions='<button class="btn small primary" onclick="showView(\'processing\')">验收结果</button> <button class="btn small" onclick="openUserJob(\''+job.id+'\')">详情</button>';
+      else actions='<button class="btn small" onclick="openUserJob(\''+job.id+'\')">查看任务</button>'+(job.status==='检索通过'||job.status==='评测完成'?' <button class="btn small primary" onclick="showView(\'evaluation\')">去评测</button>':'');
+      return '<tr class="job-row" data-env="'+escapeHtml(job.environment)+'" data-status="'+escapeHtml(job.status)+'" data-name="'+escapeHtml((job.id+' '+job.docTitle).toLowerCase())+'"><td><strong>'+escapeHtml(job.id)+'</strong><br><small>'+(job.collectionId?'collection: '+escapeHtml(job.collectionId):'等待RAG返回collectionId')+'</small></td><td><span class="status '+(job.environment==='生产'?'live':'processing')+'">'+escapeHtml(job.environment)+'</span></td><td>'+escapeHtml(job.docTitle)+' '+escapeHtml(job.version)+'</td><td>'+escapeHtml(job.step)+(job.failedReason?'<br><small style="color:var(--red)">'+escapeHtml(job.failedReason)+'</small>':'')+'</td><td style="min-width:150px"><div class="progress"><i style="width:'+Number(job.progress||0)+'%"></i></div><small>'+escapeHtml(job.progress||0)+'% · 创建于 '+escapeHtml(job.createdAt)+'</small></td><td><span class="status '+statusClass+'">'+escapeHtml(job.status)+'</span></td><td style="white-space:nowrap">'+actions+'</td></tr>';
+    }).join('');
+  }
+  function filterJobs(){
+    const env=document.getElementById('jobEnv').value,st=document.getElementById('jobStatus').value,q=(document.getElementById('jobSearch').value||'').toLowerCase();
+    document.querySelectorAll('.job-row').forEach(r=>{const show=(!env||r.dataset.env===env)&&(!st||r.dataset.status===st)&&(!q||r.dataset.name.indexOf(q)>=0);r.style.display=show?'':'none'});
+  }
+  function pushJobAPI(id){
+    if(!requireTestEnv()||!requireRole(['operator','admin'],'推送RAG API'))return;
+    const job=state.jobs.find(j=>j.id===id);
+    if(!job||job.status!=='待推送'){toast('当前任务不能重复推送');return}
+    job.status='处理中';job.step='等待RAG引擎异步回调';job.progress=35;job.pushedAt=nowText();job.externalTaskId='RAG-'+Date.now().toString(36).toUpperCase();
+    saveState();renderAll();addAudit('推送RAG API '+job.id);
+    showModal('API推送成功','<div class="alert good"><strong>已调用RAG能力引擎接口</strong>企业平台已把文档、测试dataset和回调地址推送给RAG引擎。原型会在短暂等待后自动模拟RAG回调，无需额外操作。</div><table><tr><td>企业任务</td><td>'+escapeHtml(job.id)+'</td></tr><tr><td>外部任务</td><td>'+escapeHtml(job.externalTaskId)+'</td></tr><tr><td>目标环境</td><td>测试 / '+escapeHtml(job.datasetId)+'</td></tr><tr><td>处理范围</td><td>解析、切片、Embedding、建立索引</td></tr></table>','<button class="btn primary" onclick="closeModal()">知道了</button>');
+  }
+  function completeJobFromCallback(id){
+    const job=state.jobs.find(j=>j.id===id);
+    if(!job||job.status!=='处理中'||job.returnedAt)return;
+    job.status='待验收';job.step='RAG回调完成，等待验收';job.progress=100;job.returnedAt=nowText();
+    job.collectionId='col_test_'+Date.now().toString(36);job.parseStatus='成功';
+    job.characterCount=7283;job.chunkCount=42;job.vectorCount=42;job.customIndexCount=1;job.indexCount=43;job.warningCount=0;job.chunks=buildReturnedChunks();
+    const doc=state.documents.find(d=>d.id===job.docId);if(doc)doc.status='待验收';
+    saveState();renderAll();toast('已收到RAG异步回调，任务进入待验收');addAudit('接收RAG异步回调 '+job.id);
+  }
+  function retryJob(id){
+    if(!requireTestEnv()||!requireRole(['operator','admin'],'重试入库任务'))return;
+    const job=state.jobs.find(j=>j.id===id);if(!job)return;
+    job.failedReason='';job.status='处理中';job.step='从失败步骤重试';job.progress=60;job.pushedAt=job.pushedAt||nowText();
+    saveState();renderAll();toast('已从失败步骤幂等重试');
+    setTimeout(()=>{completeJobFromCallback(job.id)},1100);
+  }
+  function openUserJob(id){
+    const job=state.jobs.find(j=>j.id===id);if(!job)return;
+    showModal(job.status==='待验收'?'处理结果待验收':'入库任务详情','<div class="alert '+(job.status==='待验收'?'good':'warn')+'"><strong>'+escapeHtml(job.status)+'</strong>'+(job.status==='待验收'?'RAG引擎已完成解析、切片、Embedding和索引，请进入处理结果验收。':'任务当前处于“'+escapeHtml(job.step)+'”。')+'</div><table><tr><td>jobId</td><td>'+escapeHtml(job.id)+'</td></tr><tr><td>外部任务ID</td><td>'+escapeHtml(job.externalTaskId||'尚未推送')+'</td></tr><tr><td>文档版本</td><td>'+escapeHtml(job.docTitle)+' '+escapeHtml(job.version)+'</td></tr><tr><td>环境 / datasetId</td><td>'+escapeHtml(job.environment)+' / '+escapeHtml(job.datasetId)+'</td></tr><tr><td>collectionId</td><td>'+escapeHtml(job.collectionId||'尚未返回')+'</td></tr><tr><td>当前步骤</td><td>'+escapeHtml(job.step)+' · '+escapeHtml(job.progress)+'%</td></tr>'+(job.failedReason?'<tr><td>失败原因</td><td>'+escapeHtml(job.failedReason)+'</td></tr>':'')+'</table>','<button class="btn" onclick="closeModal()">关闭</button>'+(job.status==='待验收'?'<button class="btn primary" onclick="closeModal();showView(\'processing\')">进入结果验收</button>':job.status==='待推送'?'<button class="btn primary" onclick="closeModal();pushJobAPI(\''+job.id+'\')">推送API</button>':''));
+  }
+
+  /* ============ ⑪ 处理结果验收 ============ */
+  function currentProcessingJob(){
+    const list=state.jobs.filter(j=>['待验收','已验收','检索通过','评测完成','待发布','待发布','已发布'].indexOf(j.status)>=0);
+    if(!list.length)return null;
+    const preferred=state.processingJobId&&list.find(j=>j.id===state.processingJobId);
+    return preferred||list[0];
+  }
+  function renderProcessingResults(){
+    const view=document.getElementById('processing'),head=view&&view.querySelector('.page-head');if(!view||!head)return;
+    [].slice.call(view.children).forEach(child=>{if(child!==head)child.remove()});
+    if(isProdView()){const a=head.querySelector('.actions');if(a)a.innerHTML='';view.insertAdjacentHTML('beforeend','<div class="panel"><div class="empty-kb"><div class="empty-icon">⇄</div><h4>生产环境不提供处理结果验收</h4><p>解析、切片、Embedding与索引验收属于测试环境的内部调试动作；生产环境只保留已发布版本。</p><button class="btn primary" onclick="setEnv(\'test\')">切换到测试环境</button></div></div>');return}
+    const list=state.jobs.filter(j=>['待验收','已验收','检索通过','评测完成','待发布','已发布'].indexOf(j.status)>=0);
+    const job=currentProcessingJob(),headActions=head.querySelector('.actions');
+    if(headActions)headActions.innerHTML=job?'<select class="select" onchange="switchProcessingJob(this.value)">'+list.map(j=>'<option value="'+escapeHtml(j.id)+'"'+(j.id===job.id?' selected':'')+'>'+escapeHtml(j.docTitle+' '+j.version+' · '+j.status)+'</option>').join('')+'</select><button class="btn" onclick="renderProcessingResults();toast(\'已刷新当前任务结果\')">刷新结果</button>':'';
+    if(!job){view.insertAdjacentHTML('beforeend','<div class="panel"><div class="empty-kb"><div class="empty-icon">○</div><h4>暂无处理结果</h4><p>请先在“入库任务”中推送API，并等待RAG引擎自动回调。</p><button class="btn" onclick="showView(\'ingestion\')">返回入库任务</button></div></div>');return}
+    const doc=state.documents.find(d=>d.id===job.docId),chunks=(job.chunks&&job.chunks.length?job.chunks:buildReturnedChunks()),accepted=job.status!=='待验收';
+    const rows=chunks.map(c=>'<tr class="processing-chunk-row" data-search="'+escapeHtml((c.id+c.section+c.title+c.text+c.keywords).toLowerCase())+'"><td><strong>'+escapeHtml(c.id)+'</strong><br><small>'+escapeHtml(c.source)+'</small></td><td>'+escapeHtml(c.section)+'</td><td><strong>'+escapeHtml(c.title)+'</strong><br><small>'+escapeHtml(c.text.slice(0,92))+'…</small></td><td>'+escapeHtml(c.characters)+'</td><td><span class="status live">'+escapeHtml(c.status)+'</span></td><td><button class="btn small" onclick="openChunkDetail(\''+job.id+'\',\''+c.id+'\')">查看切片</button></td></tr>').join('');
+    view.insertAdjacentHTML('beforeend',
+      '<div class="alert '+(accepted?'good':'warn')+'"><strong>'+(accepted?'处理结果已验收':'收到RAG引擎处理结果，等待人工验收')+'</strong>以下数据对应“'+escapeHtml(job.docTitle)+' '+escapeHtml(job.version)+'”，来自RAG引擎异步回调。</div>'+
+      '<div class="stepper"><div class="node done"><b>✓</b><span>解析完成</span></div><div class="node done"><b>✓</b><span>切片完成</span></div><div class="node done"><b>✓</b><span>Embedding完成</span></div><div class="node done"><b>✓</b><span>索引完成</span></div><div class="node '+(accepted?'done':'active')+'"><b>'+(accepted?'✓':'5')+'</b><span>'+(accepted?'验收通过':'等待验收')+'</span></div></div>'+
+      '<div class="panel"><div class="tabs"><button class="tab processing-tab active" onclick="switchProcessingTab(\'overview\',this)">解析概览</button><button class="tab processing-tab" onclick="switchProcessingTab(\'chunks\',this)">切片明细</button><button class="tab processing-tab" onclick="switchProcessingTab(\'index\',this)">索引结果</button><button class="tab processing-tab" onclick="switchProcessingTab(\'retrieval\',this)">抽样检索</button></div><div class="panel-body">'+
+      '<div class="processing-pane" data-pane="overview"><div class="metric-row"><div class="metric good"><label>解析状态</label><strong>'+escapeHtml(job.parseStatus||'成功')+'</strong></div><div class="metric"><label>正文字符</label><strong>'+escapeHtml(job.characterCount||7283)+'</strong></div><div class="metric good"><label>切片数量</label><strong>'+escapeHtml(job.chunkCount||42)+'</strong></div><div class="metric good"><label>向量数量</label><strong>'+escapeHtml(job.vectorCount||42)+'</strong></div><div class="metric good"><label>处理警告</label><strong>'+escapeHtml(job.warningCount||0)+'</strong></div></div><div class="grid-2" style="margin-top:14px"><div class="alert good" style="margin:0"><strong>解析完整性</strong>正文已成功提取，标题与FAQ编号结构保留，未发现空页、乱码或表格识别警告。</div><div class="alert" style="margin:0"><strong>原文信息</strong>'+escapeHtml(doc?doc.fileName:job.docTitle)+' · '+escapeHtml(job.docTitle)+' '+escapeHtml(job.version)+'</div></div></div>'+
+      '<div class="processing-pane" data-pane="chunks" style="display:none"><div class="toolbar" style="margin-bottom:12px"><input class="input" id="processingChunkSearch" placeholder="搜索Chunk ID、FAQ问题或关键词" oninput="filterProcessingChunks()"><span style="font-size:11px;color:var(--muted)">接口返回 '+escapeHtml(job.chunkCount||42)+' 个切片，当前展示 '+chunks.length+' 个代表性切片</span></div><div style="overflow:auto"><table><thead><tr><th>Chunk</th><th>章节</th><th>切片内容</th><th>字符</th><th>状态</th><th>操作</th></tr></thead><tbody>'+rows+'</tbody></table></div><div class="alert" style="margin-top:12px;margin-bottom:0"><strong>人工抽查规则</strong>普通知识抽查5～10条；FAQ、表格、条件与例外、安全类知识必须重点检查问题与答案是否被拆开。</div></div>'+
+      '<div class="processing-pane" data-pane="index" style="display:none"><div class="grid-2"><div><table><tr><td>datasetId</td><td>'+escapeHtml(job.datasetId)+'</td></tr><tr><td>collectionId</td><td>'+escapeHtml(job.collectionId||'已返回')+'</td></tr><tr><td>Embedding模型</td><td>text-embedding-v3</td></tr><tr><td>向量维度</td><td>512</td></tr></table></div><div><table><tr><td>有效切片</td><td>'+escapeHtml(job.chunkCount||42)+'</td></tr><tr><td>成功向量</td><td>'+escapeHtml(job.vectorCount||42)+'</td></tr><tr><td>成功索引</td><td>'+escapeHtml(job.indexCount||42)+'（含自定义问法索引 '+escapeHtml(job.customIndexCount||0)+' 条）</td></tr><tr><td>一致性校验</td><td><span class="status live">切片 = 向量；索引含自定义问法</span></td></tr></table></div></div></div>'+
+      '<div class="processing-pane" data-pane="retrieval" style="display:none"><div class="alert"><strong>为什么验收阶段要抽样检索？</strong>数量一致只能证明写入成功；抽样检索用于确认真实问法能够召回正确切片。</div><div class="query-box"><input class="input" id="processingSampleQuery" value="充电宝鼓包了怎么办？"><select class="select"><option>混合检索</option><option>语义检索</option></select><button class="btn primary" onclick="runProcessingSampleRetrieval(\''+job.id+'\')">运行抽样检索</button></div><div id="processingSampleResult" style="margin-top:12px"></div></div>'+
+      '</div></div>'+
+      '<div class="panel"><div class="panel-head"><div><h2>验收依据</h2><p>不是只看数量；完成以下检查后才能验收通过。</p></div><span class="status '+(accepted?'live':'pending')+'">'+escapeHtml(job.status)+'</span></div><div class="panel-body">'+(accepted?'<div class="alert good"><strong>五项检查已完成</strong>该版本可以进入检索调试。</div><div class="actions"><button class="btn" onclick="showRawJobReturn(\''+job.id+'\')">查看接口返回</button><button class="btn primary" onclick="showView(\'retrieval\')">进入检索调试</button></div>':'<div class="grid-2"><div><label class="review-check"><input type="checkbox" class="processing-accept-check" onchange="processingAcceptanceChanged()"><span><strong>解析内容完整</strong><small>无缺页、乱码、表格或标题结构丢失</small></span></label><label class="review-check"><input type="checkbox" class="processing-accept-check" onchange="processingAcceptanceChanged()"><span><strong>切片边界合理</strong><small>问题与答案、条件与例外没有被错误拆分</small></span></label><label class="review-check"><input type="checkbox" class="processing-accept-check" onchange="processingAcceptanceChanged()"><span><strong>元数据正确</strong><small>文档、章节、渠道、版本和有效期可追溯</small></span></label></div><div><label class="review-check"><input type="checkbox" class="processing-accept-check" onchange="processingAcceptanceChanged()"><span><strong>数量一致</strong><small>有效切片数、向量数和索引数一致</small></span></label><label class="review-check"><input type="checkbox" class="processing-accept-check" onchange="processingAcceptanceChanged()"><span><strong>抽样检索命中</strong><small>典型问题能够召回预期切片</small></span></label></div></div><div class="review-progress" style="margin:12px 0"><span id="processingAcceptText">已确认 0/5</span><div class="progress" style="margin-top:6px"><i id="processingAcceptProgress" style="width:0"></i></div></div><div class="actions"><button class="btn" onclick="showRawJobReturn(\''+job.id+'\')">查看接口返回</button><button class="btn danger" onclick="rejectProcessingResult(\''+job.id+'\')">退回重处理</button><button class="btn primary" id="processingAcceptBtn" onclick="acceptProcessingResult(\''+job.id+'\')" disabled>还需确认5项</button></div>')+'</div></div>'
+    );
+  }
+  function switchProcessingJob(id){state.processingJobId=id;saveState();renderProcessingResults()}
+  function switchProcessingTab(name,button){document.querySelectorAll('#processing .processing-tab').forEach(b=>b.classList.toggle('active',b===button));document.querySelectorAll('#processing .processing-pane').forEach(p=>p.style.display=p.dataset.pane===name?'block':'none')}
+  function filterProcessingChunks(){const q=(document.getElementById('processingChunkSearch').value||'').toLowerCase();document.querySelectorAll('#processing .processing-chunk-row').forEach(row=>row.style.display=!q||row.dataset.search.indexOf(q)>=0?'':'none')}
+  function openChunkDetail(jobId,chunkId){
+    const job=state.jobs.find(j=>j.id===jobId),chunks=job&&(job.chunks&&job.chunks.length?job.chunks:buildReturnedChunks()),c=chunks&&chunks.find(x=>x.id===chunkId),doc=job&&state.documents.find(d=>d.id===job.docId);
+    if(!c)return;
+    showModal(c.id+' · '+c.title,'<div class="alert good"><strong>完整切片内容</strong>'+escapeHtml(c.text)+'</div><table><tr><td>章节路径</td><td>'+escapeHtml(c.section)+'</td></tr><tr><td>原文定位</td><td>'+escapeHtml(c.source)+' · '+escapeHtml(doc?doc.fileName:'原文档')+'</td></tr><tr><td>字符数</td><td>'+escapeHtml(c.characters)+'</td></tr><tr><td>检索关键词</td><td>'+escapeHtml(c.keywords)+'</td></tr><tr><td>业务元数据</td><td>'+escapeHtml(doc?doc.kbName:'知识库')+' / '+escapeHtml(doc?doc.channel:'全渠道')+' / '+escapeHtml(job.version)+'</td></tr><tr><td>索引状态</td><td><span class="status live">向量与索引正常</span></td></tr></table>');
+  }
+  function runProcessingSampleRetrieval(jobId){
+    const job=state.jobs.find(j=>j.id===jobId),chunks=job&&(job.chunks&&job.chunks.length?job.chunks:buildReturnedChunks()),q=(document.getElementById('processingSampleQuery').value||'').toLowerCase();
+    if(!chunks)return;
+    const c=q.indexOf('鼓包')>=0?chunks.find(x=>x.id==='CH-032'):q.indexOf('拆封')>=0?chunks.find(x=>x.id==='CH-007'):q.indexOf('正品')>=0?chunks.find(x=>x.id==='CH-001'):chunks[0];
+    document.getElementById('processingSampleResult').innerHTML='<div class="result"><div class="result-head"><h4>Top 1 · '+escapeHtml(c.id)+' · '+escapeHtml(c.title)+'</h4><span class="score">重排 0.94</span></div><p>'+escapeHtml(c.text)+'</p><small>命中来源：'+escapeHtml(c.section)+' / '+escapeHtml(c.source)+'</small></div>';
+    toast('抽样检索完成：已命中预期切片');
+  }
+  function processingAcceptanceChanged(){
+    const checks=[].slice.call(document.querySelectorAll('#processing .processing-accept-check')),done=checks.filter(c=>c.checked).length,btn=document.getElementById('processingAcceptBtn'),text=document.getElementById('processingAcceptText'),progress=document.getElementById('processingAcceptProgress');
+    if(text)text.textContent='已确认 '+done+'/'+checks.length;
+    if(progress)progress.style.width=(done/checks.length*100)+'%';
+    if(btn){btn.disabled=done!==checks.length;btn.textContent=done===checks.length?'验收通过':'还需确认'+(checks.length-done)+'项'}
+  }
+  function acceptProcessingResult(id){
+    if(!requireTestEnv()||!requireRole(['operator','admin'],'验收处理结果'))return;
+    const job=state.jobs.find(j=>j.id===id),doc=job&&state.documents.find(d=>d.id===job.docId),checks=[].slice.call(document.querySelectorAll('#processing .processing-accept-check'));
+    if(!job)return;
+    if(job.status==='待验收'&&checks.length&&checks.some(c=>!c.checked)){toast('请先完成5项验收检查');return}
+    job.status='已验收';job.step='验收通过';job.acceptedAt=nowText();
+    if(doc)doc.status='待检索验证';
+    saveState();renderAll();toast('处理结果验收通过，下一步进行检索调试');addAudit('验收RAG处理结果 '+job.id);
+    setTimeout(()=>showView('retrieval'),400);
+  }
+  function rejectProcessingResult(id){
+    if(!requireTestEnv()||!requireRole(['operator','admin'],'退回重处理'))return;
+    const job=state.jobs.find(j=>j.id===id),doc=job&&state.documents.find(d=>d.id===job.docId);
+    if(!job)return;
+    job.status='待推送';job.step='等待重新推送';job.progress=0;delete job.returnedAt;delete job.collectionId;
+    if(doc)doc.status='测试入库中';
+    saveState();renderAll();toast('已退回重处理，请重新推送API');addAudit('退回RAG处理结果 '+job.id);showView('ingestion');
+  }
+  function showRawJobReturn(id){
+    const job=state.jobs.find(j=>j.id===id);if(!job)return;
+    showModal('RAG接口回调数据','<table><tr><td>externalTaskId</td><td>'+escapeHtml(job.externalTaskId||'—')+'</td></tr><tr><td>collectionId</td><td>'+escapeHtml(job.collectionId||'—')+'</td></tr><tr><td>parseStatus</td><td>'+escapeHtml(job.parseStatus||'success')+'</td></tr><tr><td>chunkCount</td><td>'+escapeHtml(job.chunkCount||42)+'</td></tr><tr><td>vectorCount</td><td>'+escapeHtml(job.vectorCount||42)+'</td></tr><tr><td>indexCount</td><td>'+escapeHtml(job.indexCount||42)+'</td></tr><tr><td>customIndexCount</td><td>'+escapeHtml(job.customIndexCount||0)+'</td></tr><tr><td>warnings</td><td>'+escapeHtml(job.warningCount||0)+'</td></tr></table>');
+  }
+
+  /* ============ ⑫ 检索调试 ============ */
+  function buildReturnedChunks(){return[
+    {id:'CH-001',section:'一、购买与基础信息',title:'FAQ-001｜如何确认购买的充电宝是正品？',text:'标准答复：请优先核对包装防伪码、机身序列号与订单购买渠道。通过星驰官方商城、官方旗舰店或授权经销商购买的产品，可在“星驰服务”页面输入序列号查询。若系统提示序列号不存在、已被多次查询，或机身信息与包装不一致，请暂停使用并联系人工客服核验。',source:'FAQ-001',keywords:'正品、防伪码、序列号、购买渠道、验真'},
+    {id:'CH-003',section:'一、购买与基础信息',title:'FAQ-003｜充电宝首次使用前需要激活吗？',text:'标准答复：普通充电宝不需要联网或账号激活。首次使用前建议使用符合产品说明书要求的充电器，将电量充至指示灯显示满电后再正常使用。如果首次充电超过六小时仍无指示灯变化，请停止充电并联系售后检测。',source:'FAQ-003',keywords:'首次使用、第一次使用、初次使用、激活、首次充电、指示灯'},
+    {id:'CH-004',section:'一、购买与基础信息',title:'FAQ-004｜包装内通常包含哪些物品？',text:'标准答复：标准包装通常包含充电宝主机、充电线、使用说明书和电子保修提示卡。不同型号或活动套装可能存在差异，应以商品详情页和订单清单为准。收到商品后如发现配件缺失，请在签收后48小时内拍摄完整开箱照片并联系客服。',source:'FAQ-004',keywords:'包装清单、包装里有什么、配件缺失、充电线、说明书、开箱'},
+    {id:'CH-006',section:'二、退货与换货',title:'FAQ-006｜充电宝支持七天无理由退货吗？',text:'标准答复：通过星驰官方直营渠道购买的普通充电宝，在签收次日起七个自然日内，商品、包装和配件完整且不影响二次销售的，可以申请七天无理由退货。定制刻字商品、企业定制商品及页面明确标注不支持无理由退货的商品除外。第三方渠道订单应以原购买平台规则为准。',source:'FAQ-006',keywords:'七天无理由、退货、官方渠道、定制商品'},
+    {id:'CH-007',section:'二、退货与换货',title:'FAQ-007｜充电宝拆封后还能无理由退货吗？',text:'标准答复：仅拆开外包装但未造成商品损伤、明显使用痕迹或配件缺失，一般仍可提交无理由退货申请，由仓库验收后确认。若保护膜已撕除、接口存在插拔痕迹、机身有划痕，或电池循环记录显示明显使用，可能被认定为影响二次销售。',source:'FAQ-007',keywords:'拆封、无理由退货、二次销售、使用痕迹'},
+    {id:'CH-008',section:'二、退货与换货',title:'FAQ-008｜已经给手机充过一次电，还能七天无理由退货吗？',text:'标准答复：实际为手机充电通常会产生使用记录，原则上不再符合无理由退货条件。如果产品存在性能故障，可改为申请质量问题检测；经检测确认属于产品质量问题的，按照质量售后流程办理退货、换货或维修。',source:'FAQ-008',keywords:'使用过、充过电、退货、质量问题、检测'},
+    {id:'CH-020',section:'四、保修与维修',title:'FAQ-020｜充电宝的保修期是多久？',text:'标准答复：星驰普通充电宝自有效购买凭证所示购买日起享受12个月有限保修。换新机、活动赠品和企业定制产品可能适用不同期限，应以商品页面、合同或售后凭证为准。保修仅覆盖正常使用条件下产生的非人为性能故障。',source:'FAQ-020',keywords:'保修期、12个月、有限保修、购买凭证'},
+    {id:'CH-032',section:'五、故障、安全与使用',title:'FAQ-032｜发现充电宝鼓包怎么办？',text:'标准答复：鼓包属于高风险异常。请立即停止充放电，不要挤压、穿刺、拆解、摔落或投入生活垃圾，也不要通过普通快递自行寄送。应将产品暂时放置在远离火源和可燃物的安全区域，并联系当地官方售后获取检测或合规回收指引。',source:'FAQ-032',keywords:'鼓包、停止使用、禁止寄送、安全回收'},
+    {id:'CH-033',section:'五、故障、安全与使用',title:'FAQ-033｜充电宝有异味或冒烟怎么办？',text:'标准答复：请优先确保人身安全，立即远离产品并切断周边电源；在确保安全的前提下，将人员撤离至通风区域并联系消防等当地应急机构。不要徒手触碰、泼水、覆盖或继续观察测试。险情解除后再联系官方售后记录产品信息。',source:'FAQ-033',keywords:'异味、冒烟、应急、安全、消防'},
+    {id:'CH-040',section:'六、物流与售后流程',title:'FAQ-040｜在第三方店铺购买的充电宝可以找官方售后吗？',text:'标准答复：可以先提供产品序列号、原购买平台订单和故障信息，由官方核验产品来源及保修状态。退货、退款和价格争议通常由原销售渠道处理；属于官方保修范围的性能故障，可根据核验结果安排检测或维修。无法确认来源的产品可能需要进一步鉴定。',source:'FAQ-040',keywords:'第三方店铺、官方售后、订单、保修、鉴定'}
+  ].map(c=>{c.characters=c.title.length+c.text.length;c.status='正常';return c})}
+  function getJobChunks(job){const stored=job&&Array.isArray(job.chunks)?job.chunks:[],current=buildReturnedChunks(),storedIds=new Set(stored.map(c=>c.id));return stored.concat(current.filter(c=>!storedIds.has(c.id)))}
+  function selectDynamicRetrievalChunks(chunks,query){
+    const q=(query||'').toLowerCase();
+    const asksAuthenticity=q.indexOf('正品')>=0||q.indexOf('真假')>=0||q.indexOf('山寨')>=0||q.indexOf('防伪')>=0||q.indexOf('序列号')>=0||q.indexOf('验真')>=0;
+    const asksActivation=q.indexOf('激活')>=0||q.indexOf('首次使用')>=0||q.indexOf('第一次使用')>=0||q.indexOf('初次使用')>=0;
+    const asksPackage=(q.indexOf('包装')>=0)&&(q.indexOf('哪些')>=0||q.indexOf('什么')>=0||q.indexOf('包含')>=0||q.indexOf('清单')>=0||q.indexOf('东西')>=0||q.indexOf('配件')>=0)&&q.indexOf('退货')<0;
+    const asksUsedCharging=q.indexOf('充过')>=0||q.indexOf('充了一次')>=0||q.indexOf('给手机充')>=0||q.indexOf('已经使用')>=0||q.indexOf('使用过')>=0||q.indexOf('用过')>=0||q.indexOf('通电测试')>=0;
+    const id=q.indexOf('鼓包')>=0?'CH-032':q.indexOf('冒烟')>=0||q.indexOf('异味')>=0?'CH-033':asksAuthenticity?'CH-001':asksActivation?'CH-003':asksPackage?'CH-004':q.indexOf('保修')>=0?'CH-020':q.indexOf('第三方')>=0?'CH-040':q.indexOf('拆封')>=0?'CH-007':asksUsedCharging?'CH-008':q.indexOf('七天无理由')>=0||q.indexOf('退货')>=0?'CH-006':'';
+    const related={ 'CH-001':['CH-003','CH-004'], 'CH-003':['CH-004','CH-001'], 'CH-004':['CH-003','CH-001'], 'CH-006':['CH-007','CH-008'], 'CH-007':['CH-006','CH-008'], 'CH-008':['CH-007','CH-006'], 'CH-020':['CH-040','CH-001'], 'CH-032':['CH-033','CH-040'], 'CH-033':['CH-032','CH-040'], 'CH-040':['CH-020','CH-001'] };
+    if(id){const ordered=[id].concat(related[id]||[]).map(cid=>chunks.find(c=>c.id===cid)).filter(Boolean);return ordered.concat(chunks.filter(c=>!ordered.some(o=>o.id===c.id))).slice(0,3)}
+    const ignored=new Set(['充电','电宝','怎么','如何','可以','是否','什么','一下','购买']),grams=[];
+    for(let i=0;i<q.length-1;i++){const g=q.slice(i,i+2);if(!ignored.has(g)&&!/[\s？?，。]/.test(g))grams.push(g)}
+    return chunks.map(c=>{const text=(c.title+c.text+c.keywords).toLowerCase(),score=grams.reduce((t,g)=>t+(text.indexOf(g)>=0?1:0),0);return{chunk:c,score:score}}).sort((a,b)=>b.score-a.score).map(x=>x.chunk).slice(0,3);
+  }
+  function currentRetrievalJob(){
+    const list=state.jobs.filter(j=>['已验收','检索通过','评测完成','待发布','已发布'].indexOf(j.status)>=0);
+    if(!list.length)return null;
+    const preferred=state.retrievalJobId&&list.find(j=>j.id===state.retrievalJobId);
+    return preferred||list[0];
+  }
+  function renderRetrievalWorkbench(){
+    const view=document.getElementById('retrieval'),head=view&&view.querySelector('.page-head');if(!view||!head)return;
+    [].slice.call(view.children).forEach(child=>{if(child!==head)child.remove()});
+    if(isProdView()){const a=head.querySelector('.actions');if(a)a.innerHTML='';view.insertAdjacentHTML('beforeend','<div class="panel"><div class="empty-kb"><div class="empty-icon">⌕</div><h4>生产环境不提供检索调试</h4><p>检索调试用于验证“有没有找到正确知识”，只在测试环境对未发布版本执行；生产问答由线上应用直接使用已发布知识。</p><button class="btn primary" onclick="setEnv(\'test\')">切换到测试环境</button></div></div>');return}
+    const list=state.jobs.filter(j=>['已验收','检索通过','评测完成','待发布','已发布'].indexOf(j.status)>=0),job=currentRetrievalJob(),actions=head.querySelector('.actions');
+    if(actions)actions.innerHTML=job?'<select class="select" onchange="switchRetrievalJob(this.value)">'+list.map(j=>'<option value="'+escapeHtml(j.id)+'"'+(j.id===job.id?' selected':'')+'>'+escapeHtml(j.docTitle+' '+j.version+' · '+j.status)+'</option>').join('')+'</select><span class="status '+(job.status==='已发布'?'live':job.status!=='已验收'?'live':'processing')+'">'+escapeHtml(job.status)+'</span>':'';
+    if(!job){
+      view.insertAdjacentHTML('beforeend','<div class="panel"><div class="empty-kb"><div class="empty-icon">⌕</div><h4>暂无可检索的数据</h4><p>只有完成RAG处理并人工验收通过的文档，才会进入检索调试。</p><button class="btn primary" onclick="showView(\'processing\')">去处理结果验收</button></div></div>');
+      return;
+    }
+    const doc=state.documents.find(d=>d.id===job.docId),chunks=getJobChunks(job),passed=job.status!=='已验收';
+    view.insertAdjacentHTML('beforeend',
+      '<div class="alert good"><strong>已载入验收通过的真实处理结果</strong>当前检索范围：'+escapeHtml(job.docTitle)+' '+escapeHtml(job.version)+'；collectionId：'+escapeHtml(job.collectionId||'—')+'。检索结果均来自该文档切片。</div>'+
+      '<div class="grid-2" style="grid-template-columns:minmax(0,1.55fr) minmax(270px,.65fr)">'+
+        '<div class="panel"><div class="panel-head"><div><h2>输入真实用户问题</h2><p>验证RAG引擎能否从已验收的 '+escapeHtml(job.chunkCount||42)+' 个切片中召回正确答案依据。</p></div><span class="status '+(passed?'live':'pending')+'">'+(passed?'检索已通过':'待检索验证')+'</span></div><div class="panel-body">'+
+          '<div class="query-box"><input class="input" id="dynamicRetrievalQuery" value="'+escapeHtml(job.lastRetrievalQuery||'充电宝鼓包了怎么办？')+'" placeholder="请输入客服可能提出的问题"><button class="btn primary" onclick="runDynamicRetrieval(\''+job.id+'\')">运行检索</button></div>'+
+          '<div class="actions" style="margin-top:10px"><button class="btn small" onclick="setDynamicRetrievalQuery(\'充电宝鼓包了怎么办？\',\''+job.id+'\')">鼓包怎么办</button><button class="btn small" onclick="setDynamicRetrievalQuery(\'充电宝拆封后还能退吗？\',\''+job.id+'\')">拆封能退吗</button><button class="btn small" onclick="setDynamicRetrievalQuery(\'怎么判断充电宝是不是正品？\',\''+job.id+'\')">怎么验真</button></div>'+
+          '<div class="toolbar" style="margin-top:12px"><span style="font-size:11px;color:var(--muted)">检索方式</span><select class="select" id="dynamicRetrievalMode" onchange="retrievalParamChanged(\''+job.id+'\')"><option '+(job.retrievalMode==='混合检索'?'selected':'')+'>混合检索</option><option '+(job.retrievalMode==='语义检索'?'selected':'')+'>语义检索</option><option '+(job.retrievalMode==='全文检索'?'selected':'')+'>全文检索</option></select><span style="font-size:11px;color:var(--muted)">最低相关度</span><input class="input" id="dynamicRetrievalThreshold" style="min-width:80px;width:80px" value="'+escapeHtml(job.retrievalThreshold||'0.40')+'" onchange="retrievalParamChanged(\''+job.id+'\')"><label style="font-size:11px"><input type="checkbox" id="dynamicRetrievalRerank" '+(job.retrievalRerank!==false?'checked':'')+' onchange="retrievalParamChanged(\''+job.id+'\')"> 启用重排</label><label style="font-size:11px"><input type="checkbox" id="dynamicRetrievalTitleIndex" '+(job.retrievalTitleIndex!==false?'checked':'')+' onchange="retrievalParamChanged(\''+job.id+'\')"> 标题索引</label></div>'+
+          '<div class="alert" style="margin-top:12px;margin-bottom:0"><strong>4类常见失败诊断</strong><button class="btn small" style="margin:4px 6px 0 0" onclick="runDiagnosisDemo(\'missing\',\''+job.id+'\')">知识缺失或过期</button><button class="btn small" style="margin:4px 6px 0 0" onclick="runDiagnosisDemo(\'chunk\',\''+job.id+'\')">切片不合理</button><button class="btn small" style="margin:4px 6px 0 0" onclick="runDiagnosisDemo(\'filter\',\''+job.id+'\')">过滤条件不正确</button><button class="btn small" style="margin:4px 0 0 0" onclick="runDiagnosisDemo(\'config\',\''+job.id+'\')">检索配置不合适</button></div>'+
+        '</div></div>'+
+        '<div class="panel"><div class="panel-head"><h2>当前检索资源</h2></div><div class="panel-body"><table><tr><td>知识库</td><td>'+escapeHtml(doc?doc.kbName:'—')+'</td></tr><tr><td>测试dataset</td><td>'+escapeHtml(job.datasetId)+'</td></tr><tr><td>collection</td><td>'+escapeHtml(job.collectionId||'—')+'</td></tr><tr><td>可检索切片</td><td>'+escapeHtml(job.chunkCount||chunks.length)+' 条</td></tr><tr><td>向量 / 索引</td><td>'+escapeHtml(job.vectorCount||42)+' / '+escapeHtml(job.indexCount||42)+'</td></tr><tr><td>文档状态</td><td><span class="status processing">'+escapeHtml(doc?doc.status:'待检索验证')+'</span></td></tr></table><div class="actions" style="margin-top:10px"><button class="btn small" onclick="saveDynamicRetrievalCase(\''+job.id+'\')">保存为测试用例</button><button class="btn small" onclick="saveTestCase(\''+job.id+'\')">保存为回归用例</button></div></div></div>'+
+      '</div>'+
+      '<div id="dynamicRetrievalResult">'+(job.retrievalRan?buildDynamicRetrievalResult(job,chunks,job.lastRetrievalQuery):'<div class="panel"><div class="empty-kb"><div class="empty-icon">⌕</div><h4>等待运行检索</h4><p>输入一个真实用户问题，系统会展示Top K切片、相关度、来源和诊断依据。</p></div></div>')+'</div>'
+    );
+  }
+  function switchRetrievalJob(id){state.retrievalJobId=id;saveState();renderRetrievalWorkbench()}
+  function setDynamicRetrievalQuery(text,jobId){const input=document.getElementById('dynamicRetrievalQuery');if(input)input.value=text;runDynamicRetrieval(jobId)}
+  function retrievalParamChanged(jobId){
+    const job=state.jobs.find(j=>j.id===jobId);if(!job)return;
+    job.retrievalMode=(document.getElementById('dynamicRetrievalMode')||{}).value||job.retrievalMode||'混合检索';
+    job.retrievalThreshold=(document.getElementById('dynamicRetrievalThreshold')||{}).value||job.retrievalThreshold||'0.40';
+    job.retrievalRerank=!!(document.getElementById('dynamicRetrievalRerank')||{}).checked;
+    job.retrievalTitleIndex=!!(document.getElementById('dynamicRetrievalTitleIndex')||{}).checked;
+    saveState();
+    if(job.retrievalRan){const chunks=getJobChunks(job),target=document.getElementById('dynamicRetrievalResult');if(target)target.innerHTML=buildDynamicRetrievalResult(job,chunks,job.lastRetrievalQuery)}
+    toast('检索参数已更新，可重新运行检索验证效果');
+  }
+  function runDiagnosisDemo(type,jobId){
+    const texts={
+      missing:{title:'知识缺失或过期',desc:'问题涉及的知识没有进入知识库，或对应版本已过期被检索排除。',hint:'补充权威知识或更新版本，再重新走审核、入库和评测。'},
+      chunk:{title:'切片不合理',desc:'问题、答案、条件与例外被拆到不同切片，Top 1只命中半条规则。',hint:'检查切片边界，必要时创建优化任务重新处理。'},
+      filter:{title:'过滤条件不正确',desc:'渠道、业务范围或权限过滤把正确知识排除在候选之外。',hint:'检查渠道标签、业务域和ACL配置。'},
+      config:{title:'检索配置不合适',desc:'最低相关度阈值过高、关闭重排或检索方式与问题类型不匹配。',hint:'结合真实问题调整检索与重排策略。'}
+    }[type];
+    const input=document.getElementById('dynamicRetrievalQuery');
+    if(input){input.value=type==='missing'?'防伪码显示已经查询多次，是不是假货？':type==='chunk'?'拆封后保护膜撕了还能退吗？':type==='filter'?'京东渠道退款多久到账？':'充电宝鼓包了怎么办？'}
+    showModal('诊断演示 · '+texts.title,'<div class="alert warn"><strong>'+texts.title+'</strong>'+texts.desc+'</div><div class="alert good"><strong>处理方向</strong>'+texts.hint+'</div><p style="font-size:11px;color:var(--muted)">问题已带入检索输入框，可点击“运行检索”观察召回变化。</p>','<button class="btn primary" onclick="closeModal();runDynamicRetrieval(\''+jobId+'\')">运行检索</button><button class="btn" onclick="closeModal()">关闭</button>');
+    addAudit('查看检索失败诊断：'+texts.title);
+  }
+  function buildDynamicRetrievalResult(job,chunks,query){
+    const selected=selectDynamicRetrievalChunks(chunks,query),doc=state.documents.find(d=>d.id===job.docId);
+    const mode=job.retrievalMode||'混合检索',rerank=job.retrievalRerank!==false,threshold=Number(job.retrievalThreshold||0.40);
+    let base=[0.94,0.62,0.48];
+    if(mode==='语义检索')base=[0.88,0.58,0.45];
+    if(mode==='全文检索')base=[0.76,0.63,0.52];
+    if(!rerank)base=base.map(s=>Math.max(0.3,Number((s-0.07).toFixed(2))));
+    const topScore=base[0],thresholdBlocked=threshold>topScore;
+    const shown=thresholdBlocked?[]:selected.filter((c,i)=>base[i]>=threshold);
+    const results=shown.length?shown.map((c,i)=>'<div class="result"><div class="result-head"><h4>Top '+(i+1)+' · '+escapeHtml(c.id)+' · '+escapeHtml(c.title)+'</h4><div><span class="status '+(i===0?'live':'pending')+'" style="margin-right:6px">'+(i===0?'准确命中':'补充候选')+'</span><span class="score">相关度 '+base[i].toFixed(2)+'</span></div></div><p>'+escapeHtml(c.text)+'</p><small>来源：'+escapeHtml(doc?doc.fileName:job.docTitle)+' / '+escapeHtml(c.section)+' / '+escapeHtml(c.source)+' / collection '+escapeHtml(job.collectionId||'—')+'</small></div>').join(''):'<div class="empty"><strong>没有召回结果</strong><br><small>最低相关度 '+escapeHtml(job.retrievalThreshold||'0.40')+' 高于最高得分 '+topScore.toFixed(2)+'，所有候选被阈值过滤。</small></div>';
+    const diag=thresholdBlocked?'<div class="alert danger"><strong>诊断：检索配置不合适（阈值过高）</strong>当前阈值 '+escapeHtml(job.retrievalThreshold)+' 高于Top 1得分 '+topScore.toFixed(2)+'。建议降低阈值或恢复重排后重新验证。</div>':!rerank?'<div class="alert warn"><strong>诊断：已关闭重排</strong>相关度整体下降，Top 1仍命中但排序稳定性变差，建议恢复重排。</div>':'<div class="alert good"><strong>结论：召回正确</strong>Top 1准确命中 '+escapeHtml(selected[0].id)+'；Top 2、Top 3根据当前问题重新排序，并保留完整来源证据。</div>';
+    job.lastRetrievalDiagnosis=thresholdBlocked?'config':(!rerank?'low':'ok');
+    return '<div class="grid-2" style="grid-template-columns:minmax(0,1.45fr) minmax(300px,.75fr)"><div class="panel"><div class="panel-head"><div><h2>召回结果 Top '+shown.length+'</h2><p>检索ID：'+escapeHtml(job.lastRetrievalRunId||'RET-LOCAL')+' · 方式：'+escapeHtml(mode)+' · 问题：'+escapeHtml(query||'—')+'</p></div><span class="status pending">'+(thresholdBlocked?'无结果':shown.length+'条候选')+'</span></div><div class="panel-body">'+results+'</div></div><div><div class="panel"><div class="panel-head"><h2>检索诊断</h2></div><div class="panel-body"><div class="metric-row" style="grid-template-columns:repeat(2,1fr)"><div class="metric '+(thresholdBlocked?'bad':'good')+'"><label>预期切片</label><strong style="font-size:14px">'+escapeHtml(selected[0].id)+'</strong></div><div class="metric '+(thresholdBlocked?'bad':'good')+'"><label>Top 1是否命中</label><strong style="font-size:14px">'+(thresholdBlocked?'被过滤':'是')+'</strong></div><div class="metric"><label>Top 1分数</label><strong>'+topScore.toFixed(2)+'</strong></div><div class="metric"><label>相关候选</label><strong style="font-size:13px">'+Math.max(0,shown.length-1)+'条</strong></div></div>'+diag+'<div class="actions"><button class="btn danger" onclick="openRetrievalProblemModal(\''+job.id+'\')">标记为问题</button><button class="btn primary" onclick="confirmDynamicRetrieval(\''+job.id+'\')" '+(thresholdBlocked?'disabled':'')+'>确认检索通过</button></div></div></div><div class="panel"><div class="panel-head"><h2>Top 3的用途</h2></div><div class="panel-body" style="font-size:11px;line-height:1.8;color:var(--muted)">Top 1是最相关知识；Top 2、Top 3用于补充相关条件或给大模型提供候选依据。每次输入新问题都会重新计算，不复用上一次结果。</div></div></div></div>';
+  }
+  function runDynamicRetrieval(jobId){
+    const job=state.jobs.find(j=>j.id===jobId),input=document.getElementById('dynamicRetrievalQuery');
+    if(!job||!input)return;
+    const query=input.value.trim();
+    if(!query){toast('请先输入一个测试问题');return}
+    const chunks=getJobChunks(job),selected=selectDynamicRetrievalChunks(chunks,query),runId='RET-'+Date.now().toString(36).toUpperCase();
+    job.lastRetrievalQuery=query;job.retrievalRan=true;job.lastRetrievalAt=nowText();job.lastRetrievalRunId=runId;job.lastRetrievalChunkId=selected[0].id;
+    saveState();
+    const target=document.getElementById('dynamicRetrievalResult');
+    if(target)target.innerHTML='<div class="loader show"><div class="spin"></div>正在根据新问题重新执行检索与重排……</div>';
+    setTimeout(()=>{if(job.lastRetrievalRunId!==runId)return;const current=document.getElementById('dynamicRetrievalResult');if(current)current.innerHTML=buildDynamicRetrievalResult(job,chunks,query);saveState();toast('检索完成：Top 3已根据新问题刷新');addAudit('检索调试 '+job.id+' → '+job.lastRetrievalChunkId)},320);
+  }
+  function saveDynamicRetrievalCase(jobId){
+    const job=state.jobs.find(j=>j.id===jobId);if(!job)return;
+    if(!job.retrievalRan){toast('请先运行一次检索');return}
+    if(job.retrievalCaseSaved){toast('该检索已保存为测试用例');return}
+    job.retrievalCaseSaved=true;saveState();toast('已保存为检索测试用例，并绑定预期切片 '+job.lastRetrievalChunkId);addAudit('保存检索测试用例 '+job.id);
+  }
+  function saveTestCase(jobId){
+    const job=state.jobs.find(j=>j.id===jobId);if(!job)return;
+    if(!job.retrievalRan){toast('请先运行一次检索');return}
+    job.regressionCaseSaved=true;saveState();toast('已保存为回归测试用例 TC-RET-'+String(Date.now()).slice(-3)+'，并绑定预期来源 '+job.lastRetrievalChunkId);addAudit('保存回归测试用例 '+job.id);
+  }
+  function openRetrievalProblemModal(jobId){
+    const job=state.jobs.find(j=>j.id===jobId);
+    if(!job||!job.retrievalRan){toast('请先运行一次检索');return}
+    const sourceKey=job.id+'|retrieval|'+job.lastRetrievalRunId,existing=state.cases.find(item=>item.sourceKey===sourceKey);
+    if(existing){toast('本次检索已生成问题案例，不能重复提交');showView('cases');return}
+    const chunks=getJobChunks(job),selected=selectDynamicRetrievalChunks(chunks,job.lastRetrievalQuery),options=chunks.map(c=>'<option value="'+escapeHtml(c.id)+'">'+escapeHtml(c.id+' · '+c.title)+'</option>').join('');
+    showModal('将本次检索标记为问题','<div class="alert warn"><strong>会同步到“问题案例”</strong>系统将保存用户问题、检索ID、实际Top 3、来源文档和你填写的预期结果，方便查看证据并在线下处理。</div><table><tr><td>用户问题</td><td>'+escapeHtml(job.lastRetrievalQuery)+'</td></tr><tr><td>当前Top 1</td><td>'+escapeHtml(selected[0].id+' · '+selected[0].title)+'</td></tr><tr><td>检索ID</td><td>'+escapeHtml(job.lastRetrievalRunId)+'</td></tr></table><div class="field-row" style="margin-top:12px"><div class="field"><label>问题类型</label><select class="select" id="retrievalProblemType" style="width:100%"><option>Top 1召回错误</option><option>相关度过低</option><option>没有召回正确切片</option><option>过滤或权限异常</option></select></div><div class="field"><label>预期命中的切片</label><select class="select" id="retrievalExpectedChunk" style="width:100%"><option value="">知识库未覆盖 / 暂不确定</option>'+options+'</select></div></div><div class="field"><label>问题说明</label><textarea class="textarea" id="retrievalProblemNotes" rows="3" placeholder="例如：问题询问首次激活，Top 1却召回了退货政策。"></textarea></div>','<button class="btn" onclick="closeModal()">取消</button><button class="btn danger" onclick="createRetrievalProblemCase(\''+job.id+'\')">生成问题案例</button>');
+  }
+  function createRetrievalProblemCase(jobId){
+    const job=state.jobs.find(j=>j.id===jobId),type=document.getElementById('retrievalProblemType'),expectedSelect=document.getElementById('retrievalExpectedChunk'),notes=document.getElementById('retrievalProblemNotes');
+    if(!job||!job.retrievalRan||!type||!expectedSelect)return;
+    const sourceKey=job.id+'|retrieval|'+job.lastRetrievalRunId;
+    if(state.cases.some(item=>item.sourceKey===sourceKey)){closeModal();toast('本次检索已生成问题案例，不能重复提交');showView('cases');return}
+    const chunks=getJobChunks(job),selected=selectDynamicRetrievalChunks(chunks,job.lastRetrievalQuery),actual=selected[0],expected=chunks.find(c=>c.id===expectedSelect.value),reason=(notes&&notes.value.trim())||type.value;
+    state.cases.unshift({id:makeId('CASE'),sourceKey:sourceKey,jobId:job.id,docId:job.docId,docTitle:job.docTitle,version:job.version,source:'检索调试',sourceMode:'retrieval',sourceRunId:job.lastRetrievalRunId,evaluationCaseId:job.lastRetrievalRunId,question:job.lastRetrievalQuery,aiAnswer:'实际Top 1：'+actual.id+' · '+actual.title,expected:expected?'预期Top 1：'+expected.id+' · '+expected.title:'知识库未覆盖或预期切片待确认',chunkId:expected?expected.id:'待确认',actualChunkId:actual.id,retrievedChunks:selected.map((c,i)=>({rank:i+1,id:c.id,title:c.title})),risk:'普通',blocking:false,reason:type.value+'：'+reason,rootCause:'待归因',owner:'待分配',status:'待处理',createdAt:nowText()});
+    saveState();closeModal();renderAll();showView('cases');toast('已生成问题案例，并保留本次Top 3检索证据');addAudit('检索调试标记为问题 '+job.lastRetrievalRunId);
+  }
+  function confirmDynamicRetrieval(jobId){
+    if(!requireRole(['operator','tester','admin'],'确认检索通过'))return;
+    const job=state.jobs.find(j=>j.id===jobId),doc=job&&state.documents.find(d=>d.id===job.docId);
+    if(!job||!job.retrievalRan){toast('请先运行检索并确认召回结果');return}
+    if(job.lastRetrievalDiagnosis==='config'){toast('当前检索未命中（阈值过高），不能确认通过');return}
+    job.status='检索通过';job.step='检索验证通过';job.retrievalPassedAt=nowText();
+    if(doc)doc.status='待问答评测';
+    saveState();renderAll();toast('检索验证已通过，下一步进入问答评测');addAudit('检索验证通过 '+job.id);
+    showModal('检索验证通过','<div class="alert good"><strong>已确认能够召回正确知识</strong>问题“'+escapeHtml(job.lastRetrievalQuery)+'”命中 '+escapeHtml(job.lastRetrievalChunkId)+'，并保留了文档、collection和切片来源。</div><table><tr><td>当前文档状态</td><td>待问答评测</td></tr><tr><td>下一步验证</td><td>先进行后台批量评测，再到客服测试聊天窗完成人工对话验收</td></tr></table>','<button class="btn" onclick="closeModal()">继续检索</button><button class="btn primary" onclick="closeModal();showView(\'evaluation\')">进入批量评测与发布</button>');
+  }
+
+  /* ============ ⑬ 批量评测与发布 ============ */
+  function buildEvaluationCases(count,mode){
+    count=count||5;mode=mode||'quick';
+    const topics=[
+      {chunkId:'CH-032',risk:'P0安全',expected:'立即停止充放电，不得挤压、穿刺、拆解或普通快递寄送，并联系官方售后获取检测或回收指引。',questions:['充电宝鼓包了还能继续使用吗？','电池有点膨胀，需要马上停用吗？','鼓包但还能充电，可以再测试一次吗？','鼓包的充电宝能快递寄回吗？','充电宝鼓起来了可以自己拆开吗？']},
+      {chunkId:'CH-033',risk:'P0安全',expected:'优先确保人身安全，立即远离产品并切断周边电源，不要徒手触碰或继续测试，必要时联系当地应急机构。',questions:['充电宝突然冒烟了怎么办？','充电宝闻起来有刺鼻异味还能用吗？','设备异常高温并冒烟应该怎么处理？','冒烟后可以直接泼水吗？','充电宝异味消失后还能继续测试吗？']},
+      {chunkId:'CH-007',risk:'关键政策',expected:'仅拆封但未损伤、无明显使用痕迹且配件完整时可以申请，最终由仓库验收确认。',questions:['充电宝拆封后还能七天无理由退货吗？','只拆了外包装可以退吗？','保护膜撕掉了还能无理由退货吗？','包装拆开但没使用能申请退货吗？','接口有插拔痕迹还能退吗？']},
+      {chunkId:'CH-008',risk:'关键政策',expected:'实际为手机充电通常会产生使用记录，原则上不再符合无理由退货；如存在性能故障可申请质量检测。',questions:['给手机充过一次电还能退吗？','只试用了一次是否影响七天无理由？','已经通电测试过可以直接退款吗？','使用后发现充不进电应该申请什么售后？','有使用记录但存在故障能退换吗？']},
+      {chunkId:'CH-001',risk:'普通',expected:'核对防伪码、机身序列号和购买渠道；出现异常时暂停使用并联系人工客服核验。',questions:['怎么确认买到的充电宝是不是正品？','充电宝序列号在哪里验真？','防伪码显示查询多次怎么办？','第三方购买的产品怎样核验真假？','包装和机身序列号不一致怎么办？']},
+      {chunkId:'CH-020',risk:'关键政策',expected:'普通充电宝自有效购买凭证所示购买日起享受12个月有限保修，特殊产品以页面、合同或凭证为准。',questions:['这款充电宝保修多久？','保修期从下单还是签收开始算？','活动赠品也有12个月保修吗？','企业定制产品的保修期一样吗？','申请保修需要提供什么购买凭证？']},
+      {chunkId:'CH-040',risk:'普通',expected:'可以提交序列号、订单和故障信息核验；退款及价格争议通常由原销售渠道处理。',questions:['第三方店铺购买的充电宝可以找官方售后吗？','非官方渠道购买出现故障找谁？','第三方订单可以在官方申请退款吗？','无法确认来源的产品还能维修吗？','平台店铺购买如何申请官方检测？']},
+      {chunkId:'CH-006',risk:'关键政策',expected:'官方直营渠道购买且商品、包装和配件完整、不影响二次销售时，可在规定期限内申请七天无理由退货；特殊商品除外。',questions:['充电宝支持七天无理由退货吗？','七天无理由从哪一天开始计算？','企业定制充电宝可以无理由退货吗？','退货时包装和配件必须完整吗？','第三方渠道也适用官方七天退货规则吗？']}
+    ];
+    const scenarioPrefixes=['','客服转述：','京东渠道用户咨询：','自营商城用户咨询：','售后复核问题：'];
+    const regressionFailures=new Set([190,191,194,195,196,197,198,199]);
+    return Array.from({length:count},function(_,index){
+      const topic=topics[index%topics.length],variant=Math.floor(index/topics.length)%topic.questions.length,round=Math.floor(index/40),failed=mode==='formal'?index===39:mode==='regression'?regressionFailures.has(index):false;
+      return {id:'EV-'+String(index+1).padStart(3,'0'),question:(scenarioPrefixes[round]||('场景'+(round+1)+'：'))+topic.questions[variant],chunkId:topic.chunkId,expected:topic.expected,risk:topic.risk,result:failed?'失败':'通过',failureReason:failed?'回答遗漏了关键适用条件或例外，虽然引用来源正确，但答案完整性未达到上线标准。':''};
+    });
+  }
+  function evaluationModeConfig(mode){
+    return {
+      quick:{key:'quick',name:'快速冒烟评测',count:5,scene:'检查流程是否跑通（随机抽取5条）',passRate:'100%',avg:'1.6s'},
+      formal:{key:'formal',name:'正式上线评测',count:40,scene:'单文档发布门槛',passRate:'97.5%',avg:'1.8s'},
+      regression:{key:'regression',name:'全量回归评测',count:200,scene:'知识库级回归，确认不影响已有知识',passRate:'96.0%',avg:'1.9s'}
+    }[mode]||null;
+  }
+  function evaluationStageGate(job,mode){
+    const runs=job&&job.evaluationRuns||{},unresolved=function(stage){return state.cases.filter(item=>item.jobId===job.id&&item.sourceMode===stage&&['已处理','已关闭'].indexOf(item.status)<0)};
+    if(mode==='quick')return{allowed:true,reason:'第一步：先运行5条冒烟评测'};
+    if(mode==='formal'){
+      if(!runs.quick||!runs.quick.passed)return{allowed:false,reason:'请先通过5条冒烟评测'};
+      if(unresolved('quick').length)return{allowed:false,reason:'请先处理冒烟评测产生的问题案例'};
+      return{allowed:true,reason:'第二步：运行40条正式评测'};
+    }
+    if(mode==='regression'){
+      if(!runs.formal||!runs.formal.passed)return{allowed:false,reason:'请先通过40条正式评测'};
+      if(unresolved('formal').length)return{allowed:false,reason:'请先处理正式评测产生的问题案例'};
+      return{allowed:true,reason:'第三步：运行200条全量回归'};
+    }
+    return{allowed:false,reason:'未知评测阶段'};
+  }
+  function renderEvaluationWorkbench(){
+    const view=document.getElementById('evaluation'),head=view&&view.querySelector('.page-head');if(!view||!head)return;
+    [].slice.call(view.children).forEach(child=>{if(child!==head)child.remove()});
+    if(isProdView()){const a=head.querySelector('.actions');if(a)a.innerHTML='';view.insertAdjacentHTML('beforeend','<div class="panel"><div class="empty-kb"><div class="empty-icon">◎</div><h4>生产环境不提供批量评测</h4><p>冒烟、正式评测、全量回归和客服对话验收都在测试环境完成；生产环境只保留已发布版本和发布审批入口。</p><button class="btn primary" onclick="setEnv(\'test\')">切换到测试环境</button></div></div>');return}
+    const job=state.jobs.find(j=>['检索通过','评测完成','待发布','已发布'].indexOf(j.status)>=0);
+    if(!job){const actions=head.querySelector('.actions');if(actions)actions.innerHTML='';view.insertAdjacentHTML('beforeend','<div class="panel"><div class="empty-kb"><div class="empty-icon">◎</div><h4>暂无问答评测任务</h4><p>请先在“检索调试”中运行检索并确认检索通过。系统随后会自动创建对应的问答评测任务。</p><button class="btn primary" onclick="showView(\'retrieval\')">去检索调试</button></div></div>');return}
+    const doc=state.documents.find(d=>d.id===job.docId);
+    syncEvaluationProblemCases();
+    job.evaluationRuns=job.evaluationRuns||{};
+    if(job.evaluationRan&&!Object.keys(job.evaluationRuns).length){
+      job.evaluationRuns.quick={passed:true,count:5,passedCount:5,passRate:'100%',p0Failures:0,runId:job.evaluationRunId||makeId('RUN-EVAL'),finishedAt:job.evaluationPassedAt||nowText()};
+      job.evaluationMode='quick';if(job.status==='评测完成'||job.status==='待发布')job.status='检索通过';if(doc)doc.status='待问答评测';saveState();
+    }
+    if(job.status==='已发布'){
+      const actions=head.querySelector('.actions');if(actions)actions.innerHTML='<span class="status live">已发布</span>';
+      view.insertAdjacentHTML('beforeend','<div class="panel"><div class="panel-head"><div><h2>'+escapeHtml(job.docTitle)+' '+escapeHtml(job.version)+' 已发布</h2><p>线下审批通过，生产版本已切换。</p></div><span class="status live">已发布</span></div><div class="panel-body"><table><tr><td>生产collection</td><td>'+escapeHtml(job.productionCollectionId||'—')+'</td></tr><tr><td>审批通过时间</td><td>'+escapeHtml(job.releaseApprovedAt||'—')+'</td></tr><tr><td>冒烟 / 正式 / 回归</td><td>'+(job.evaluationRuns.quick?'✓':'—')+' / '+(job.evaluationRuns.formal?'✓':'—')+' / '+(job.evaluationRuns.regression?'✓':'—')+'</td></tr><tr><td>客服对话验收</td><td>'+(job.dialogueAcceptance&&job.dialogueAcceptance.passed?'5/5通过':'—')+'</td></tr></table><div class="actions" style="margin-top:12px"><button class="btn" onclick="showView(\'documents\')">返回文档列表</button><button class="btn primary" onclick="showView(\'cases\')">查看问题案例</button></div></div></div>');
+      return;
+    }
+    const unresolvedByMode=function(stage){return state.cases.filter(item=>item.jobId===job.id&&item.sourceMode===stage&&['已处理','已关闭'].indexOf(item.status)<0)};
+    const quickPassed=!!(job.evaluationRuns.quick&&job.evaluationRuns.quick.passed),formalPassed=!!(job.evaluationRuns.formal&&job.evaluationRuns.formal.passed),regressionPassed=!!(job.evaluationRuns.regression&&job.evaluationRuns.regression.passed),quickComplete=quickPassed&&!unresolvedByMode('quick').length,formalComplete=formalPassed&&!unresolvedByMode('formal').length,regressionComplete=regressionPassed&&!unresolvedByMode('regression').length;
+    const earliestMode=!quickComplete?'quick':!formalComplete?'formal':'regression';
+    let currentMode=['quick','formal','regression'].indexOf(job.evaluationMode)>=0?job.evaluationMode:earliestMode;
+    if(currentMode==='formal'&&!job.evaluationRuns.formal&&job.evaluationStageManuallySelected!=='formal')currentMode='quick';
+    if(currentMode==='regression'&&!job.evaluationRuns.regression&&job.evaluationStageManuallySelected!=='regression')currentMode=formalComplete?'formal':'quick';
+    if(currentMode==='formal'&&!evaluationStageGate(job,'formal').allowed)currentMode='quick';
+    if(currentMode==='regression'&&!evaluationStageGate(job,'regression').allowed)currentMode=formalComplete?'regression':quickComplete?'formal':'quick';
+    if(job.evaluationMode!==currentMode){job.evaluationMode=currentMode;job.evaluationPage=1;job.evaluationFilter='all';saveState()}
+    const mode=currentMode,config=evaluationModeConfig(mode),run=job.evaluationRuns[mode],ran=!!run,stageGate=evaluationStageGate(job,mode),currentProblems=unresolvedByMode(mode),pipelineComplete=quickComplete&&formalComplete&&regressionComplete,dialoguePassed=!!(job.dialogueAcceptance&&job.dialogueAcceptance.passed),dialogueFailed=!!(job.dialogueAcceptance&&job.dialogueAcceptance.passed===false),blockingCases=state.cases.filter(item=>item.jobId===job.id&&['已处理','已关闭'].indexOf(item.status)<0),releaseReady=pipelineComplete&&dialoguePassed&&!blockingCases.length,cases=buildEvaluationCases(config.count,mode),nextMode=mode==='quick'?'formal':mode==='formal'?'regression':'',nextReady=mode==='quick'?quickComplete:mode==='formal'?formalComplete:false,nextLabel=mode==='quick'?'下一步：40条正式评测':'下一步：200条全量回归';
+    if(job.status==='待发布'&&(!dialoguePassed||blockingCases.length)){job.status='评测完成';job.step=blockingCases.length?'存在阻断型Bad Case':'等待客服对话验收';if(doc)doc.status=blockingCases.length?'待问题修复':'待全量回归';saveState()}
+    const actions=head.querySelector('.actions');
+    if(actions)actions.innerHTML='<span class="status processing">当前：'+escapeHtml(config.name)+'</span>'+'<button class="btn" onclick="openEvalSet()">评测集管理</button>'+(currentProblems.length?'<button class="btn primary" onclick="showView(\'cases\')">处理'+currentProblems.length+'条问题案例</button>':job.evaluationRunning?'<button class="btn primary" disabled>正在执行 '+config.count+' 条评测…</button>':nextMode&&nextReady?'<button class="btn" onclick="runDynamicEvaluation(\''+job.id+'\')">重新运行当前步骤</button><button class="btn primary" onclick="changeEvaluationMode(\''+job.id+'\',\''+nextMode+'\')">'+nextLabel+'</button>':'<button class="btn primary" onclick="runDynamicEvaluation(\''+job.id+'\')" '+(!stageGate.allowed?'disabled':'')+'>'+(stageGate.allowed?(ran?'重新运行当前步骤':'执行 '+config.count+' 条评测'):'阶段未解锁')+'</button>');
+    const filter=job.evaluationFilter||'all';
+    const filtered=cases.filter(item=>filter==='all'||filter==='p0'&&item.risk.indexOf('P0')>=0||filter==='passed'&&ran&&item.result==='通过'||filter==='failed'&&ran&&item.result==='失败');
+    const pageSize=10,pageCount=Math.max(1,Math.ceil(filtered.length/pageSize)),page=Math.min(Math.max(1,Number(job.evaluationPage||1)),pageCount),pageCases=filtered.slice((page-1)*pageSize,page*pageSize),failedCount=ran?cases.filter(item=>item.result==='失败').length:0;
+    job.evaluationPage=page;
+    const rows=pageCases.length?pageCases.map(item=>'<tr><td><strong>'+escapeHtml(item.id)+'</strong><br><small>'+escapeHtml(item.risk)+'</small></td><td>'+escapeHtml(item.question)+'</td><td>'+escapeHtml(item.chunkId)+'</td><td>'+(ran?'<button class="btn small" onclick="openEvaluationEvidence(\''+job.id+'\',\''+item.id+'\')">'+(item.result==='失败'?'查看失败原因':'查看AI回答')+'</button>':'<span class="status gray">待运行</span>')+'</td><td><span class="status '+(!ran?'gray':item.result==='通过'?'live':'failed')+'">'+(!ran?'待运行':item.result)+'</span></td></tr>').join(''):'<tr><td colspan="5"><div class="empty"><strong>当前筛选条件下没有用例</strong><br><small>可以切换为“全部”查看完整评测明细。</small></div></td></tr>';
+    view.insertAdjacentHTML('beforeend',
+      '<div class="alert good"><strong>检索通过后已自动创建评测任务</strong>本任务绑定“'+escapeHtml(job.docTitle)+' '+escapeHtml(job.version)+'”、测试dataset和collection。</div>'+
+      '<div class="stepper"><div class="node '+(quickComplete?'done':mode==='quick'?'active':'')+'"><b>'+(quickComplete?'✓':'1')+'</b><span>冒烟评测5条</span></div><div class="node '+(formalComplete?'done':mode==='formal'?'active':'')+'"><b>'+(formalComplete?'✓':'2')+'</b><span>正式评测40条</span></div><div class="node '+(regressionComplete?'done':mode==='regression'?'active':'')+'"><b>'+(regressionComplete?'✓':'3')+'</b><span>全量回归200条</span></div><div class="node '+(dialoguePassed?'done':pipelineComplete?'active':'')+'"><b>'+(dialoguePassed?'✓':'4')+'</b><span>客服对话验收</span></div></div>'+
+      '<div class="panel"><div class="panel-head"><div><h2>当前第 '+(mode==='quick'?'1':mode==='formal'?'2':'3')+' 步 · '+escapeHtml(config.name)+'</h2><p>'+escapeHtml(config.scene)+'</p></div><span class="status '+(currentProblems.length?'failed':ran?'live':'processing')+'">'+(currentProblems.length?'发现'+currentProblems.length+'条问题':ran?'本步骤已运行':'等待运行')+'</span></div><div class="panel-body">'+(mode==='quick'?'<div class="alert"><strong>本步骤只检查基础链路</strong>运行5条代表性问题（随机抽取）；任意一条失败都会自动生成问题案例，处理完成后才进入40条正式评测。</div>':mode==='formal'?'<div class="alert"><strong>本步骤验证单文档上线质量</strong>运行40条问题，检查答案正确性、完整性、引用和安全要求；失败项处理后才进入全量回归。</div>':'<div class="alert"><strong>本步骤检查知识库整体影响</strong>运行200条历史问题，确认新文档没有破坏已有问答能力；问题全部处理后才显示后续验收与发布。</div>')+(currentProblems.length?'<div class="actions"><button class="btn primary" onclick="showView(\'cases\')">去处理问题案例</button></div>':'')+'</div></div>'+
+      '<div class="panel"><div class="panel-head"><div><h2>问答评测任务 · '+escapeHtml(job.id.replace('JOB-TEST','EVAL'))+'</h2><p>当前模式：'+escapeHtml(config.name)+' · '+escapeHtml(config.scene)+'</p></div><span class="status '+(ran?'live':'pending')+'">'+(ran?escapeHtml(config.name)+'完成':'待运行'+escapeHtml(config.name))+'</span></div><div class="panel-body"><div class="metric-row"><div class="metric '+(ran?'good':'')+'"><label>总体通过率</label><strong>'+(ran?escapeHtml(run.passRate):'—')+'</strong></div><div class="metric '+(ran?'good':'')+'"><label>通过用例</label><strong>'+(ran?escapeHtml(run.passedCount)+'/'+config.count:'—')+'</strong></div><div class="metric '+(ran&&run.p0Failures?'bad':ran?'good':'')+'"><label>P0失败</label><strong>'+(ran?escapeHtml(run.p0Failures||0):'—')+'</strong></div><div class="metric"><label>评测用例</label><strong>'+config.count+'</strong></div><div class="metric"><label>平均耗时</label><strong>'+(ran?config.avg:'—')+'</strong></div></div>'+(job.evaluationRunning?'<div class="loader show" style="margin-top:14px"><div class="spin"></div>正在调用RAG问答接口，逐条核对引用、答案和安全要求……</div>':'')+'</div></div>'+
+      '<div class="grid-2" style="grid-template-columns:minmax(0,1.55fr) minmax(300px,.65fr)">'+
+        '<div class="panel"><div class="panel-head"><div><h2>评测用例明细</h2><p>共'+config.count+'条完整记录，每页展示10条；汇总指标可以逐条核查。</p></div><div class="actions"><select class="select" onchange="changeEvaluationFilter(\''+job.id+'\',this.value)"><option value="all" '+(filter==='all'?'selected':'')+'>全部 '+config.count+'</option><option value="passed" '+(filter==='passed'?'selected':'')+'>通过 '+(ran?run.passedCount:0)+'</option><option value="failed" '+(filter==='failed'?'selected':'')+'>失败 '+failedCount+'</option><option value="p0" '+(filter==='p0'?'selected':'')+'>P0安全</option></select></div></div><div class="panel-body" style="padding:0;overflow:auto"><table><thead><tr><th>用例</th><th>用户问题</th><th>预期来源</th><th>回答证据</th><th>结果</th></tr></thead><tbody>'+rows+'</tbody></table><div class="toolbar" style="padding:12px 14px;justify-content:space-between;border-top:1px solid var(--line)"><span style="font-size:11px;color:var(--muted)">显示 '+(filtered.length?((page-1)*pageSize+1):0)+'–'+Math.min(page*pageSize,filtered.length)+'，共 '+filtered.length+' 条</span><div class="actions"><button class="btn small" onclick="changeEvaluationPage(\''+job.id+'\','+(page-1)+')" '+(page<=1?'disabled':'')+'>上一页</button><span style="font-size:11px;color:var(--muted)">第 '+page+' / '+pageCount+' 页</span><button class="btn small" onclick="changeEvaluationPage(\''+job.id+'\','+(page+1)+')" '+(page>=pageCount?'disabled':'')+'>下一页</button></div></div></div></div>'+
+        '<div><div class="panel"><div class="panel-head"><h2>任务绑定信息</h2></div><div class="panel-body"><table><tr><td>知识库</td><td>'+escapeHtml(doc?doc.kbName:'—')+'</td></tr><tr><td>测试dataset</td><td>'+escapeHtml(job.datasetId)+'</td></tr><tr><td>collection</td><td>'+escapeHtml(job.collectionId||'—')+'</td></tr><tr><td>检索配置</td><td>'+escapeHtml(job.retrievalMode||'混合检索')+' / '+(job.retrievalRerank!==false?'Rerank':'无Rerank')+'</td></tr><tr><td>文档状态</td><td>'+escapeHtml(doc?doc.status:'待问答评测')+'</td></tr></table></div></div>'+
+        (!pipelineComplete?'<div class="panel"><div class="panel-body"><div class="empty-kb"><div class="empty-icon">→</div><h4>先完成当前评测步骤</h4><p>客服对话验收和发布信息会在三阶段评测全部完成、问题案例全部处理后显示。</p></div></div></div>':'')+
+        '<div class="panel" style="display:'+(pipelineComplete?'block':'none')+'"><div class="panel-head"><div><h2>客服对话验收</h2><p>在FastGPT或企业自研客服的测试聊天窗中完成，不在知识库后台模拟聊天。</p></div><span class="status '+(dialoguePassed?'live':dialogueFailed?'failed':'pending')+'">'+(dialoguePassed?'人工验收通过':dialogueFailed?'人工验收不通过':'待人工验收')+'</span></div><div class="panel-body">'+(dialoguePassed?'<div class="alert good"><strong>5个客服对话场景已通过</strong>单轮回答、连续追问、安全话术、引用展示和转人工均已确认。</div><table><tr><td>验收人</td><td>'+escapeHtml(job.dialogueAcceptance.tester)+'</td></tr><tr><td>场景结果</td><td>5 / 5通过</td></tr><tr><td>验收时间</td><td>'+escapeHtml(job.dialogueAcceptance.finishedAt)+'</td></tr></table><div class="actions" style="margin-top:12px"><button class="btn" onclick="openDialogueTestEnvironment(\''+job.id+'\')">再次打开测试环境</button><button class="btn" onclick="openDialogueAcceptance(\''+job.id+'\')">修改验收记录</button></div>':dialogueFailed?'<div class="alert danger"><strong>客服对话验收未通过</strong>'+escapeHtml((job.dialogueAcceptance.failedScenes||[]).length)+'个场景失败，已自动生成Bad Case并阻断发布。</div><div class="actions"><button class="btn" onclick="showView(\'cases\')">查看问题案例</button><button class="btn primary" onclick="openDialogueAcceptance(\''+job.id+'\')">重新登记验收</button></div>':'<div class="alert warn"><strong>需要在真实客服页面体验</strong>请先打开外部测试环境，以真实用户方式完成5个对话场景，再回到这里登记结果。</div><div class="actions"><button class="btn" onclick="openDialogueTestEnvironment(\''+job.id+'\')">打开客服测试环境</button><button class="btn primary" onclick="openDialogueAcceptance(\''+job.id+'\')">登记对话验收结果</button></div>')+'</div></div>'+
+        '<div class="panel" style="display:'+(pipelineComplete?'block':'none')+'"><div class="panel-head"><h2>发布确认</h2><span class="status '+(job.status==='待发布'?'live':blockingCases.length?'failed':releaseReady?'processing':'pending')+'">'+(job.status==='待发布'?'待线下审批':blockingCases.length?'Bad Case阻断':releaseReady?'可以提交':'质量门槛未完成')+'</span></div><div class="panel-body">'+(job.status==='待发布'?'<div class="alert good"><strong>已提交线下审批</strong>审批通过后由发布审批人登记发布结果；知识库平台不承载复杂审批流。</div><button class="btn primary" onclick="showView(\'documents\')">去文档列表审批</button>':blockingCases.length?'<div class="alert danger"><strong>存在'+blockingCases.length+'条未处理的阻断型Bad Case</strong>请在线下完成修复，再到“问题案例”中标记为已处理。</div><button class="btn primary" onclick="showView(\'cases\')">去查看问题案例</button>':releaseReady?'<div class="alert good"><strong>全部质量门槛均已满足</strong>冒烟、正式评测、全量回归和客服对话验收均已完成，可以提交线下发布审批。</div><button class="btn primary" onclick="submitEvaluationForRelease(\''+job.id+'\')">提交线下发布审批</button>':'<div class="review-check"><span><strong>'+(quickPassed?'✓':'○')+' 5条冒烟评测</strong><small>'+(quickPassed?'基础链路通过':'必须首先完成')+'</small></span></div><div class="review-check"><span><strong>'+(formalPassed?'✓':'○')+' 40条正式评测</strong><small>'+(formalPassed?'正式评测已完成':'冒烟通过后才能运行')+'</small></span></div><div class="review-check"><span><strong>'+(regressionPassed?'✓':'○')+' 200条全量回归</strong><small>'+(regressionPassed?'全量回归已完成':'正式评测通过且问题处理后才能运行')+'</small></span></div><div class="review-check"><span><strong>'+(dialoguePassed?'✓':'○')+' 客服聊天窗人工验收</strong><small>'+(dialoguePassed?'5个对话场景全部通过':dialogueFailed?'验收失败，已生成Bad Case':'尚未登记客服对话验收结果')+'</small></span></div><div class="actions" style="margin-top:12px"><button class="btn primary" onclick="openDialogueAcceptance(\''+job.id+'\')">登记对话验收</button></div>')+'</div></div></div>'+
+      '</div>'
+    );
+  }
+  function changeEvaluationMode(jobId,mode){
+    const job=state.jobs.find(j=>j.id===jobId);if(!job||!evaluationModeConfig(mode))return;
+    const gate=evaluationStageGate(job,mode);if(!gate.allowed){toast(gate.reason);return}
+    job.evaluationMode=mode;job.evaluationStageManuallySelected=mode;job.evaluationPage=1;job.evaluationFilter='all';saveState();renderEvaluationWorkbench();
+  }
+  function changeEvaluationFilter(jobId,filter){const job=state.jobs.find(j=>j.id===jobId);if(!job||['all','passed','failed','p0'].indexOf(filter)<0)return;job.evaluationFilter=filter;job.evaluationPage=1;saveState();renderEvaluationWorkbench()}
+  function changeEvaluationPage(jobId,page){const job=state.jobs.find(j=>j.id===jobId);if(!job)return;job.evaluationPage=Math.max(1,Number(page)||1);saveState();renderEvaluationWorkbench()}
+  function openEvaluationEvidence(jobId,caseId){
+    const job=state.jobs.find(j=>j.id===jobId),mode=job&&(job.evaluationMode||'quick'),config=evaluationModeConfig(mode),item=job&&buildEvaluationCases(config.count,mode).find(c=>c.id===caseId),chunks=job&&(job.chunks&&job.chunks.length?job.chunks:buildReturnedChunks()),chunk=item&&chunks.find(c=>c.id===item.chunkId);
+    if(!job||!item)return;
+    const failed=item.result==='失败',answer=failed?'请联系售后客服进一步处理。':item.expected;
+    showModal(item.id+' · '+(failed?'失败用例证据':'AI回答证据'),'<div class="alert '+(failed?'danger':'good')+'"><strong>用户问题</strong>'+escapeHtml(item.question)+'</div><div class="field"><label>AI生成回答</label><div class="result"><p>'+escapeHtml(answer)+'</p></div></div><table><tr><td>预期切片</td><td>'+escapeHtml(item.chunkId)+' · '+escapeHtml(chunk?chunk.title:'预期知识')+'</td></tr><tr><td>标准答案</td><td>'+escapeHtml(item.expected)+'</td></tr><tr><td>判定结果</td><td><span class="status '+(failed?'failed':'live')+'">'+(failed?'失败 · 答案不完整':'答案正确 · 引用正确 · 安全通过')+'</span></td></tr><tr><td>失败原因</td><td>'+(failed?escapeHtml(item.failureReason):'—')+'</td></tr><tr><td>风险等级</td><td>'+escapeHtml(item.risk)+'</td></tr></table>');
+  }
+  function runDynamicEvaluation(jobId){
+    if(!requireTestEnv()||!requireRole(['tester','admin'],'运行问答评测'))return;
+    const job=state.jobs.find(j=>j.id===jobId);if(!job||job.evaluationRunning)return;
+    const mode=job.evaluationMode||'quick',config=evaluationModeConfig(mode),gate=evaluationStageGate(job,mode);
+    if(!gate.allowed){toast(gate.reason);return}
+    job.evaluationRunning=true;saveState();renderEvaluationWorkbench();
+    setTimeout(()=>{
+      const evaluatedCases=buildEvaluationCases(config.count,mode),failed=evaluatedCases.filter(item=>item.result==='失败'),stagePassed=mode==='quick'?failed.length===0:true;
+      job.evaluationRunning=false;job.evaluationRuns=job.evaluationRuns||{};
+      job.evaluationRuns[mode]={passed:stagePassed,count:config.count,passedCount:config.count-failed.length,passRate:((config.count-failed.length)/config.count*100).toFixed(1)+'%',p0Failures:failed.filter(item=>item.risk.indexOf('P0')>=0).length,runId:makeId('RUN-EVAL'),finishedAt:nowText()};
+      job.evaluationRan=true;job.lastEvaluationMode=mode;job.step=config.name+(stagePassed?'完成':'未通过');
+      const doc=state.documents.find(d=>d.id===job.docId);
+      if(mode==='formal'&&stagePassed){job.status='评测完成';job.step='正式问答评测完成';if(doc)doc.status='待全量回归'}
+      saveState();syncEvaluationProblemCases();saveState();renderAll();
+      if(failed.length){toast(config.name+'发现'+failed.length+'条失败，已生成问题案例；处理完成后才能进入下一步')}else{toast(config.name+'通过，请查看本步骤结果后手动进入下一步')}
+      addAudit(config.name+(failed.length?'发现失败 ':'通过 ')+job.id);
+    },mode==='regression'?1300:900);
+  }
+  function openDialogueTestEnvironment(jobId){
+    const job=state.jobs.find(j=>j.id===jobId);if(!job)return;
+    job.dialogueTestOpenedAt=nowText();saveState();
+    showModal('打开外部客服测试环境','<div class="alert good"><strong>这里不内嵌客服聊天窗</strong>正式项目应跳转到企业自研客服测试环境；演示时可以打开FastGPT生成的测试页面。</div><table><tr><td>测试dataset</td><td>'+escapeHtml(job.datasetId)+'</td></tr><tr><td>collection</td><td>'+escapeHtml(job.collectionId||'—')+'</td></tr><tr><td>测试版本</td><td>'+escapeHtml(job.docTitle)+' '+escapeHtml(job.version)+'</td></tr></table><div class="panel" style="margin-top:14px;box-shadow:none"><div class="panel-head"><h2>建议现场测试5个场景</h2></div><div class="panel-body"><ol style="margin:0;padding-left:20px;line-height:2"><li>鼓包后继续追问“还能再充一次吗”</li><li>拆封退货后追问“保护膜撕了呢”</li><li>防伪码异常时检查是否转人工复核</li><li>第三方购买时检查渠道边界</li><li>冒烟异味时检查安全话术和转人工</li></ol></div></div>','<button class="btn" onclick="closeModal()">暂不测试</button><button class="btn primary" onclick="closeModal();toast(\'已记录打开客服测试环境，请在FastGPT或自研客服页面完成对话测试\')">已打开，开始测试</button>');
+  }
+  function openDialogueAcceptance(jobId){
+    const job=state.jobs.find(j=>j.id===jobId);if(!job)return;
+    const accepted=!!(job.dialogueAcceptance&&job.dialogueAcceptance.passed),tester=(job.dialogueAcceptance&&job.dialogueAcceptance.tester)||'客服测试·王敏';
+    showModal('登记客服对话验收结果','<div class="alert warn"><strong>只登记外部测试结果</strong>以下内容应当在FastGPT或企业自研客服测试聊天窗中实际验证，不能仅根据后台批量评测直接勾选。未勾选项会作为失败场景生成Bad Case。</div><div class="field"><label>验收人</label><input class="input" id="dialogueTester" style="width:100%" value="'+escapeHtml(tester)+'"></div><label class="review-check"><input type="checkbox" class="dialogue-accept-check" '+(accepted?'checked':'')+'><span><strong>单轮回答正确</strong><small>答案准确、完整，并正确引用当前知识版本</small></span></label><label class="review-check"><input type="checkbox" class="dialogue-accept-check" '+(accepted?'checked':'')+'><span><strong>连续追问正常</strong><small>能够承接上下文，不重复或答非所问</small></span></label><label class="review-check"><input type="checkbox" class="dialogue-accept-check" '+(accepted?'checked':'')+'><span><strong>安全话术正确</strong><small>鼓包、冒烟等P0场景没有危险建议</small></span></label><label class="review-check"><input type="checkbox" class="dialogue-accept-check" '+(accepted?'checked':'')+'><span><strong>引用展示正常</strong><small>用户或客服可以查看答案所依据的知识来源</small></span></label><label class="review-check"><input type="checkbox" class="dialogue-accept-check" '+(accepted?'checked':'')+'><span><strong>转人工符合预期</strong><small>验真异常、安全风险和知识不足时能够正确转人工</small></span></label><div class="field" style="margin-top:12px"><label>验收备注 / 实际问题</label><textarea class="textarea" id="dialogueNotes" rows="3">'+escapeHtml((job.dialogueAcceptance&&job.dialogueAcceptance.notes)||'已在客服测试环境完成5个场景验证。')+'</textarea></div>','<button class="btn" onclick="closeModal()">取消</button><button class="btn danger" onclick="recordDialogueAcceptanceFailure(\''+job.id+'\')">登记不通过并生成Bad Case</button><button class="btn primary" onclick="confirmDialogueAcceptance(\''+job.id+'\')">确认验收通过</button>');
+  }
+  function confirmDialogueAcceptance(jobId){
+    if(!requireRole(['tester','admin'],'登记客服对话验收'))return;
+    const job=state.jobs.find(j=>j.id===jobId),checks=[].slice.call(document.querySelectorAll('.dialogue-accept-check')),tester=document.getElementById('dialogueTester'),notes=document.getElementById('dialogueNotes');
+    if(!job||!tester||!tester.value.trim()){toast('请填写验收人');return}
+    if(checks.length!==5||checks.some(c=>!c.checked)){toast('请完成5项客服对话验收检查');return}
+    job.dialogueAcceptance={passed:true,tester:tester.value.trim(),notes:notes?notes.value.trim():'',sceneCount:5,finishedAt:nowText()};
+    job.step='客服对话验收通过';
+    saveState();closeModal();renderAll();toast('客服对话验收已登记：5/5通过');addAudit('客服对话验收通过 '+job.id);
+  }
+  function recordDialogueAcceptanceFailure(jobId){
+    if(!requireRole(['tester','admin'],'登记客服对话验收'))return;
+    const job=state.jobs.find(j=>j.id===jobId),checks=[].slice.call(document.querySelectorAll('.dialogue-accept-check')),tester=document.getElementById('dialogueTester'),notes=document.getElementById('dialogueNotes');
+    if(!job||!tester||!tester.value.trim()){toast('请填写验收人');return}
+    const scenes=[
+      {name:'单轮回答错误或不完整',question:'客服测试聊天窗中的单轮回答未达到正式口径要求',chunkId:'CH-007',risk:'关键政策',expected:'回答应准确覆盖适用条件、限制和例外，不得遗漏关键政策。'},
+      {name:'连续追问上下文异常',question:'用户连续追问后，AI出现重复、答非所问或上下文丢失',chunkId:'CH-008',risk:'普通',expected:'AI应承接上文条件，正确处理追问，不重复输出无关答案。'},
+      {name:'P0安全话术错误',question:'鼓包或冒烟场景中出现危险建议或遗漏停止使用要求',chunkId:'CH-032',risk:'P0安全',expected:'必须明确停止使用，禁止继续充放电、拆解或普通快递寄送。'},
+      {name:'知识引用展示异常',question:'客服回答没有展示正确知识来源，或引用了错误切片',chunkId:'CH-001',risk:'普通',expected:'回答引用应能追溯到当前文档版本、collection和正确切片。'},
+      {name:'应转人工但未转人工',question:'验真异常、安全风险或知识不足时没有正确触发转人工',chunkId:'CH-040',risk:'关键政策',expected:'达到转人工条件时，应明确告知用户并触发人工服务流程。'}
+    ];
+    const failed=checks.map((check,index)=>check.checked?null:scenes[index]).filter(Boolean);
+    if(!failed.length){toast('所有项目都已勾选，请使用“确认验收通过”');return}
+    const runId='CHAT-'+Date.now().toString(36).toUpperCase(),remark=(notes&&notes.value.trim())||'客服测试环境人工验收发现异常。';
+    failed.forEach(function(scene){
+      const idx=scenes.indexOf(scene),sourceKey=job.id+'|dialogue|'+idx,existing=state.cases.find(item=>item.sourceKey===sourceKey);
+      const data={jobId:job.id,docId:job.docId,docTitle:job.docTitle,version:job.version,source:'客服对话验收',sourceMode:'dialogue',sourceRunId:runId,evaluationCaseId:'CHAT-'+String(idx+1).padStart(3,'0'),question:scene.question,aiAnswer:remark,expected:scene.expected,chunkId:scene.chunkId,risk:scene.risk,blocking:scene.risk.indexOf('P0')>=0||scene.risk.indexOf('关键政策')>=0,reason:scene.name+'：'+remark,rootCause:'待归因',owner:'待分配',status:'待处理',createdAt:nowText()};
+      if(existing){Object.assign(existing,data)}else{state.cases.unshift(Object.assign({id:makeId('CASE'),sourceKey:sourceKey},data))}
+    });
+    job.dialogueAcceptance={passed:false,tester:tester.value.trim(),notes:remark,sceneCount:5,failedScenes:failed.map(s=>s.name),finishedAt:nowText(),runId:runId};
+    job.step='客服对话验收失败';
+    const doc=state.documents.find(d=>d.id===job.docId);if(doc)doc.status='待问题修复';
+    saveState();closeModal();renderAll();showView('cases');toast('已生成'+failed.length+'条客服对话Bad Case并阻断发布');addAudit('客服对话验收失败 '+job.id);
+  }
+  function submitEvaluationForRelease(jobId){
+    if(!requireRole(['operator','tester','admin'],'提交发布审批'))return;
+    const job=state.jobs.find(j=>j.id===jobId),doc=job&&state.documents.find(d=>d.id===job.docId);
+    if(!job||!job.evaluationRuns||!job.evaluationRuns.formal||!job.evaluationRuns.formal.passed){toast('请先完成40条正式上线评测');return}
+    if(!job.evaluationRuns.regression||!job.evaluationRuns.regression.passed){toast('请先完成200条全量回归评测');return}
+    if(!job.dialogueAcceptance||!job.dialogueAcceptance.passed){toast('请先完成客服聊天窗人工验收');return}
+    const blocking=state.cases.filter(item=>item.jobId===job.id&&['已处理','已关闭'].indexOf(item.status)<0);
+    if(blocking.length){toast('仍有'+blocking.length+'条阻断型Bad Case未关闭');showView('cases');return}
+    job.status='待发布';job.step='等待线下发布审批';job.releaseSubmittedAt=nowText();
+    if(doc)doc.status='待线下审批';
+    saveState();renderAll();toast('已提交线下发布审批，不会直接写入生产环境');addAudit('提交线下发布审批 '+job.id);
+  }
+  function openEvalSet(){
+    showModal('黄金评测集管理','<div class="alert"><strong>评测集不是知识答案库</strong>它是用来检验RAG系统的“标准试卷”，包含问题、预期来源、参考答案、风险和预期动作。</div><table><thead><tr><th>场景</th><th>样本数</th><th>P0</th><th>审核状态</th></tr></thead><tbody><tr><td>退换货</td><td>62</td><td>18</td><td><span class="status live">已审核</span></td></tr><tr><td>保修维修</td><td>48</td><td>12</td><td><span class="status live">已审核</span></td></tr><tr><td>安全使用</td><td>42</td><td>24</td><td><span class="status live">已审核</span></td></tr><tr><td>验真与渠道</td><td>48</td><td>8</td><td><span class="status live">已审核</span></td></tr></tbody></table>','<button class="btn" onclick="downloadText(\'评测集模板.csv\',\'问题,预期切片,参考答案,风险等级,预期动作\\n充电宝鼓包了怎么办？,CH-032,立即停止充放电并联系官方售后。,P0安全,正确回答\\n\')">下载模板</button><button class="btn" onclick="closeModal()">关闭</button>');
+  }
+
+  /* ============ ⑭ 发布审批 ============ */
+  function openReleaseApproval(docId){
+    if(!requireRole(['approver','admin'],'线下发布审批'))return;
+    const doc=state.documents.find(item=>item.id===docId),job=doc&&state.jobs.find(item=>item.docId===doc.id);
+    if(!doc||doc.status!=='待线下审批'){toast('当前文档不在待线下审批状态');return}
+    const runs=job&&job.evaluationRuns||{},unresolved=state.cases.filter(item=>item.docId===doc.id&&['已处理','已关闭'].indexOf(item.status)<0);
+    showModal('发布审批 · '+doc.title,'<div class="alert warn"><strong>线下审批结果登记</strong>这里不实现复杂审批流，只查看发布证据并登记最终结论。审批通过后文档状态变为“已发布”。</div><table><tr><td>文档版本</td><td>'+escapeHtml(doc.title)+' '+escapeHtml(doc.version)+'</td></tr><tr><td>所属知识库</td><td>'+escapeHtml(doc.kbName)+'</td></tr><tr><td>提交时间</td><td>'+escapeHtml((job&&job.releaseSubmittedAt)||'已提交')+'</td></tr><tr><td>冒烟评测</td><td><span class="status '+(runs.quick&&runs.quick.passed?'live':'gray')+'">'+(runs.quick&&runs.quick.passed?'5/5通过':'历史流程未记录')+'</span></td></tr><tr><td>正式评测</td><td><span class="status '+(runs.formal&&runs.formal.passed?'live':'gray')+'">'+(runs.formal&&runs.formal.passed?(runs.formal.passRate+' · '+runs.formal.passedCount+'/'+runs.formal.count):'历史流程未记录')+'</span></td></tr><tr><td>全量回归</td><td><span class="status '+(runs.regression&&runs.regression.passed?'live':'gray')+'">'+(runs.regression&&runs.regression.passed?(runs.regression.passRate+' · '+runs.regression.passedCount+'/'+runs.regression.count):'历史流程未记录')+'</span></td></tr><tr><td>客服对话验收</td><td><span class="status '+(job&&job.dialogueAcceptance&&job.dialogueAcceptance.passed?'live':'gray')+'">'+(job&&job.dialogueAcceptance&&job.dialogueAcceptance.passed?'5/5通过':'历史流程未记录')+'</span></td></tr><tr><td>未处理问题</td><td><span class="status '+(unresolved.length?'failed':'live')+'">'+unresolved.length+' 条</span></td></tr></table>','<button class="btn danger" onclick="rejectReleaseApproval(\''+doc.id+'\')">审批驳回</button><button class="btn primary" onclick="approveReleaseApproval(\''+doc.id+'\')" '+(unresolved.length?'disabled':'')+'>审批通过并发布</button>');
+  }
+  function approveReleaseApproval(docId){
+    const doc=state.documents.find(item=>item.id===docId),job=doc&&state.jobs.find(item=>item.docId===doc.id),unresolved=doc&&state.cases.filter(item=>item.docId===doc.id&&['已处理','已关闭'].indexOf(item.status)<0);
+    if(!doc||doc.status!=='待线下审批')return;
+    if(unresolved&&unresolved.length){toast('仍有未处理的问题案例，不能审批通过');return}
+    doc.status='已发布';doc.publishedAt=nowText();doc.releaseId='REL-'+Date.now().toString(36).toUpperCase();
+    if(job){job.status='已发布';job.step='线下审批通过，生产发布完成';job.productionCollectionId='col_prod_'+Date.now().toString(36);job.releaseApprovedAt=doc.publishedAt}
+    const kb=state.knowledgeBases.find(k=>k.id===doc.kbId);if(kb&&kb.prodRagStatus!=='正常')kb.prodRagStatus='正常';
+    saveState();closeModal();renderAll();showView('documents');toast('审批通过，文档已发布');addAudit('线下发布审批通过 '+doc.id);
+  }
+  function rejectReleaseApproval(docId){
+    const doc=state.documents.find(item=>item.id===docId),job=doc&&state.jobs.find(item=>item.docId===doc.id);
+    if(!doc||doc.status!=='待线下审批')return;
+    doc.status='待问题修复';doc.releaseRejectedAt=nowText();
+    if(job){job.status='评测完成';job.step='线下审批驳回，等待修复'}
+    saveState();closeModal();renderAll();showView('documents');toast('审批已驳回，文档进入待问题修复');addAudit('线下发布审批驳回 '+doc.id);
+  }
+
+  /* ============ ⑮ 问题案例 ============ */
+  function syncEvaluationProblemCases(){
+    let changed=false;
+    state.jobs.forEach(function(job){
+      ['quick','formal','regression'].forEach(function(mode){
+        const run=job.evaluationRuns&&job.evaluationRuns[mode];if(!run)return;
+        buildEvaluationCases(run.count||evaluationModeConfig(mode).count,mode).filter(item=>item.result==='失败').forEach(function(item){
+          const sourceKey=job.id+'|'+mode+'|'+item.id;
+          if(state.cases.some(p=>p.sourceKey===sourceKey))return;
+          state.cases.unshift({id:makeId('CASE'),sourceKey:sourceKey,jobId:job.id,docId:job.docId,docTitle:job.docTitle,version:job.version,source:'批量问答评测',sourceMode:mode,sourceRunId:run.runId||'—',evaluationCaseId:item.id,question:item.question,aiAnswer:'请联系售后客服进一步处理。',expected:item.expected,chunkId:item.chunkId,risk:item.risk,blocking:item.risk.indexOf('P0')>=0||item.risk.indexOf('关键政策')>=0,reason:item.failureReason,rootCause:'待归因',owner:'待分配',status:'待处理',createdAt:run.finishedAt||nowText()});
+          changed=true;
+        });
+      });
+    });
+    if(changed)saveState();
+    return changed;
+  }
+  function problemCaseSourceType(item){
+    if(item.sourceMode==='retrieval')return '检索调试';
+    if(item.sourceMode==='quick'||item.sourceMode==='formal'||item.sourceMode==='regression')return '批量评测';
+    if(item.sourceMode==='dialogue')return '客服对话';
+    return item.source||'其他来源';
+  }
+  function renderProblemCases(sourceFilter){
+    sourceFilter=sourceFilter||'all';
+    const view=document.getElementById('cases'),head=view&&view.querySelector('.page-head');if(!view||!head)return;
+    syncEvaluationProblemCases();
+    let migrated=false;
+    state.cases.forEach(function(item){if(item.status==='已关闭'){item.status='已处理';item.processedAt=item.processedAt||item.createdAt;migrated=true}if(item.status==='处理中'||item.status==='回归验证中'){item.status='待处理';migrated=true}});
+    if(migrated)saveState();
+    [].slice.call(view.children).forEach(child=>{if(child!==head)child.remove()});
+    const all=state.cases,list=all.filter(item=>sourceFilter==='all'||sourceFilter==='retrieval'&&item.sourceMode==='retrieval'||sourceFilter==='evaluation'&&['quick','formal','regression'].indexOf(item.sourceMode)>=0||sourceFilter==='dialogue'&&item.sourceMode==='dialogue');
+    const actions=head.querySelector('.actions'),pending=all.filter(item=>item.status!=='已处理').length,processed=all.length-pending;
+    if(actions)actions.innerHTML='<span class="status '+(pending?'pending':'live')+'">'+(pending?'待处理 '+pending:'全部处理完成')+'</span>';
+    if(!all.length){view.insertAdjacentHTML('beforeend','<div class="panel"><div class="empty-kb"><div class="empty-icon">✓</div><h4>暂无问题案例</h4><p>检索调试人工标记、批量评测失败和客服对话验收失败会进入这里。</p></div></div>');return}
+    const sourceCount=function(mode){return all.filter(item=>mode==='retrieval'?item.sourceMode==='retrieval':mode==='evaluation'?['quick','formal','regression'].indexOf(item.sourceMode)>=0:item.sourceMode==='dialogue').length};
+    const tabs='<div class="tabs"><button class="tab '+(sourceFilter==='all'?'active':'')+'" onclick="renderProblemCases(\'all\')">全部 '+all.length+'</button><button class="tab '+(sourceFilter==='retrieval'?'active':'')+'" onclick="renderProblemCases(\'retrieval\')">检索调试 '+sourceCount('retrieval')+'</button><button class="tab '+(sourceFilter==='evaluation'?'active':'')+'" onclick="renderProblemCases(\'evaluation\')">批量评测 '+sourceCount('evaluation')+'</button><button class="tab '+(sourceFilter==='dialogue'?'active':'')+'" onclick="renderProblemCases(\'dialogue\')">客服对话 '+sourceCount('dialogue')+'</button></div>';
+    const cards=list.length?list.map(item=>'<div class="case-card '+(item.risk&&item.risk.indexOf('P0')>=0?'p0':'')+'"><div><h4>'+escapeHtml(item.id)+' · '+escapeHtml(item.question)+'</h4><p>'+escapeHtml(item.evaluationCaseId||item.sourceRunId||'—')+' · 发现于 '+escapeHtml(item.createdAt||'—')+'</p></div><div><small>来源类型</small><br><strong>'+escapeHtml(problemCaseSourceType(item))+'</strong></div><div><small>状态</small><br><span class="status '+(item.status==='已处理'?'live':'pending')+'">'+escapeHtml(item.status==='已处理'?'已处理':'待处理')+'</span></div><button class="btn small primary" onclick="openGeneratedProblemCase(\''+item.id+'\')">查看证据</button></div>').join(''):'<div class="empty"><strong>当前来源下没有问题案例</strong></div>';
+    view.insertAdjacentHTML('beforeend','<div class="alert"><strong>简化处理方式</strong>平台只负责汇总问题和保留证据。请在线下完成知识、切片、检索参数或话术修复，完成后回来标记“已处理”。</div><div class="metric-row" style="grid-template-columns:repeat(3,1fr)"><div class="metric"><label>问题总数</label><strong>'+all.length+'</strong></div><div class="metric bad"><label>待处理</label><strong>'+pending+'</strong></div><div class="metric good"><label>已处理</label><strong>'+processed+'</strong></div></div><div class="panel" style="margin-top:14px">'+tabs+'<div class="panel-body">'+cards+'</div></div>');
+  }
+  function openGeneratedProblemCase(id){
+    const item=state.cases.find(p=>p.id===id);if(!item)return;
+    const top3=item.retrievedChunks&&item.retrievedChunks.length?'<tr><td>实际Top 3</td><td>'+item.retrievedChunks.map(c=>escapeHtml('Top '+c.rank+'：'+c.id+' · '+c.title)).join('<br>')+'</td></tr>':'';
+    showModal('问题证据 · '+escapeHtml(item.evaluationCaseId||item.id),'<div class="alert warn"><strong>仅用于还原问题现场</strong>请根据以下证据在线下完成处理；本平台不再要求填写归因、责任人、修复方案或回归记录。</div><table><tr><td>来源类型</td><td>'+escapeHtml(problemCaseSourceType(item))+'</td></tr><tr><td>原始问题</td><td>'+escapeHtml(item.question)+'</td></tr><tr><td>实际结果</td><td>'+escapeHtml(item.aiAnswer||'—')+'</td></tr><tr><td>预期结果</td><td>'+escapeHtml(item.expected||'—')+'</td></tr><tr><td>预期切片</td><td>'+escapeHtml(item.chunkId||'—')+'</td></tr>'+top3+'<tr><td>问题说明</td><td>'+escapeHtml(item.reason||'—')+'</td></tr><tr><td>运行ID</td><td>'+escapeHtml(item.sourceRunId||'—')+'</td></tr><tr><td>发现时间</td><td>'+escapeHtml(item.createdAt||'—')+'</td></tr>'+(item.processedAt?'<tr><td>处理时间</td><td>'+escapeHtml(item.processedAt)+'</td></tr>':'')+'</table>','<button class="btn" onclick="closeModal()">关闭</button>'+(item.status==='已处理'?'<button class="btn" disabled>已标记为已处理</button>':'<button class="btn primary" onclick="markProblemCaseProcessed(\''+item.id+'\')">线下修复完成，标记已处理</button>'));
+  }
+  function markProblemCaseProcessed(id){
+    if(!requireTestEnv())return;
+    if(!requireRole(['operator','tester','admin'],'处理问题案例'))return;
+    const item=state.cases.find(p=>p.id===id);if(!item||item.status==='已处理')return;
+    item.status='已处理';item.processedAt=nowText();item.blocking=false;
+    saveState();closeModal();renderAll();showView('cases');toast('已标记为已处理');addAudit('问题案例已处理 '+item.id);
+  }
+
+  /* ============ ⑯ 数据源同步 ============ */
+  function renderDataSources(){
+    const body=document.getElementById('sourceTable');if(!body)return;
+    if(!state.dataSources.length){body.innerHTML='<tr><td colspan="7"><div class="empty"><strong>暂无数据源</strong><br><small>可先通过“文档与版本”手动上传知识。</small></div></td></tr>';return}
+    body.innerHTML=state.dataSources.map(src=>{
+      const statusClass=src.status==='正常'?'live':src.status==='部分失败'?'failed':src.status==='同步中'?'processing':'gray';
+      let actions='<button class="btn small" onclick="openSourceConfig(\''+src.id+'\')">配置</button>';
+      if(src.status==='已暂停')actions+=' <button class="btn small" onclick="resumeSource(\''+src.id+'\')">恢复</button>';
+      else actions='<button class="btn small" onclick="syncSource(\''+src.id+'\')">立即同步</button> '+actions;
+      if(src.status==='部分失败')actions+=' <button class="btn small danger" onclick="retrySource(\''+src.id+'\')">重试失败批次</button>';
+      if(isProdView())actions='<span class="status gray">只读</span>';
+      return '<tr><td><strong>'+escapeHtml(src.name)+'</strong><br><small>'+escapeHtml(src.id)+' · '+escapeHtml(src.owner)+'</small></td><td><small>'+escapeHtml(src.category)+'</small></td><td>'+escapeHtml(src.method)+'</td><td>'+escapeHtml(src.frequency)+'</td><td>'+escapeHtml(src.lastResult)+'</td><td><span class="status '+statusClass+'">'+escapeHtml(src.status)+'</span></td><td style="white-space:nowrap">'+actions+'</td></tr>';
+    }).join('');
+  }
+  function openSource(){
+    if(!requireRole(['operator','admin'],'新建数据源'))return;
+    showModal('新建数据源','<div class="field-row"><div class="field"><label>数据源类型</label><select class="select" id="newSourceMethod"><option>REST API</option><option>在线文档</option><option>数据库只读副本</option><option>网页链接</option></select></div><div class="field"><label>名称</label><input class="input" id="newSourceName" value="新品说明书CMS"></div><div class="field"><label>数据类别</label><select class="select" id="newSourceCategory">'+SOURCE_CATEGORIES.map(c=>'<option>'+c+'</option>').join('')+'</select></div><div class="field"><label>同步频率</label><select class="select" id="newSourceFrequency"><option>每小时</option><option>每天</option><option>每周</option><option>实时</option></select></div><div class="field"><label>默认负责人</label><input class="input" id="newSourceOwner" value="知识运营·王敏"></div></div><div class="field"><label>服务地址</label><input class="input" id="newSourceEndpoint" style="width:100%" value="https://cms.internal/api/knowledge"></div><div class="alert"><strong>同步规则</strong>只创建或更新企业平台草稿；不会自动提交审核、自动入库或自动发布。C类样本需人工确认，D类实时数据不写入索引。</div>','<button class="btn" onclick="toast(\'连接成功：权限、游标和字段映射正常\')">测试连接</button><button class="btn primary" onclick="saveSource()">保存数据源</button>');
+  }
+  function saveSource(){
+    const name=document.getElementById('newSourceName').value.trim();if(!name){toast('请填写数据源名称');return}
+    state.dataSources.unshift({id:'SRC-'+Date.now().toString(36).toUpperCase(),name:name,category:document.getElementById('newSourceCategory').value,method:document.getElementById('newSourceMethod').value,frequency:document.getElementById('newSourceFrequency').value,endpoint:document.getElementById('newSourceEndpoint').value.trim(),lastResult:'尚未同步',status:'正常',owner:document.getElementById('newSourceOwner').value.trim()||'待分配'});
+    saveState();renderAll();closeModal();toast('数据源已创建');addAudit('新建数据源：'+name);
+  }
+  function openSourceConfig(id){
+    const src=state.dataSources.find(s=>s.id===id);if(!src)return;
+    showModal('配置数据源 · '+src.name,'<div class="field-row"><div class="field"><label>名称</label><input class="input" id="cfgSourceName" value="'+escapeHtml(src.name)+'"></div><div class="field"><label>数据类别</label><select class="select" id="cfgSourceCategory">'+SOURCE_CATEGORIES.map(c=>'<option '+(c===src.category?'selected':'')+'>'+c+'</option>').join('')+'</select></div><div class="field"><label>接入方式</label><input class="input" id="cfgSourceMethod" value="'+escapeHtml(src.method)+'"></div><div class="field"><label>同步频率</label><select class="select" id="cfgSourceFrequency"><option '+(src.frequency==='每小时'?'selected':'')+'>每小时</option><option '+(src.frequency==='每天'?'selected':'')+'>每天</option><option '+(src.frequency==='每周'?'selected':'')+'>每周</option><option '+(src.frequency==='实时'?'selected':'')+'>实时</option></select></div></div><div class="field"><label>服务地址</label><input class="input" id="cfgSourceEndpoint" style="width:100%" value="'+escapeHtml(src.endpoint)+'"></div><div class="alert"><strong>类别行为</strong>A/B类同步成功会生成草稿文档；C类只生成待确认草稿；D类不写入索引，仅供实时业务API调用。</div>','<button class="btn" onclick="closeModal()">取消</button><button class="btn primary" onclick="saveSourceConfig(\''+src.id+'\')">保存配置</button>');
+  }
+  function saveSourceConfig(id){
+    const src=state.dataSources.find(s=>s.id===id);if(!src)return;
+    src.name=document.getElementById('cfgSourceName').value.trim()||src.name;
+    src.category=document.getElementById('cfgSourceCategory').value;
+    src.method=document.getElementById('cfgSourceMethod').value.trim()||src.method;
+    src.frequency=document.getElementById('cfgSourceFrequency').value;
+    src.endpoint=document.getElementById('cfgSourceEndpoint').value.trim();
+    saveState();renderAll();closeModal();toast('数据源配置已保存');addAudit('更新数据源配置：'+src.name);
+  }
+  function generateDraftFromSource(src){
+    const kb=state.knowledgeBases.filter(k=>k.status!=='已归档')[0];if(!kb)return null;
+    const stamp=String(Date.now()).slice(-5);
+    const doc={id:'DOC-SRC-'+stamp,versionId:'VER-SRC-'+stamp,kbId:kb.id,kbName:kb.name,title:src.name+'增量草稿 '+stamp,fileName:src.name+'-增量.docx',extension:'DOCX',type:src.category.indexOf('B')===0?'FAQ':'政策/SOP',channel:'全渠道',owner:roleName(),version:'v0.1',validity:'待补充',status:'草稿',createdAt:nowText(),sourceId:src.id,contentPreview:'由数据源「'+src.name+'」同步生成的草稿，需人工确认后提交业务审核。',versionHistory:[{version:'v0.1',note:'数据源同步生成',createdAt:nowText(),status:'草稿',author:roleName()}]};
+    state.documents.unshift(doc);return doc;
+  }
+  function syncSource(id){
+    if(!requireTestEnv())return;
+    const src=state.dataSources.find(s=>s.id===id);if(!src)return;
+    src.status='同步中';src.lastResult='正在读取增量游标…';saveState();renderDataSources();
+    setTimeout(function(){
+      const cat=src.category.charAt(0);
+      let result='';
+      if(cat==='A'||cat==='B'){
+        const d1=generateDraftFromSource(src),d2=generateDraftFromSource(src);
+        result='新增2 · 更新0 · 已生成2份草稿';
+        src.status='正常';src.lastResult=result;saveState();renderAll();
+        toast('同步完成：已生成2份草稿，请到文档与版本提交审核');
+      }else if(cat==='C'){
+        const d=generateDraftFromSource(src);if(d){d.title='[待确认] '+d.title;d.status='草稿'}
+        result='980成功 · 20条脱敏失败 · 已生成待确认草稿';
+        src.status='部分失败';src.lastResult=result;saveState();renderAll();
+        toast('C类样本只生成待确认草稿，需人工脱敏确认后才能进入知识治理流程');
+      }else{
+        result='仅运行时调用 · 不写入向量索引';
+        src.status='正常';src.lastResult=result;saveState();renderAll();
+        toast('D类实时业务数据不进入知识库索引，仅由问答应用运行时调用业务API');
+      }
+      addAudit('同步数据源 '+src.name);
+    },800);
+  }
+  function syncAll(){
+    if(!requireTestEnv())return;
+    state.dataSources.filter(s=>s.status!=='已暂停').forEach(function(src,index){setTimeout(function(){syncSource(src.id)},index*650)});
+    toast('所有启用数据源已进入同步队列');
+  }
+  function retrySource(id){
+    if(!requireTestEnv())return;
+    const src=state.dataSources.find(s=>s.id===id);if(!src)return;
+    src.status='同步中';src.lastResult='正在重新执行脱敏校验…';saveState();renderDataSources();
+    setTimeout(function(){src.status='正常';src.lastResult='1000成功 · 0失败';saveState();renderAll();toast('失败批次已幂等重试，未生成重复数据');addAudit('重试数据源失败批次 '+src.name)},900);
+  }
+  function resumeSource(id){
+    const src=state.dataSources.find(s=>s.id===id);if(!src)return;
+    src.status='正常';src.lastResult='已恢复，将从最近成功游标继续';saveState();renderAll();toast('数据源已恢复，将从最近成功游标继续');addAudit('恢复数据源 '+src.name);
+  }
+
+  /* ============ ⑰ 权限与审计 ============ */
+  function renderMembers(){
+    const body=document.getElementById('memberTable');if(!body)return;
+    body.innerHTML=state.members.map(m=>'<tr><td>'+escapeHtml(m.name)+'</td><td>'+escapeHtml(m.role)+'</td><td>'+escapeHtml(m.domain)+'</td><td><span class="status '+(m.status==='启用'?'live':'gray')+'">'+escapeHtml(m.status)+'</span></td></tr>').join('');
+  }
+  function openMember(){
+    if(!requireRole(['admin'],'成员管理'))return;
+    showModal('添加成员','<div class="field-row"><div class="field"><label>成员</label><input class="input" id="newMemberName" value="new.member"></div><div class="field"><label>角色</label><select class="select" id="newMemberRole"><option>知识运营</option><option>业务审核人</option><option>产品经理</option><option>发布审批人</option><option>只读审计</option></select></div><div class="field"><label>业务域</label><select class="select" id="newMemberDomain"><option>售后</option><option>商品</option><option>客服</option><option>渠道</option></select></div><div class="field"><label>租户</label><input class="input" value="XC-DIGITAL" disabled></div></div><div class="alert warn"><strong>高风险约束</strong>提交人与业务审核人不得为同一人；系统管理员不能绕过业务审核和评测直接发布知识。</div>','<button class="btn" onclick="closeModal()">取消</button><button class="btn primary" onclick="saveMember()">添加</button>');
+  }
+  function saveMember(){
+    const name=document.getElementById('newMemberName').value.trim();if(!name){toast('请填写成员名称');return}
+    state.members.unshift({id:makeId('M'),name:name,role:document.getElementById('newMemberRole').value,domain:document.getElementById('newMemberDomain').value,status:'启用'});
+    saveState();renderAll();closeModal();toast('成员已添加并记录审计');addAudit('添加成员：'+name);
+  }
+  function applyRole(){
+    const v=document.getElementById('roleDemo').value;if(!ROLES[v])return;
+    state.role=v;saveState();
+    const h=document.getElementById('roleHint');
+    const map={
+      operator:['知识运营','可以维护知识和运行测试、验收处理结果，但不能审核自己提交的知识，也不能直接放行生产版本。'],
+      reviewer:['业务审核人','可以核对本人业务域的知识事实并审核，不能修改RAG参数或直接管理成员。'],
+      tester:['AI产品经理 / AI测试','可以组织批量评测与客服对话验收，判断回答质量；生产发布由发布审批人决定。'],
+      approver:['发布审批人','可以登记线下审批结论并放行生产版本，但不能跳过评测门槛直接发布。'],
+      admin:['系统管理员','可以管理成员、密钥和审计，但不能绕过业务审核及评测门槛。']
+    };
+    if(h)h.innerHTML='<strong>'+map[v][0]+'</strong>'+map[v][1];
+    renderAll();toast('角色权限视图已切换为：'+map[v][0]+'（演示职责分离，越权操作会被拦截）');
+  }
+  function renderAuditLog(){
+    const body=document.querySelector('#auditTable tbody');if(!body)return;
+    body.innerHTML=state.auditLog.slice(0,20).map(a=>'<tr><td>'+escapeHtml(a.time)+'</td><td>'+escapeHtml(a.operator)+'</td><td>'+escapeHtml(a.action)+'</td><td><span class="status '+(a.result==='成功'?'live':'failed')+'">'+escapeHtml(a.result)+'</span></td></tr>').join('')||'<tr><td colspan="4"><div class="empty">暂无审计记录</div></td></tr>';
+  }
+  function exportAudit(){
+    const lines=['时间,操作者,动作,结果'].concat(state.auditLog.map(a=>[a.time,a.operator,a.action,a.result].map(x=>'"'+String(x).replace(/"/g,'""')+'"').join(',')));
+    downloadText('审计日志.csv',lines.join('\n'));addAudit('导出审计日志');
+  }
+  function renderApiKeys(){
+    const panel=document.getElementById('apiKeyPanel');if(!panel)return;
+    panel.innerHTML='<table><thead><tr><th>密钥</th><th>掩码</th><th>权限范围</th><th>创建时间</th><th>操作</th></tr></thead><tbody>'+state.apiKeys.map(k=>'<tr><td>'+escapeHtml(k.name)+'</td><td>'+escapeHtml(k.mask)+'</td><td>'+escapeHtml(k.scope)+'</td><td>'+escapeHtml(k.createdAt)+'</td><td><button class="btn small" onclick="regenerateKey(\''+k.env+'\')">重新生成</button></td></tr>').join('')+'</tbody></table><div class="alert" style="margin-top:12px;margin-bottom:0"><strong>密钥规范</strong>测试与生产密钥分开；密钥只以掩码展示，不得出现在浏览器、导出文件或普通日志中。</div>';
+  }
+  function regenerateKey(env){
+    if(!requireRole(['admin'],'密钥管理'))return;
+    const key=state.apiKeys.find(k=>k.env===env);if(!key)return;
+    key.mask=(env==='生产'?'fastgpt-prod-':'fastgpt-test-')+'••••••••'+Math.random().toString(36).slice(2,6);
+    key.createdAt=nowText();saveState();renderApiKeys();toast(env+'环境密钥已重新生成，旧密钥立即失效');addAudit('重新生成'+env+'环境API密钥');
+  }
+
+  /* ============ ⑱ RAG引擎配置 ============ */
+  function renderIntegration(){
+    const body=document.getElementById('envMappingTable');if(body)body.innerHTML=state.knowledgeBases.map(kb=>'<tr><td><span class="status processing">测试</span> / <span class="status live">生产</span></td><td>'+escapeHtml(kb.testDatasetId)+'<br>'+escapeHtml(kb.productionDatasetId)+'</td><td>'+escapeHtml(kb.name)+'</td></tr>').join('')||'<tr><td colspan="3">暂无知识库资源</td></tr>';
+    const iso=document.getElementById('isolationCheck');
+    if(iso)iso.innerHTML='<strong>隔离检查通过</strong>测试dataset共 '+state.knowledgeBases.length+' 个，生产dataset与测试dataset独立绑定；生产dataset只包含已发布版本。';
+  }
+  function testConnection(){
+    const s=document.getElementById('connectionStatus');s.className='status processing';s.textContent='测试中';
+    setTimeout(function(){
+      s.className='status live';s.textContent='已连接';
+      state.provider.status='已连接';saveState();
+      const h=document.getElementById('engineHealth');if(h)h.textContent='FastGPT 测试 / 生产 · 连接正常';
+      toast('连接成功：鉴权、测试dataset和生产dataset权限正常');addAudit('测试RAG引擎连接');
+    },850);
+  }
+  function saveIntegration(){
+    if(!requireRole(['admin','operator'],'保存引擎配置'))return;
+    toast('RAG引擎配置已保存，API Key仍以密文托管');addAudit('更新RAG引擎配置');
+  }
+  function providerChanged(){
+    const p=document.getElementById('provider').value;
+    document.getElementById('connectionStatus').className='status pending';
+    document.getElementById('connectionStatus').textContent='待测试';
+    toast('已切换为'+p+'，请重新填写接口映射并测试连接');
+  }
+
+  /* ============ ⑲ 上传文档 ============ */
+  function knowledgeOptions(selected){
+    return state.knowledgeBases.filter(k=>k.status!=='已归档').map(k=>'<option '+(k.name===selected?'selected':'')+'>'+escapeHtml(k.name)+'</option>').join('');
+  }
+  function openUpload(selectedKB){
+    if(!requireTestEnv()||!requireRole(['operator','admin'],'上传文档'))return;
+    if(!state.knowledgeBases.filter(k=>k.status!=='已归档').length){showModal('请先创建知识库','<div class="empty-kb"><div class="empty-icon">＋</div><h4>当前还没有知识库</h4><p>文档必须归属于一个知识库。请先创建知识库，再上传文档。</p></div>','<button class="btn" onclick="closeModal()">取消</button><button class="btn primary" onclick="closeModal();showView(\'knowledge\');openCreateKB()">新建知识库</button>');return}
+    const selected=selectedKB||state.knowledgeBases.filter(k=>k.status!=='已归档')[0].name;
+    showModal('上传知识文档 · 保存草稿','<input type="file" id="docFile" accept=".pdf,.docx,.xlsx,.csv,.txt,.md,.html" hidden onchange="pickFile(this)"><label class="drop" id="fileDrop" for="docFile">点击选择知识文档<br><strong>支持PDF、DOCX、XLSX、CSV、TXT、MD、HTML</strong><br><small>单文件原型只记录文件名与业务元数据，不上传到真实服务器</small></label><div class="field" style="margin-top:13px"><label>文档标题</label><input class="input" id="uploadTitle" style="width:100%" placeholder="选择文件后自动带入，可修改"></div><div class="field-row"><div class="field"><label>所属知识库</label><select class="select" id="uploadKB" style="width:100%">'+knowledgeOptions(selected)+'</select></div><div class="field"><label>知识类型</label><select class="select" id="uploadType" style="width:100%"><option>政策/SOP</option><option>产品手册</option><option>FAQ</option><option>客服话术</option></select></div><div class="field"><label>适用渠道</label><select class="select" id="uploadChannel" style="width:100%"><option>全渠道</option><option>天猫</option><option>京东</option><option>自营商城</option></select></div><div class="field"><label>负责人</label><input class="input" id="uploadOwner" value="知识运营"></div><div class="field"><label>版本</label><input class="input" id="uploadVersion" value="v1.0"></div><div class="field"><label>生效 / 失效</label><input class="input" id="uploadValidity" placeholder="例如：2026-08-01 ～ 2027-07-31"></div></div><div class="alert"><strong>保存边界</strong>保存后只生成docId和versionId，文档状态为“草稿”；提交业务审核后才会创建测试入库任务。</div>','<button class="btn" onclick="closeModal()">取消</button><button class="btn primary" onclick="saveDraftFromUpload()">保存草稿</button>');
+  }
+  function pickFile(input){
+    const file=input.files&&input.files[0];if(!file)return;
+    const drop=document.getElementById('fileDrop'),title=document.getElementById('uploadTitle');
+    drop.classList.add('file-picked');drop.innerHTML='✓ 已选择：<strong>'+escapeHtml(file.name)+'</strong><br><small>'+Math.max(1,Math.round(file.size/1024))+'KB · 等待保存</small>';
+    if(!title.value)title.value=file.name.replace(/\.[^.]+$/,'');
+  }
+  function saveDraftFromUpload(){
+    if(!requireTestEnv()||!requireRole(['operator','admin'],'保存文档草稿'))return;
+    const fileInput=document.getElementById('docFile'),file=fileInput.files&&fileInput.files[0],title=document.getElementById('uploadTitle').value.trim(),kbName=document.getElementById('uploadKB').value;
+    if(!file){toast('请先选择一份文档');return}
+    if(!title){toast('请填写文档标题');return}
+    const kb=state.knowledgeBases.find(k=>k.name===kbName);
+    const doc={id:makeId('DOC'),versionId:makeId('VER'),kbId:kb?kb.id:'',kbName:kbName,title:title,fileName:file.name,extension:(file.name.split('.').pop()||'FILE').toUpperCase(),type:document.getElementById('uploadType').value,channel:document.getElementById('uploadChannel').value,owner:document.getElementById('uploadOwner').value.trim()||'知识运营',version:document.getElementById('uploadVersion').value.trim()||'v1.0',validity:document.getElementById('uploadValidity').value.trim()||'待补充',status:'草稿',createdAt:nowText(),contentPreview:'（本原型未保存原文全文，仅保留元数据与预览摘要）',versionHistory:[{version:document.getElementById('uploadVersion').value.trim()||'v1.0',note:'上传保存草稿',createdAt:nowText(),status:'草稿',author:roleName()}]};
+    state.documents.unshift(doc);
+    saveState();renderAll();closeModal();addAudit('保存文档草稿 '+doc.id);
+    showModal('文档草稿已保存','<div class="alert good"><strong>'+escapeHtml(doc.title)+' · '+escapeHtml(doc.version)+'</strong>已保存到“'+escapeHtml(kbName)+'”。当前没有创建RAG任务，也不会出现在生产问答中。</div><table><tr><td>docId / versionId</td><td>'+doc.id+' / '+doc.versionId+'</td></tr><tr><td>文档状态</td><td><span class="status gray">草稿</span></td></tr><tr><td>下一步</td><td>检查元数据后提交业务审核</td></tr></table>','<button class="btn" onclick="closeModal();openUpload(\''+escapeHtml(kbName)+'\')">继续上传</button><button class="btn" onclick="closeModal();showView(\'documents\')">查看文档列表</button><button class="btn primary" onclick="closeModal();submitNewDoc(\''+doc.id+'\')">提交审核</button>');
+  }
+
+  /* ============ ⑳ 环境切换与初始化 ============ */
+  function setEnv(env){
+    state.env=env;saveState();
+    document.querySelectorAll('.env-switch button').forEach(b=>b.classList.toggle('active',b.dataset.env===env));
+    renderAll();
+    toast(env==='prod'?'已切换到生产环境视角（只读）：写操作入口将被拦截':'已切换到测试环境视角');
+  }
+  document.querySelectorAll('.nav-btn[data-view]').forEach(function(b){b.addEventListener('click',function(){showView(b.dataset.view)})});
+  renderAll();
+
+</script>
+</body>
+</html>

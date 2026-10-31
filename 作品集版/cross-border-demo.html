@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI 跨境广告创意工作台 · 单文件演示</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "PingFang SC", "Microsoft YaHei", -apple-system, "Segoe UI", sans-serif;
+      background: #f4f6fb;
+      color: #17233d;
+    }
+    .shell { min-height: 100vh; display: flex; flex-direction: column; }
+    .topbar {
+      display: flex; justify-content: space-between; align-items: center; gap: 16px;
+      padding: 18px 28px; background: #fff; border-bottom: 1px solid #e6e9f2;
+    }
+    .topbar h1 { margin: 0; font-size: 20px; }
+    .subtitle { margin: 4px 0 0; color: #6b7488; font-size: 13px; }
+    .pill {
+      display: inline-flex; align-items: center; gap: 6px; border-radius: 999px;
+      padding: 6px 14px; font-size: 13px; font-weight: 700; white-space: nowrap;
+      color: #8a5a00; background: #fff4d6; border: 1px solid #f3d889;
+    }
+    .mode-row { padding: 10px 28px 0; }
+    .workspace {
+      display: flex; gap: 24px; padding: 22px 28px; align-items: flex-start; flex: 1;
+    }
+    .sidebar {
+      width: 370px; flex-shrink: 0; background: #fff; border: 1px solid #e6e9f2;
+      border-radius: 14px; padding: 20px; display: flex; flex-direction: column; gap: 12px;
+    }
+    .sidebar h2 { margin: 0 0 4px; font-size: 16px; }
+    .note {
+      margin: 0; padding: 8px 10px; border-radius: 8px; background: #fff4d6;
+      border: 1px solid #f3d889; color: #8a5a00; font-size: 12px; line-height: 1.6;
+    }
+    .field { display: flex; flex-direction: column; gap: 5px; }
+    .field span { font-size: 13px; font-weight: 600; color: #3d465c; }
+    input, select, textarea {
+      width: 100%; padding: 9px 11px; border: 1px solid #d6dbe8; border-radius: 9px;
+      font-size: 14px; font-family: inherit; background: #fbfcff;
+    }
+    textarea { resize: vertical; }
+    .btn-primary {
+      border: none; border-radius: 10px; padding: 12px; width: 100%;
+      background: linear-gradient(135deg, #4f6ff5, #6f57f0); color: #fff;
+      font-size: 15px; font-weight: 700; cursor: pointer;
+    }
+    .btn-primary:disabled { opacity: .7; cursor: wait; }
+    .result { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 14px; }
+    .card {
+      background: #fff; border: 1px solid #e6e9f2; border-radius: 14px; padding: 18px;
+      box-shadow: 0 6px 20px rgba(25,44,92,.04);
+    }
+    .card h2 { margin: 0 0 12px; font-size: 16px; display: flex; align-items: center; gap: 8px; }
+    .badge {
+      display: inline-block; min-width: 24px; height: 24px; line-height: 24px; text-align: center;
+      border-radius: 7px; background: #edf2ff; color: #2b4cd7; font-size: 14px; font-weight: 700;
+    }
+    .badge.star { background: #ffe6b3; color: #9a6700; }
+    .empty {
+      min-height: 380px; display: flex; flex-direction: column; align-items: center;
+      justify-content: center; text-align: center; color: #6b7488;
+    }
+    .empty h2 { color: #17233d; }
+    .steps { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 14px; }
+    .step-chip { background: #fff; border: 1px solid #d6dbe8; border-radius: 999px; padding: 7px 12px; font-size: 12px; }
+    .progress { display: flex; flex-direction: column; }
+    .p-item {
+      display: flex; align-items: center; gap: 10px; padding: 9px 12px; margin: 2px 0;
+      border-radius: 10px; background: #f6f8fd; color: #9aa2b5; font-size: 13px;
+    }
+    .p-item.active { background: #edf2ff; color: #2b4cd7; font-weight: 700; }
+    .p-item.done { background: #e6f6ee; color: #167a4c; }
+    .p-item .status { margin-left: auto; font-weight: 600; font-size: 12px; }
+    .arrow { text-align: center; color: #c2c9d9; font-size: 12px; margin-left: 20px; line-height: 12px; }
+    .hero { border-color: #c9d7ff; background: linear-gradient(135deg, #fff, #f5f8ff); }
+    .hero-wrap { display: flex; gap: 20px; align-items: flex-start; }
+    .result-stack { display: flex; flex-direction: column; gap: 14px; }
+    .hero-art { flex: 0 0 280px; border: 1px solid #e2e7f2; border-radius: 12px; overflow: hidden; background: #fff; }
+    .hero-art svg { display: block; width: 100%; }
+    .hero-art .cap { padding: 6px 8px; font-size: 11px; color: #7a8296; background: #f4f6fb; margin: 0; }
+    .hero-copy { flex: 1; min-width: 0; }
+    .hero-copy h3 { margin: 0 0 8px; font-size: 25px; }
+    .hero-copy .primary { font-size: 16px; line-height: 1.8; color: #3d465c; }
+    .hero-copy .desc { color: #6b7488; font-size: 14px; line-height: 1.7; }
+    .cta {
+      display: inline-block; margin-top: 10px; background: #edf2ff; color: #2b4cd7;
+      padding: 7px 18px; border-radius: 999px; font-weight: 700; font-size: 14px;
+    }
+    .label { color: #6b7488; font-size: 12px; font-weight: 600; margin: 10px 0 2px; }
+    .label:first-child { margin-top: 0; }
+    .muted { color: #7a8296; font-size: 12px; }
+    .tag { display: inline-block; background: #f1f4fb; color: #3d465c; padding: 5px 10px; border-radius: 999px; font-size: 12px; margin: 0 6px 6px 0; }
+    .tag.main { background: #edf2ff; color: #2b4cd7; }
+    .copy-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+    .copy-btn {
+      border: 1px solid #cfd9f7; background: #fff; color: #2b4cd7; font-size: 12px;
+      border-radius: 8px; padding: 4px 10px; cursor: pointer; white-space: nowrap;
+    }
+    .copy-content {
+      background: #f9faff; border: 1px solid #edf0f8; border-radius: 8px;
+      padding: 8px 10px; margin: 5px 0; white-space: pre-wrap;
+    }
+    .hidden { display: none; }
+    .pass { color: #167a4c; background: #e6f6ee; border-radius: 999px; padding: 4px 12px; font-weight: 700; }
+    .score-big { font-size: 26px; color: #2b4cd7; }
+    .bar { height: 8px; border-radius: 999px; background: #edf0f8; margin: 4px 0; overflow: hidden; }
+    .bar > i { display: block; height: 100%; background: linear-gradient(90deg,#4f6ff5,#6f57f0); }
+    @media (max-width: 980px) {
+      .workspace { flex-direction: column; }
+      .sidebar, .hero-wrap { width: 100%; }
+      .hero-wrap { flex-direction: column; }
+      .hero-art { flex: auto; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div>
+        <h1>AI 跨境广告创意工作台</h1>
+        <p class="subtitle">跨境电商广告素材 Agent：需求 → 分析 → 策略 → 文案 → 视觉 → 合规 → 质量</p>
+      </div>
+      <span class="pill">◉ 演示模式 · 内置真实样例</span>
+    </header>
+    <div class="mode-row"><span class="pill">单文件演示 · 无需安装、无需后端，双击即可打开</span></div>
+
+    <div class="workspace">
+      <aside class="sidebar">
+        <h2>广告需求（示例）</h2>
+        <p class="note">本页为演示文件：点击「立即生成」将播放六阶段流程并展示预置的真实生成结果；修改表单不会改变样例。</p>
+        <div class="field"><span>产品名称 *</span><input id="f-name" value="便携式咖啡机" /></div>
+        <div class="field"><span>产品描述 *</span><textarea id="f-desc" rows="3">适合办公室、旅行与户外场景，可快速萃取一杯新鲜咖啡，支持 USB-C 充电。</textarea></div>
+        <div class="field"><span>产品卖点</span><textarea id="f-features" rows="3">便携轻量
+USB-C 充电
+快速萃取</textarea></div>
+        <div class="field"><span>目标国家 *</span><input id="f-country" value="美国" /></div>
+        <div class="field"><span>广告平台</span>
+          <select id="f-platform"><option>Meta</option><option>TikTok</option><option>Google</option></select>
+        </div>
+        <div class="field"><span>广告目标</span>
+          <select id="f-goal"><option value="conversion">转化 conversion</option><option value="traffic">引流 traffic</option><option value="awareness">品牌认知 awareness</option></select>
+        </div>
+        <div class="field"><span>广告语言 *</span><input id="f-lang" value="中文" /></div>
+        <button class="btn-primary" id="btn-run">立即生成</button>
+        <p class="muted" id="run-hint"></p>
+      </aside>
+
+      <main class="result">
+        <div class="card empty" id="empty">
+          <h2>开始一次 AI 跨境广告创意生成</h2>
+          <p>右侧已预填示例需求。点击「立即生成」，查看六阶段 Agent 的完整产出。</p>
+          <div class="steps">
+            <span class="step-chip">1. 产品分析</span>
+            <span class="step-chip">2. 广告策略</span>
+            <span class="step-chip">3. 广告文案</span>
+            <span class="step-chip">4. 广告视觉</span>
+            <span class="step-chip">5. 合规检查</span>
+            <span class="step-chip">6. 质量评估</span>
+          </div>
+        </div>
+
+        <div class="card hidden" id="loading">
+          <h2>六阶段 Agent 流水线</h2>
+          <p class="muted">前端演示进度；预置样例已由真实 DeepSeek 生成。</p>
+          <div class="progress" id="progress"></div>
+        </div>
+
+        <div id="success" class="hidden result-stack"></div>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    const STAGES = ["产品分析", "广告策略", "广告文案", "广告视觉", "合规检查", "质量评估"];
+
+    const DEMO = {
+      analysis: {
+        summary: "一款 500g 便携咖啡机，容量 300ml，支持 USB-C 充电，面向通勤、旅行与办公场景，主打快速萃取。",
+        target: "美国旅行者、通勤族与常在办公室或路途中需要快捷咖啡的职场人群。",
+        scenes: ["Travel 旅行", "Office 办公", "Morning commute 通勤"],
+        selling: [
+          ["便携 500g", "轻到可以从办公桌带到火车、汽车或周末旅行途中。"],
+          ["USB-C 充电", "旅行或离开家时更容易充电，避免声称快充与长续航。"],
+          ["快速萃取", "帮助路上用户快速获得咖啡，不做未经证实的精确时间承诺。"]
+        ],
+        claims: [
+          ["fast extraction 快速萃取", "existing claims 用户输入宣称"],
+          ["weight 500g 重量 500g", "product specifications 商品规格"],
+          ["capacity 300ml 容量 300ml", "product specifications 商品规格"]
+        ],
+        risks: [
+          "避免用精确秒数量化快速萃取（无计时证据）",
+          "避免 best / perfect / 100% 等绝对化表达",
+          "不要添加充电速度、续航或快充承诺",
+          "不要暗示可放入任何口袋，使用 500g 具体定位",
+          "300ml 定位为单杯容量，不要暗示替代多人咖啡机"
+        ],
+        angles: ["On-the-Go Lifestyle 移动生活方式", "Time Saving 省时", "Easy Charging 便捷充电", "Desk-Ready Convenience 桌面便捷"]
+      },
+      strategy: {
+        core: "便携咖啡陪你通勤、旅行与办公：500g、300ml 单杯、USB-C 充电，快速萃取减少等待。",
+        value: "为美国旅行者、通勤族与移动办公人群提供轻到可随身携带、单杯快速萃取的个人咖啡时刻。",
+        audience: ["美国旅行者、通勤族与移动办公人群"],
+        angles: [
+          ["On-the-Go Lifestyle", "突出从办公桌到火车/汽车/周末背包的 500g 便携场景，CTA: Shop Now"],
+          ["Time Saving", "展示忙碌通勤或短暂工休中快速获得咖啡，避免具体分钟承诺"],
+          ["Easy Charging", "强调日常携带的 USB-C 线即可充电，不夸大充电速度"],
+          ["Desk-Ready Convenience", "办公桌场景 + 300ml 单杯 + 500g 桌面友好尺寸"]
+        ],
+        cta: "Shop Now",
+        platform: ["首行强调核心利益", "Meta 信息流适合简洁移动端文案", "单一清晰 CTA"],
+        local: ["自然美式英语表达", "宣称保持定性，避免时间/充电/续航量化"]
+      },
+      copy: {
+        headline: "Coffee That’s Ready When You Are",
+        primary: "From craving to coffee without the wait. This portable coffee maker weighs just 500g, so it’s easy to take from your office desk to a train, car, or weekend trip. With a 300ml single-serving cup, USB-C charging, and fast extraction, it’s built for commutes, travel days, and office breaks.",
+        description: "At just 500g, this portable coffee maker is easy to carry anywhere. Brews a 300ml single-serving cup with USB-C charging and fast extraction.",
+        cta: "Shop Now",
+        alts: [
+          ["Built for Life on the Move", "Take your coffee with you on the commute, the road trip, or the workday."],
+          ["Your Coffee Break, Anywhere", "Busy morning? Weekend away? Brew one 300ml cup fast wherever the day takes you."]
+        ]
+      },
+      visual: {
+        concept: "便携咖啡陪伴通勤、旅行与办公——用 500g 与 300ml 让便携变得真实。",
+        elements: ["产品清晰可见", "视觉强调便携", "旅行场景"],
+        placement: "产品居中，强调主要卖点",
+        ratio: "4:5"
+      },
+      compliance: {
+        passed: true,
+        note: "通过：未发现绝对化表述、无依据功效承诺或夸大宣传。",
+        checks: ["避免精确时间承诺", "避免绝对化词语", "宣称与商品规格一致", "适配 Meta/TikTok/Google 通用合规注意"]
+      },
+      quality: {
+        passed: true,
+        score: 85,
+        dims: [
+          ["文案质量", 85, "利益导向、与策略一致，规格与宣称匹配"],
+          ["视觉一致性", 85, "旅行场景与 500g/300ml 卖点呼应"],
+          ["平台适配", 85, "适合 Meta 信息流，单一 CTA，移动端友好"]
+        ]
+      },
+      imageNote: "示意素材（本地占位）；接入真实 ImageProvider 后替换为生成图。"
+    };
+
+    const svg = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="600" height="700" viewBox="0 0 600 700">
+        <defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#ffd9a0"/><stop offset="60%" stop-color="#fff3e0"/><stop offset="100%" stop-color="#eef3ff"/>
+        </linearGradient></defs>
+        <rect width="600" height="700" fill="url(#sky)"/>
+        <circle cx="490" cy="90" r="45" fill="#ffdf70"/>
+        <path d="M0 420 L140 280 L245 400 L360 260 L600 480 L600 520 L0 520 Z" fill="#c7d8f7" opacity=".8"/>
+        <path d="M0 500 L200 350 L330 460 L470 330 L600 460 L600 700 L0 700 Z" fill="#93aee6" opacity=".75"/>
+        <rect x="70" y="440" width="120" height="210" rx="22" fill="#ffffff" stroke="#b7c7ec" stroke-width="5"/>
+        <rect x="95" y="405" width="46" height="45" rx="8" fill="#eef4ff" stroke="#b7c7ec" stroke-width="4"/>
+        <path d="M370 470 h100 a24 24 0 0 1 0 48 h-100 z" fill="#46518f"/>
+        <path d="M405 470 q0 -45 65 -45 q65 0 65 45" fill="none" stroke="#333f75" stroke-width="9"/>
+        <circle cx="430" cy="200" r="52" fill="#ffffff" stroke="#b7c7ec" stroke-width="6"/>
+        <path d="M430 200 v-70" stroke="#ffffff" stroke-width="18" stroke-linecap="round"/>
+        <path d="M375 215 q30 18 55 0" fill="none" stroke="#b7c7ec" stroke-width="6"/>
+        <path d="M270 500 h55 v75 h-90 q0 -40 35 -40 z" fill="#7e3f20"/>
+        <text x="300" y="620" text-anchor="middle" font-family="Arial" font-size="30" font-weight="700" fill="#3b4668">Coffee, Ready When You Are</text>
+        <text x="300" y="660" text-anchor="middle" font-family="Arial" font-size="18" fill="#6b7488">500g · USB-C · 300ml</text>
+      </svg>`;
+
+    const $ = (id) => document.getElementById(id);
+    const esc = (s) => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+    function section(num, title, body) {
+      return `<section class="card"><h2><span class="badge">${num}</span>${title}</h2>${body}</section>`;
+    }
+
+    function renderAnalysis() {
+      const d = DEMO.analysis;
+      return `
+        <p class="label">产品总结</p><p>${esc(d.summary)}</p>
+        <p class="label">目标用户</p><p>${esc(d.target)}</p>
+        <p class="label">使用场景</p><p>${d.scenes.map(s => `<span class="tag">${esc(s)}</span>`).join("")}</p>
+        <p class="label">核心卖点</p>
+        ${d.selling.map(([t, x]) => `<p><strong>${esc(t)}</strong>：${esc(x)}</p>`).join("")}
+        <p class="label">商品宣称（含来源）</p>
+        <ul>${d.claims.map(([c, s]) => `<li>${esc(c)} <span class="muted">来源：${esc(s)}</span></li>`).join("")}</ul>
+        <p class="label">潜在风险（供合规与文案避坑）</p>
+        <ul>${d.risks.map(r => `<li>${esc(r)}</li>`).join("")}</ul>`;
+    }
+
+    function renderStrategy() {
+      const s = DEMO.strategy;
+      return `
+        <p class="label">核心信息</p><p>${esc(s.core)}</p>
+        <p class="label">Value Proposition</p><p>${esc(s.value)}</p>
+        <p class="label">目标受众</p><p>${s.audience.map(a => `<span class="tag main">${esc(a)}</span>`).join("")}</p>
+        <p class="label">Creative Angles</p>
+        ${s.angles.map(([t, x]) => `<p><strong>${esc(t)}</strong>：${esc(x)}</p>`).join("")}
+        <p class="label">行动号召 CTA</p><span class="cta">${esc(s.cta)}</span>
+        <p class="label">平台执行建议</p><ul>${s.platform.map(x => `<li>${esc(x)}</li>`).join("")}</ul>
+        <p class="label">本地化注意事项</p><ul>${s.local.map(x => `<li>${esc(x)}</li>`).join("")}</ul>`;
+    }
+
+    function renderCopy() {
+      const c = DEMO.copy;
+      const block = (label, text) => `
+        <div class="copy-row"><span class="label" style="margin:8px 0 0">${label}</span>
+          <button class="copy-btn" data-copy="${esc(text)}">复制</button></div>
+        <div class="copy-content">${esc(text)}</div>`;
+      const alts = c.alts.map(([h, d], i) => block(`备选文案 ${i + 1} Alternative Copy`, `${h}\n\n${d}`)).join("");
+      return block("主文案 Primary Copy", c.primary) + block("标题 Headline", c.headline) + block("描述 Description", c.description) + block("行动号召 CTA", c.cta) + `<p class="label">备选文案</p>` + alts;
+    }
+
+    function renderVisual() {
+      const v = DEMO.visual;
+      return `
+        <p class="label">Visual Concept 视觉概念</p><p>${esc(v.concept)}</p>
+        <p class="label">比例</p><span class="tag">${esc(v.ratio)}</span>
+        <p class="label">视觉元素</p><ul>${v.elements.map(e => `<li>${esc(e)}</li>`).join("")}</ul>
+        <p class="label">商品呈现</p><p>${esc(v.placement)}</p>`;
+    }
+
+    function renderCompliance() {
+      const c = DEMO.compliance;
+      return `
+        <p><span class="pass">${c.passed ? "通过" : "未通过"}</span> ${esc(c.note)}</p>
+        <p class="label">检查要点</p><ul>${c.checks.map(x => `<li>${esc(x)}</li>`).join("")}</ul>`;
+    }
+
+    function renderQuality() {
+      const q = DEMO.quality;
+      return `
+        <p><span class="pass">${q.passed ? "通过" : "未通过"}</span> <span class="muted">总体评分 Overall Score</span> <span class="score-big">${q.score}</span></p>
+        ${q.dims.map(([n, s, f]) => `
+          <p class="label">${esc(n)} — ${s}</p>
+          <div class="bar"><i style="width:${s}%"></i></div>
+          <p class="muted">${esc(f)}</p>`).join("")}`;
+    }
+
+    function hero() {
+      const c = DEMO.copy;
+      return `
+        <section class="card hero">
+          <h2><span class="badge star">★</span>最终广告方案</h2>
+          <div class="hero-wrap">
+            <div class="hero-art">${svg}<p class="cap">${esc(DEMO.imageNote)}</p></div>
+            <div class="hero-copy">
+              <h3>${esc(c.headline)}</h3>
+              <p class="primary">${esc(c.primary)}</p>
+              <p class="desc">${esc(c.description)}</p>
+              <span class="cta">${esc(c.cta)}</span>
+              <p class="label">策略核心信息</p>
+              <p class="muted">${esc(DEMO.strategy.core)}</p>
+            </div>
+          </div>
+        </section>`;
+    }
+
+    function renderResult() {
+      return hero()
+        + section(1, "AI 产品分析", renderAnalysis())
+        + section(2, "广告策略", renderStrategy())
+        + section(3, "广告文案", renderCopy())
+        + section(4, "广告视觉", renderVisual())
+        + section(5, "合规检查", renderCompliance())
+        + section(6, "质量评估", renderQuality());
+    }
+
+    function showProgress(step) {
+      const p = STAGES.map((name, i) => {
+        let cls = "";
+        if (i < step) cls = "done";
+        if (i === step) cls = "active";
+        const text = i < step ? "完成" : i === step ? "执行中" : "等待";
+        return `<div class="p-item ${cls}"><span>${i + 1}. ${name}</span><span class="status">${text}</span></div>`;
+      }).join('<div class="arrow">↓</div>');
+      $("progress").innerHTML = p;
+    }
+
+    async function runDemo() {
+      const btn = $("btn-run");
+      btn.disabled = true;
+      btn.textContent = "生成中…";
+      $("run-hint").textContent = "正在播放六阶段演示流程（内置真实样例）…";
+      $("empty").classList.add("hidden");
+      const successEl = $("success");
+      successEl.classList.add("hidden");
+      successEl.style.display = "none";
+      $("loading").classList.remove("hidden");
+
+      for (let i = 0; i < STAGES.length; i++) {
+        showProgress(i);
+        await new Promise(r => setTimeout(r, 420));
+      }
+
+      $("loading").classList.add("hidden");
+      const success = $("success");
+      success.innerHTML = renderResult();
+      success.classList.remove("hidden");
+      success.style.display = "flex";
+      btn.disabled = false;
+      btn.textContent = "重新生成（演示）";
+      $("run-hint").textContent = "演示完成。预置样例由真实 DeepSeek 生成；本单文件不会调用真实 API。";
+      bindCopy();
+    }
+
+    function copyText(text) {
+      return new Promise((resolve, reject) => {
+        if (navigator.clipboard && window.isSecureContext) {
+          navigator.clipboard.writeText(text).then(resolve, reject);
+          return;
+        }
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        ta.style.position = "fixed";
+        ta.style.opacity = "0";
+        document.body.appendChild(ta);
+        ta.select();
+        try {
+          document.execCommand("copy") ? resolve() : reject(new Error("复制失败"));
+        } finally {
+          document.body.removeChild(ta);
+        }
+      });
+    }
+
+    function bindCopy() {
+      document.querySelectorAll("[data-copy]").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          const text = btn.getAttribute("data-copy");
+          try {
+            await copyText(text);
+            btn.textContent = "✓ 已复制";
+          } catch {
+            btn.textContent = "复制失败";
+          }
+          setTimeout(() => { btn.textContent = "复制"; }, 1600);
+        });
+      });
+    }
+
+    $("btn-run").addEventListener("click", runDemo);
+  </script>
+</body>
+</html>

@@ -1,0 +1,597 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="description" content="李昕昊的其他产品实践：AI 广告素材工作台与米家智能场景优化。">
+  <title>其他实践｜李昕昊作品集</title>
+  <style>
+    :root {
+      --black: #08080a;
+      --paper: #f5f5f7;
+      --surface: #ffffff;
+      --ink: #1d1d1f;
+      --muted: #6e6e73;
+      --muted-dark: #b8b8bd;
+      --line: #d2d2d7;
+      --line-dark: #333336;
+      --blue: #0066cc;
+      --blue-focus: #0071e3;
+      --blue-soft: #e8f2ff;
+      --display: "SF Pro Display", "Inter", "PingFang SC", "Microsoft YaHei UI", sans-serif;
+      --body: "SF Pro Text", "Inter", "PingFang SC", "Microsoft YaHei", sans-serif;
+      --mono: "SFMono-Regular", "Cascadia Code", Consolas, monospace;
+      --content: 1120px;
+      --pill: 999px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--surface);
+      font-family: var(--body);
+      font-size: 17px;
+      line-height: 1.55;
+      overflow-x: hidden;
+    }
+
+    a {
+      color: var(--blue);
+      text-decoration-thickness: 1px;
+      text-underline-offset: .18em;
+    }
+
+    a:focus-visible,
+    summary:focus-visible {
+      outline: 2px solid var(--blue-focus);
+      outline-offset: 4px;
+      border-radius: 4px;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin-top: 0;
+    }
+
+    h1,
+    h2,
+    h3 {
+      font-family: var(--display);
+      letter-spacing: -.025em;
+    }
+
+    .skip-link {
+      position: fixed;
+      z-index: 100;
+      top: 12px;
+      left: 12px;
+      transform: translateY(-180%);
+      padding: 10px 16px;
+      color: var(--black);
+      background: var(--surface);
+      border-radius: 8px;
+      font-weight: 700;
+    }
+
+    .skip-link:focus {
+      transform: none;
+    }
+
+    .hero {
+      color: var(--surface);
+      background: var(--black);
+    }
+
+    .topbar,
+    .hero-inner,
+    .content,
+    .footer-inner {
+      width: min(var(--content), calc(100% - 48px));
+      margin-inline: auto;
+    }
+
+    .topbar {
+      min-height: 68px;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 30px;
+      border-bottom: 1px solid rgba(255, 255, 255, .12);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--surface);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .brand-mark {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      color: var(--black);
+      background: var(--paper);
+      border-radius: 50%;
+      font: 700 11px/1 var(--mono);
+    }
+
+    .brand small {
+      display: block;
+      margin-top: 1px;
+      color: var(--muted-dark);
+      font-size: 11px;
+      font-weight: 400;
+    }
+
+    .topnav {
+      display: flex;
+      justify-content: center;
+      gap: 26px;
+      font-size: 13px;
+    }
+
+    .topnav a,
+    .back-link {
+      color: rgba(255, 255, 255, .7);
+      text-decoration: none;
+    }
+
+    .topnav a:hover,
+    .back-link:hover {
+      color: var(--surface);
+    }
+
+    .back-link {
+      justify-self: end;
+      padding: 9px 13px;
+      border: 1px solid rgba(255, 255, 255, .2);
+      border-radius: var(--pill);
+      font-size: 12px;
+    }
+
+    .hero-inner {
+      padding-block: clamp(80px, 10vw, 138px) clamp(64px, 8vw, 100px);
+    }
+
+    .eyebrow {
+      margin-bottom: 22px;
+      color: #a8a8ae;
+      font: 500 11px/1.4 var(--mono);
+    }
+
+    h1 {
+      max-width: 900px;
+      margin-bottom: 22px;
+      color: #f7f7f8;
+      font-size: clamp(54px, 7vw, 90px);
+      line-height: 1;
+      font-weight: 650;
+      letter-spacing: -.05em;
+    }
+
+    .hero-lede {
+      max-width: 760px;
+      margin-bottom: 0;
+      color: #c3c3c8;
+      font-size: clamp(18px, 1.6vw, 21px);
+    }
+
+    .content {
+      padding-block: clamp(76px, 9vw, 120px);
+    }
+
+    .case {
+      display: grid;
+      grid-template-columns: 190px minmax(0, 1fr);
+      gap: 52px;
+      padding: 56px 0;
+      border-top: 1px solid var(--line);
+      scroll-margin-top: 24px;
+    }
+
+    .case:first-child {
+      padding-top: 0;
+      border-top: 0;
+    }
+
+    .case-meta {
+      position: sticky;
+      top: 24px;
+      align-self: start;
+    }
+
+    .case-index {
+      margin-bottom: 10px;
+      color: var(--muted);
+      font: 500 10px/1.4 var(--mono);
+    }
+
+    .case-meta h2 {
+      margin-bottom: 12px;
+      font-size: 28px;
+      line-height: 1.16;
+    }
+
+    .case-meta p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.65;
+    }
+
+    .case-body h3 {
+      margin: 0 0 14px;
+      font-size: clamp(32px, 4vw, 48px);
+      line-height: 1.08;
+    }
+
+    .case-summary {
+      max-width: 760px;
+      margin-bottom: 26px;
+      color: var(--muted);
+      font-size: 17px;
+      line-height: 1.7;
+    }
+
+    .stage-list {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      margin: 26px 0;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .stage {
+      min-height: 94px;
+      padding: 16px 14px 16px 0;
+      border-right: 1px solid var(--line);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .stage + .stage {
+      padding-left: 14px;
+    }
+
+    .stage:last-child {
+      border-right: 0;
+    }
+
+    .stage b {
+      display: block;
+      margin-bottom: 12px;
+      color: #8a8a90;
+      font: 500 10px/1 var(--mono);
+    }
+
+    .case-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 28px;
+      margin: 26px 0;
+    }
+
+    .case-grid h4 {
+      margin: 0 0 8px;
+      font-family: var(--display);
+      font-size: 18px;
+    }
+
+    .case-grid p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 28px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 10px 18px;
+      color: var(--blue);
+      background: transparent;
+      border: 1px solid rgba(0, 102, 204, .38);
+      border-radius: var(--pill);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .button:hover {
+      background: var(--blue-soft);
+    }
+
+    .button.primary {
+      color: var(--surface);
+      background: var(--blue);
+      border-color: var(--blue);
+    }
+
+    .button.primary:hover {
+      background: #005bb5;
+    }
+
+    .boundary {
+      margin-top: 24px;
+      padding: 18px 20px;
+      background: var(--paper);
+      border-left: 3px solid var(--line);
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .boundary strong {
+      color: var(--ink);
+    }
+
+    footer {
+      color: #b5b5ba;
+      background: var(--black);
+    }
+
+    .footer-inner {
+      padding: 28px 0 36px;
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      font-size: 12px;
+    }
+
+    footer a {
+      color: #d2d2d7;
+    }
+
+    @media (max-width: 820px) {
+      .topbar,
+      .hero-inner,
+      .content,
+      .footer-inner {
+        width: min(100% - 28px, var(--content));
+      }
+
+      .topbar {
+        grid-template-columns: 1fr auto;
+      }
+
+      .topnav {
+        display: none;
+      }
+
+      .case {
+        grid-template-columns: 1fr;
+        gap: 24px;
+      }
+
+      .case-meta {
+        position: static;
+      }
+
+      .stage-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .stage:nth-child(2n) {
+        border-right: 0;
+      }
+
+      .stage:nth-child(n+3) {
+        border-top: 1px solid var(--line);
+      }
+
+      .footer-inner {
+        flex-direction: column;
+      }
+    }
+
+    @media (max-width: 520px) {
+      h1 {
+        font-size: clamp(48px, 15vw, 68px);
+      }
+
+      .stage-list,
+      .case-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .stage,
+      .stage + .stage {
+        border-right: 0;
+        border-top: 1px solid var(--line);
+      }
+
+      .stage:first-child {
+        border-top: 0;
+      }
+
+      .button {
+        width: 100%;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+    }
+
+    @media print {
+      @page {
+        size: A4;
+        margin: 12mm;
+      }
+
+      body {
+        color: #111;
+        background: #fff;
+        font-size: 10pt;
+      }
+
+      .hero,
+      footer {
+        color: #111;
+        background: #fff;
+      }
+
+      .topnav,
+      .back-link,
+      .skip-link,
+      .button {
+        display: none !important;
+      }
+
+      .case {
+        display: block;
+        break-inside: avoid;
+      }
+
+      .case-meta {
+        position: static;
+        margin-bottom: 16px;
+      }
+
+      a {
+        color: #111;
+        text-decoration: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到正文</a>
+  <header class="hero">
+    <div class="topbar">
+      <a class="brand" href="index.html">
+        <span class="brand-mark">LH</span>
+        <span>
+          李昕昊
+          <small>其他实践 · 补充案例</small>
+        </span>
+      </a>
+      <nav class="topnav" aria-label="其他实践导航">
+        <a href="#ad-workbench">广告工作台</a>
+        <a href="#mi-home">米家智能场景</a>
+      </nav>
+      <a class="back-link" href="index.html">返回作品集</a>
+    </div>
+
+    <div class="hero-inner">
+      <p class="eyebrow">其他实践 / 补充广度</p>
+      <h1>验证流程编排，也验证产品分析。</h1>
+      <p class="hero-lede">
+        这两个项目不作为主案例：一个展示多 Agent 工作流和可运行原型，另一个展示竞品分析、需求收口与 PRD。
+      </p>
+    </div>
+  </header>
+
+  <main class="content" id="main">
+    <section class="case" id="ad-workbench">
+      <aside class="case-meta">
+        <p class="case-index">实践 01 · 可运行 MVP</p>
+        <h2>AI 广告素材工作台</h2>
+        <p>个人实践<br>六阶段 Agent 工作流<br>本地单文件演示</p>
+      </aside>
+      <div class="case-body">
+        <h3>把广告素材生产拆成六个可检查的步骤。</h3>
+        <p class="case-summary">
+          面向跨境电商卖家的广告素材生产工作台。输入商品信息后，由主 Agent 串联产品分析、广告策略、文案、视觉、合规和质量六段流程，避免让一个模型一次性完成全部判断。
+        </p>
+
+        <div class="stage-list" aria-label="六阶段工作流">
+          <div class="stage"><b>01</b>产品分析</div>
+          <div class="stage"><b>02</b>广告策略</div>
+          <div class="stage"><b>03</b>广告文案</div>
+          <div class="stage"><b>04</b>广告视觉</div>
+          <div class="stage"><b>05</b>合规检查</div>
+          <div class="stage"><b>06</b>质量评估</div>
+        </div>
+
+        <div class="case-grid">
+          <div>
+            <h4>完成的判断</h4>
+            <p>创作和复核分开处理，每段先定输入、输出和失败条件，避免同一个模型完成创作后给自己打分。</p>
+          </div>
+          <div>
+            <h4>真实验证</h4>
+            <p>便携咖啡机、美国、Meta 这组样例已跑通完整链路，真实生成结果保存为本地演示数据。</p>
+          </div>
+        </div>
+
+        <div class="boundary">
+          <strong>边界：</strong>没有真实业务方和用户访谈，图片生成仍为占位素材。可以证明流程可运行，不能证明商业效果。
+        </div>
+
+        <div class="actions">
+          <a class="button primary" href="cross-border-demo.html" target="_blank" rel="noopener noreferrer">打开工作台演示</a>
+          <a class="button" href="index.html#work">返回项目列表</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="case" id="mi-home">
+      <aside class="case-meta">
+        <p class="case-index">实践 02 · 分析与 PRD</p>
+        <h2>米家智能场景</h2>
+        <p>个人实践<br>竞品分析<br>PRD</p>
+      </aside>
+      <div class="case-body">
+        <h3>降低自动化场景的配置门槛。</h3>
+        <p class="case-summary">
+          从智能家居行业格局和竞争态势切入，聚焦两个问题：用户不知道如何组合触发条件与执行动作；重复操作没有被系统识别并转成自动化场景。
+        </p>
+
+        <div class="case-grid">
+          <div>
+            <h4>目标用户</h4>
+            <p>主动探索型用户：有多台设备、希望实现自动化，但缺少场景配置经验。日常使用型用户：已有固定习惯，但不了解系统具备哪些自动化能力。</p>
+          </div>
+          <div>
+            <h4>方案重点</h4>
+            <p>PRD 收敛为“AI 辅助创建智能场景”和“AI 自动推荐场景”两条闭环，并补充用户研究、需求优先级、功能范围和需求列表。</p>
+          </div>
+        </div>
+
+        <div class="boundary">
+          <strong>边界：</strong>这是分析型项目，没有实现和上线产品，也没有用户验证数据。作品集只展示行业分析、机会判断和 PRD 能力。
+        </div>
+
+        <div class="actions">
+          <a class="button primary" href="https://lcnil5f2quw4.feishu.cn/wiki/ZhVewnbioiuQv9kciPscv9urnoU" target="_blank" rel="noopener noreferrer">查看竞品分析</a>
+          <a class="button" href="https://lcnil5f2quw4.feishu.cn/wiki/Mwx7wP6lki7rxhkMvNEcnvbQnHg" target="_blank" rel="noopener noreferrer">查看 PRD</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <span>李昕昊 · 其他实践</span>
+      <span><a href="index.html">作品集首页</a> · <a href="问需案例.html">问需案例</a></span>
+    </div>
+  </footer>
+</body>
+</html>

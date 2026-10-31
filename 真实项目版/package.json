@@ -1,0 +1,18 @@
+{
+  "name": "rag-kb-platform",
+  "version": "1.0.0",
+  "private": true,
+  "description": "企业级 RAG 知识库平台 · 真实本地版本（Node.js + SQLite + Dify 适配 + 本地降级引擎）",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=22.5"
+  },
+  "scripts": {
+    "start": "node --env-file-if-exists=.env server/index.js",
+    "test": "node --test \"tests/*.test.js\""
+  },
+  "dependencies": {
+    "mammoth": "^1.8.0",
+    "pdf-parse": "^1.1.1"
+  }
+}

@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>企业级 RAG 知识库平台</title>
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand"><div class="brand-mark">知</div><div><small>企业级RAG知识库平台</small></div></div>
+    <nav class="nav">
+      <div class="nav-group">工作台</div>
+      <button class="nav-btn active" data-view="overview"><span class="nav-icon">▦</span><span>运营总览<small>风险、待办与质量指标</small></span></button>
+      <button class="nav-btn" data-view="analytics"><span class="nav-icon">↗</span><span>运营统计<small>知识与问题趋势</small></span></button>
+      <div class="nav-group">知识治理</div>
+      <button class="nav-btn" data-view="knowledge"><span class="nav-icon">▣</span><span>知识库管理<small>业务域、负责人和环境</small></span></button>
+      <button class="nav-btn" data-view="documents"><span class="nav-icon">▤</span><span>文档与版本<small>上传、元数据和历史版本</small></span></button>
+      <button class="nav-btn" data-view="sources"><span class="nav-icon">⟳</span><span>数据源同步<small>增量更新与失败重试</small></span></button>
+      <button class="nav-btn" data-view="review"><span class="nav-icon">✓</span><span>业务审核<small>事实、范围、有效期和例外</small></span><b class="nav-count" id="reviewCount">6</b></button>
+      <div class="nav-group">RAG处理与验证</div>
+      <button class="nav-btn" data-view="ingestion"><span class="nav-icon">⇩</span><span>入库任务<small>测试/生产任务及状态</small></span><b class="nav-count" id="ingestionCount">0</b></button>
+      <button class="nav-btn" data-view="processing"><span class="nav-icon">⌁</span><span>处理结果验收<small>解析、切片与索引</small></span></button>
+      <button class="nav-btn" data-view="retrieval"><span class="nav-icon">⌕</span><span>检索调试<small>召回、分数和来源定位</small></span></button>
+      <button class="nav-btn" data-view="evaluation"><span class="nav-icon">◎</span><span>批量评测与发布<small>自动评测、对话验收与发布</small></span></button>
+      <button class="nav-btn" data-view="cases"><span class="nav-icon">!</span><span>问题案例<small>查看证据与处理状态</small></span><b class="nav-count" id="caseCount">0</b></button>
+      <div class="nav-group">系统管理</div>
+      <button class="nav-btn" data-view="permissions"><span class="nav-icon">♙</span><span>权限与审计<small>成员、角色与操作留痕</small></span></button>
+      <button class="nav-btn" data-view="integration"><span class="nav-icon">⚙</span><span>RAG引擎配置<small>FastGPT与环境映射</small></span></button>
+    </nav>
+    <div class="sidebar-foot" id="sidebarUser"></div>
+  </aside>
+
+  <section class="workspace">
+    <header class="topbar">
+      <div class="crumb">企业知识管理 / <strong id="crumbTitle">运营总览</strong></div>
+      <div class="top-actions">
+        <div class="env-switch"><button class="active" data-env="test" onclick="setEnv('test')">测试环境</button><button data-env="prod" onclick="setEnv('prod')">生产环境</button></div>
+        <div class="health"><i class="dot"></i><span id="engineHealth">引擎检测中…</span></div>
+        <div class="avatar" id="avatarName" title="当前演示角色">运营</div>
+      </div>
+    </header>
+
+    <main class="content">
+      <div class="alert" id="envBanner" style="margin-bottom:14px"></div>
+      <section class="view active" id="overview" data-title="运营总览">
+        <div class="page-head"><div><h1>企业知识运营总览</h1><p>从知识录入、业务审核、RAG处理、评测发布到问题回修的完整运营工作台。</p></div><div class="actions"><button class="btn" onclick="showView('retrieval')">检索测试</button><button class="btn primary" id="overviewUploadBtn" onclick="openUpload()">上传知识</button></div></div>
+        <div class="alert good"><strong>MVP运行方式</strong>企业平台负责知识治理；FastGPT作为当前RAG能力引擎。测试dataset与生产dataset相互隔离，未经评测的知识不会进入正式问答应用。</div>
+        <div class="stats">
+          <div class="stat"><label>已发布知识</label><strong id="publishedStat">0</strong><span id="publishedStatSub">—</span></div>
+          <div class="stat orange"><label>待处理工作</label><strong id="pendingStat">0</strong><span id="pendingStatSub">—</span></div>
+          <div class="stat green"><label>问答评测通过率</label><strong id="evalRateStat">—</strong><span id="evalRateStatSub">—</span></div>
+          <div class="stat red"><label>P0风险问题</label><strong id="p0Stat">0</strong><span id="p0StatSub">—</span></div>
+        </div>
+        <div class="panel"><div class="panel-head"><div><h2>一条知识如何进入正式应用</h2><p>点击任一步骤可进入相应模块</p></div></div><div class="panel-body">
+          <div class="flow">
+            <div class="flow-step" onclick="showView('documents')"><span class="tag">企业平台</span><b>保存草稿</b><small>上传文件并填写版本、渠道、负责人和有效期</small></div>
+            <div class="flow-step" onclick="showView('review')"><span class="tag">企业平台</span><b>业务审核</b><small>核对事实、条件、例外和适用范围</small></div>
+            <div class="flow-step" onclick="showView('ingestion')"><span class="tag">企业平台</span><b>测试入库</b><small>创建任务并同步到隔离的测试dataset</small></div>
+            <div class="flow-step" onclick="showView('processing')"><span class="tag">RAG引擎</span><b>处理与索引</b><small>解析、切片、Embedding与向量索引</small></div>
+            <div class="flow-step" onclick="showView('retrieval')"><span class="tag">企业平台</span><b>检索验证</b><small>检查Top K、score、来源和过滤原因</small></div>
+            <div class="flow-step" onclick="showView('evaluation')"><span class="tag">企业平台 + 客服测试环境</span><b>评测与发布</b><small>后台批量评测、客服对话验收与线下发布审批</small></div>
+            <div class="flow-step" onclick="showView('cases')"><span class="tag">企业平台</span><b>持续运营</b><small>问题案例回流、根因定位和回归验证</small></div>
+          </div>
+        </div></div>
+        <div class="grid-2">
+          <div class="panel"><div class="panel-head"><div><h2>优先待办</h2><p>按业务风险和时效排序</p></div><button class="btn small" onclick="renderOverview();toast('待办列表已刷新')">刷新</button></div><div class="panel-body">
+            <table><thead><tr><th>任务</th><th>负责人</th><th>截止</th><th>状态</th><th></th></tr></thead><tbody id="todoTable"></tbody></table>
+          </div></div>
+          <div>
+            <div class="panel"><div class="panel-head"><h2>环境隔离状态</h2><span class="status live">正常</span></div><div class="panel-body">
+              <table id="envIsolation"></table>
+            </div></div>
+            <div class="panel"><div class="panel-head"><h2>知识新鲜度</h2></div><div class="panel-body"><div class="progress"><i id="freshnessBar" style="width:0%"></i></div><p id="freshnessText" style="font-size:11px;color:var(--muted);margin:9px 0 0">正在统计…</p></div></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" id="analytics" data-title="运营统计">
+        <div class="page-head"><div><h1>运营统计</h1><p>观察知识覆盖、检索质量、发布效率和问题案例趋势。</p></div><div class="actions"><select class="select" id="analyticsRange" onchange="renderAnalytics()"><option>最近30天</option><option>最近7天</option><option>本季度</option></select><button class="btn" onclick="exportAnalytics()">导出报告</button></div></div>
+        <div class="stats"><div class="stat"><label>检索请求</label><strong id="analyticsSearches">—</strong><span id="analyticsSearchesSub">—</span></div><div class="stat green"><label>正确召回率</label><strong id="analyticsRecall">—</strong><span id="analyticsRecallSub">—</span></div><div class="stat orange"><label>无答案率</label><strong id="analyticsNoAnswer">—</strong><span>目标 ≤5%</span></div><div class="stat red"><label>问题案例新增</label><strong id="analyticsCases">—</strong><span id="analyticsCasesSub">—</span></div></div>
+        <div class="grid-equal">
+          <div class="panel"><div class="panel-head"><h2>知识调用趋势</h2><span style="font-size:11px;color:var(--muted)">单位：千次</span></div><div class="panel-body"><div class="bar-chart"><div class="bar-item"><i style="height:42%"></i><b>3.2</b><span>第1周</span></div><div class="bar-item"><i style="height:58%"></i><b>4.8</b><span>第2周</span></div><div class="bar-item"><i style="height:74%"></i><b>6.5</b><span>第3周</span></div><div class="bar-item"><i style="height:90%"></i><b>8.1</b><span>第4周</span></div></div></div></div>
+          <div class="panel"><div class="panel-head"><h2>问题根因分布</h2><span style="font-size:11px;color:var(--muted)">由问题案例实时计算</span></div><div class="panel-body"><table id="rootCauseTable"></table></div></div>
+        </div>
+        <div class="panel"><div class="panel-head"><h2>高频知识主题</h2><button class="btn small" onclick="showView('documents')">查看文档</button></div><div class="panel-body"><table><thead><tr><th>主题</th><th>调用次数</th><th>无答案率</th><th>负反馈率</th><th>负责人</th><th>建议</th></tr></thead><tbody><tr><td>退货与换货</td><td>8,942</td><td>2.1%</td><td>1.8%</td><td>售后运营</td><td><span class="status live">稳定</span></td></tr><tr><td>充电宝安全使用</td><td>6,510</td><td>5.8%</td><td>4.7%</td><td>产品运营</td><td><span class="status pending">补充案例</span></td></tr><tr><td>保修与维修</td><td>4,362</td><td>3.3%</td><td>2.4%</td><td>售后运营</td><td><span class="status live">稳定</span></td></tr><tr><td>物流与签收</td><td>3,904</td><td>7.2%</td><td>3.1%</td><td>客服主管</td><td><span class="status pending">检查实时API</span></td></tr></tbody></table></div></div>
+      </section>
+
+      <section class="view" id="knowledge" data-title="知识库管理">
+        <div class="page-head"><div><h1>知识库管理</h1><p>按业务域管理知识资产，并维护负责人、权限范围和RAG环境映射。</p></div><div class="actions"><button class="btn primary" id="createKBBtn" onclick="openCreateKB()">新建知识库</button></div></div>
+        <div class="toolbar" style="margin-bottom:14px"><input class="input" id="kbSearch" placeholder="搜索知识库名称" oninput="filterKB()"><select class="select" id="kbDomain" onchange="filterKB()"><option value="">全部业务域</option><option>售后</option><option>商品</option><option>客服</option><option>渠道</option></select><select class="select" id="kbStatus" onchange="filterKB()"><option value="">全部状态</option><option>运行中</option><option>建设中</option><option>已归档</option></select></div>
+        <div class="kb-cards" id="kbCards"></div>
+      </section>
+
+      <section class="view" id="documents" data-title="文档与版本">
+        <div class="page-head"><div><h1>文档与版本</h1><p>原文件、业务元数据、审核记录和RAG资源映射均按版本保存。</p></div><div class="actions"><button class="btn" onclick="downloadFaqTemplate()">下载FAQ模板</button><button class="btn primary" id="uploadDocBtn" onclick="openUpload()">上传文档</button></div></div>
+        <div class="panel"><div class="panel-head"><div class="toolbar"><input class="input" id="docSearch" placeholder="搜索标题、docId或标签" oninput="filterDocs()"><select class="select" id="docStatus" onchange="filterDocs()"><option value="">全部状态</option><option>草稿</option><option>待审核</option><option>测试入库中</option><option>待验收</option><option>待检索验证</option><option>待问答评测</option><option>待全量回归</option><option>待线下审批</option><option>待问题修复</option><option>已发布</option></select><select class="select" id="docKB" onchange="filterDocs()"><option value="">全部知识库</option></select></div></div><div class="panel-body" style="padding:0"><table><thead><tr><th>文档 / 版本</th><th>知识类型</th><th>渠道与有效期</th><th>负责人</th><th>状态</th><th>RAG环境</th><th>操作</th></tr></thead><tbody id="docTable"></tbody></table></div></div>
+      </section>
+
+      <section class="view" id="sources" data-title="数据源同步">
+        <div class="page-head"><div><h1>数据源同步</h1><p>外部更新只生成企业平台草稿，不会自动审核、入库或发布。</p></div><div class="actions"><button class="btn primary" id="createSourceBtn" onclick="openSource()">新建数据源</button><button class="btn" onclick="syncAll()">全部同步</button></div></div>
+        <div class="alert"><strong>同步边界</strong>以sourceId和sourceVersion保证幂等；源端删除只标记“待确认”，不得直接下线已发布知识。</div>
+        <div class="panel"><div class="panel-body" style="padding:0"><table><thead><tr><th>数据源</th><th>数据类别</th><th>接入方式</th><th>频率</th><th>最近结果</th><th>状态</th><th>操作</th></tr></thead><tbody id="sourceTable"></tbody></table></div></div>
+      </section>
+
+      <section class="view" id="review" data-title="业务审核">
+        <div class="page-head"><div><h1>业务审核</h1><p>对比当前线上版与待审核版，核对业务事实、适用范围、有效期和高风险口径；通过后自动创建测试入库任务。</p></div><div class="actions"><select class="select" id="reviewFilter" onchange="renderReviewQueue()"><option value="pending">我的待审核</option><option value="all">全部任务</option><option value="p0">P0高风险</option></select></div></div>
+        <div id="reviewUserQueue"></div>
+        <div id="reviewDetail"></div>
+        </section>
+
+      <section class="view" id="ingestion" data-title="入库任务">
+        <div class="page-head"><div><h1>入库任务</h1><p>测试与生产任务严格隔离；任务由业务审核通过后自动创建，处理状态由RAG引擎回调同步。</p></div><div class="actions"><button class="btn" onclick="renderIngestionJobs();toast('任务状态已刷新')">刷新状态</button></div></div>
+        <div class="alert"><strong>环境隔离</strong>测试dataset与生产dataset严格分离；生产任务只读，发布动作由线下审批后的版本切换完成。</div>
+        <div class="panel"><div class="panel-head"><div class="toolbar"><select class="select" id="jobEnv" onchange="filterJobs()"><option value="">全部环境</option><option>测试</option><option>生产</option></select><select class="select" id="jobStatus" onchange="filterJobs()"><option value="">全部状态</option><option>待推送</option><option>处理中</option><option>待验收</option><option>已验收</option><option>已发布</option></select><input class="input" id="jobSearch" placeholder="搜索jobId或文档" oninput="filterJobs()"></div></div><div class="panel-body" style="padding:0"><table><thead><tr><th>任务</th><th>环境</th><th>文档版本</th><th>当前步骤</th><th>进度</th><th>状态</th><th>操作</th></tr></thead><tbody id="ingestionJobTable"></tbody></table></div></div>
+      </section>
+
+      <section class="view" id="processing" data-title="处理结果验收">
+        <div class="page-head"><div><h1>RAG处理结果验收</h1><p>核对解析摘要、切片与索引结果，逐项确认后才能进入检索调试。</p></div><div class="actions"></div></div>
+      </section>
+
+      <section class="view" id="retrieval" data-title="检索调试">
+        <div class="page-head"><div><h1>检索调试</h1><p>检查“有没有找到正确知识”，并展示召回证据与失败诊断。</p></div><div class="actions"></div></div>
+      </section>
+
+      <section class="view" id="evaluation" data-title="批量评测与发布">
+        <div class="page-head"><div><h1>批量评测与发布</h1><p>检索调试 → 冒烟5条 → 正式40条 → 全量回归200条 → 客服对话验证 → 线下审批，逐级解锁。</p></div><div class="actions"></div></div>
+      </section>
+
+      <section class="view" id="cases" data-title="问题案例">
+        <div class="page-head"><div><h1>问题案例（Bad Case）</h1><p>汇总各环节发现的问题，查看现场证据；线下修复完成后在这里标记为已处理。</p></div><div class="actions"></div></div>
+      </section>
+
+      <section class="view" id="permissions" data-title="权限与审计">
+        <div class="page-head"><div><h1>权限与审计</h1><p>页面、接口、知识范围和RAG资源均执行租户与角色校验。</p></div><div class="actions"><button class="btn primary" onclick="openMember()">添加成员</button></div></div>
+        <div class="panel"><div class="panel-head"><h2>角色权限矩阵</h2><select class="select" id="roleDemo" onchange="applyRole()"><option value="operator">模拟：知识运营</option><option value="reviewer">模拟：业务审核人</option><option value="tester">模拟：AI产品经理 / AI测试</option><option value="approver">模拟：发布审批人</option><option value="admin">模拟：系统管理员</option></select></div><div class="panel-body"><div class="alert" id="roleHint"><strong>知识运营</strong>可以维护知识和运行测试，但不能审核自己提交的P0知识，也不能直接放行生产版本。</div><table class="matrix"><thead><tr><th>角色</th><th>创建/编辑</th><th>业务审核</th><th>检索评测</th><th>生产发布</th><th>成员管理</th></tr></thead><tbody><tr><td>知识运营</td><td class="yes">✓</td><td class="no">—</td><td class="yes">✓</td><td class="no">—</td><td class="no">—</td></tr><tr><td>业务审核人</td><td class="partial">只读</td><td class="yes">✓</td><td class="partial">查看</td><td class="no">—</td><td class="no">—</td></tr><tr><td>产品经理</td><td class="partial">只读</td><td class="no">—</td><td class="yes">✓</td><td class="no">—</td><td class="no">—</td></tr><tr><td>发布审批人</td><td class="no">—</td><td class="partial">查看</td><td class="partial">查看</td><td class="yes">✓</td><td class="no">—</td></tr><tr><td>系统管理员</td><td class="no">—</td><td class="no">—</td><td class="partial">查看</td><td class="no">—</td><td class="yes">✓</td></tr></tbody></table></div></div>
+        <div class="grid-equal">
+          <div class="panel"><div class="panel-head"><h2>成员</h2></div><div class="panel-body" style="padding:0"><table><thead><tr><th>成员</th><th>角色</th><th>业务域</th><th>状态</th></tr></thead><tbody id="memberTable"></tbody></table></div></div>
+          <div class="panel"><div class="panel-head"><h2>最近审计日志</h2><button class="btn small" onclick="exportAudit()">导出</button></div><div class="panel-body" style="padding:0"><table id="auditTable"><thead><tr><th>时间</th><th>操作者</th><th>动作</th><th>结果</th></tr></thead><tbody></tbody></table></div></div>
+        </div>
+              <div class="panel"><div class="panel-head"><div><h2>API 密钥</h2><p>测试与生产密钥分开管理，只以掩码展示</p></div><span class="status processing" id="apiKeyStatus">测试 / 生产分离</span></div><div class="panel-body" id="apiKeyPanel"></div></div>
+      </section>
+
+            <section class="view" id="integration" data-title="RAG引擎配置">
+        <div class="page-head"><div><h1>RAG引擎配置</h1><p>当前 MVP 使用 Dify Cloud / 自建 Dify；所有调用由服务端完成，密钥不会返回浏览器。</p></div><div class="actions"><button class="btn" onclick="testConnection()">测试连接</button><button class="btn primary" onclick="saveIntegration()">保存配置</button></div></div>
+        <div class="grid-2">
+          <div class="panel"><div class="panel-head"><h2>能力提供方</h2><span class="status pending" id="connectionStatus">待检测</span></div><div class="panel-body">
+            <div class="field"><label>RAG Provider</label><input class="input" style="width:100%" value="Dify（MVP 适配；保留替换边界）" disabled></div>
+            <div class="field"><label>Dify API 地址</label><input class="input" id="difyBaseUrl" style="width:100%" placeholder="https://api.dify.ai/v1"></div>
+            <div class="field"><label>数据集 API Key</label><input class="input" id="difyDatasetKey" style="width:100%" type="password" placeholder="dataset-xxxx（留空表示不修改）"></div>
+            <div class="field"><label>文本生成应用 Key（可选）</label><input class="input" id="difyCompletionKey" style="width:100%" type="password" placeholder="app-xxxx（用于带上下文回答）"></div>
+            <div class="field"><label>生成应用 user 标识</label><input class="input" id="difyAppUser" style="width:100%" placeholder="rag-platform-local"></div>
+            <div class="alert warn"><strong>密钥权限</strong>密钥只保存在服务端 .env 或本地 settings 表；不得出现在浏览器、导出文件或普通日志中。未配置 Dify 时自动使用本地引擎。</div>
+          </div></div>
+          <div>
+            <div class="panel"><div class="panel-head"><h2>测试 / 生产资源映射</h2></div><div class="panel-body"><table><thead><tr><th>知识库</th><th>测试 dataset</th><th>生产 dataset</th></tr></thead><tbody id="envMappingTable"></tbody></table><div class="alert good" style="margin-top:12px" id="isolationCheck"></div></div></div>
+            <div class="panel"><div class="panel-head"><h2>当前实现</h2></div><div class="panel-body"><table><tr><td>解析 / 切片 / Embedding</td><td>Dify（未配置时本地引擎）</td></tr><tr><td>检索</td><td>Dify dataset retrieve / 本地 BM25</td></tr><tr><td>回答生成</td><td>Dify 文本生成应用 / 抽取式回答</td></tr><tr><td>数据存储</td><td>SQLite + 本机文件</td></tr></table></div></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </section>
+</div>
+
+<div class="modal-wrap" id="modal" onclick="if(event.target===this)closeModal()"><div class="modal"><div class="modal-head"><h3 id="modalTitle">标题</h3><button class="modal-close" onclick="closeModal()">×</button></div><div class="modal-body" id="modalBody"></div><div class="modal-foot" id="modalFoot"></div></div></div>
+<div class="toast" id="toast"></div>
+
+
+
+<script>
+  // 防止直接双击 HTML：file:// 下浏览器不允许加载 ES Modules 与调用本地 API
+  if (location.protocol === 'file:') {
+    document.body.innerHTML = '<div style="position:fixed;inset:0;display:grid;place-items:center;background:#0d2b4d;color:#fff;font-family:Microsoft YaHei,Arial,sans-serif;padding:32px;z-index:9999"><div style="max-width:640px;line-height:1.9"><h1 style="font-size:26px;margin:0 0 16px">这是本地 Web 应用，不能直接双击 HTML 打开</h1><p style="color:#c9d8ea;margin:0 0 18px">真实项目版需要先启动本地服务：</p><ol style="color:#e6eef8;font-size:15px;padding-left:22px"><li>回到 <b>真实项目版</b> 文件夹</li><li>双击 <b>start.cmd</b>，等待窗口提示启动成功</li><li>浏览器会自动打开 <b>http://127.0.0.1:8787</b></li></ol><p style="color:#9db6cf;font-size:13px;margin-top:18px">请保持 start.cmd 的窗口开启；关闭窗口即停止服务。作品集里的“交互原型”才可以直接双击打开。</p></div></div>';
+  }
+</script>
+<script type="module" src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>登录 · 企业级 RAG 知识库平台</title>
+  <style>
+    :root{
+      --navy:#12345b;--blue:#3478e5;--ink:#17263a;--muted:#66758a;--line:#dce5f0;--bg:#f4f7fb;--white:#fff;
+      --shadow:0 18px 50px rgba(28,58,95,.14);--radius:16px;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh;display:grid;place-items:center;background:linear-gradient(160deg,#0d2b4d 0%,#12365f 45%,#1d4f83 100%);font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif;color:var(--ink)}
+    .login-card{width:min(420px,92vw);background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);padding:34px 32px 28px}
+    .brand{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+    .brand-mark{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#75a7ff,#39d3ba);display:grid;place-items:center;font-weight:900;color:#fff;font-size:19px}
+    .brand-title{font-size:17px;font-weight:800}
+    .brand-sub{font-size:12px;color:var(--muted);margin-top:2px}
+    h1{font-size:20px;margin:18px 0 6px}
+    p.tip{margin:0 0 18px;color:var(--muted);font-size:12px;line-height:1.6}
+    label{display:block;font-size:12px;font-weight:700;color:#41536a;margin:14px 0 6px}
+    input{width:100%;padding:11px 12px;border:1px solid #cfd9e6;border-radius:10px;font-size:13px;outline:none}
+    input:focus{border-color:#6e9fea;box-shadow:0 0 0 3px rgba(52,120,229,.12)}
+    button{width:100%;margin-top:20px;padding:12px;border:0;border-radius:10px;background:var(--blue);color:#fff;font-size:14px;font-weight:700;cursor:pointer}
+    button:hover{background:#2568d3}
+    button:disabled{opacity:.6;cursor:not-allowed}
+    .error{display:none;margin-top:14px;padding:10px 12px;border-radius:9px;background:#fff0f0;color:#d14343;font-size:12px}
+    .accounts{margin-top:20px;border-top:1px solid var(--line);padding-top:14px;font-size:11px;color:var(--muted);line-height:1.9}
+    .accounts code{background:#eef3f9;border-radius:5px;padding:1px 6px;color:#33445a}
+  </style>
+</head>
+<body>
+  <main class="login-card">
+    <div class="brand">
+      <div class="brand-mark">知</div>
+      <div>
+        <div class="brand-title">企业级 RAG 知识库平台</div>
+        <div class="brand-sub">知识治理 · 真实 Dify 接入 · 本地运行版</div>
+      </div>
+    </div>
+    <h1>登录</h1>
+    <p class="tip">使用演示账号登录。不同角色可执行的操作不同，越权操作会被服务端拒绝。</p>
+    <form id="loginForm">
+      <label for="username">用户名</label>
+      <input id="username" name="username" autocomplete="username" value="operator" required>
+      <label for="password">密码</label>
+      <input id="password" name="password" type="password" autocomplete="current-password" value="demo1234" required>
+      <button id="loginBtn" type="submit">登录</button>
+      <div class="error" id="loginError"></div>
+    </form>
+    <div class="accounts">
+      演示账号（密码均为 <code>demo1234</code>）：
+      <code>operator</code> 知识运营 ·
+      <code>reviewer</code> 业务审核人 ·
+      <code>tester</code> AI产品经理 ·
+      <code>approver</code> 发布审批人 ·
+      <code>admin</code> 系统管理员
+    </div>
+  </main>
+  <script>
+    if (location.protocol === 'file:') {
+      document.body.innerHTML = '<div style="position:fixed;inset:0;display:grid;place-items:center;background:#0d2b4d;color:#fff;font-family:Microsoft YaHei,Arial,sans-serif;padding:32px;z-index:9999"><div style="max-width:640px;line-height:1.9"><h1 style="font-size:26px;margin:0 0 16px">这是本地 Web 应用，不能直接双击 HTML 打开</h1><p style="color:#c9d8ea;margin:0 0 18px">请回到 <b>真实项目版</b> 文件夹，双击 <b>start.cmd</b> 启动服务，再访问 <b>http://127.0.0.1:8787</b>。</p><p style="color:#9db6cf;font-size:13px">保持 start.cmd 窗口开启；关闭窗口即停止服务。</p></div></div>';
+    }
+  </script>
+  <script type="module">
+    const form = document.getElementById('loginForm');
+    const error = document.getElementById('loginError');
+    const btn = document.getElementById('loginBtn');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      error.style.display = 'none';
+      btn.disabled = true; btn.textContent = '登录中…';
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username: document.getElementById('username').value, password: document.getElementById('password').value })
+        });
+        const json = await res.json();
+        if (!res.ok || !json.ok) throw new Error(json.message || '登录失败');
+        location.href = '/';
+      } catch (err) {
+        error.textContent = err.message;
+        error.style.display = 'block';
+        btn.disabled = false; btn.textContent = '登录';
+      }
+    });
+  </script>
+</body>
+</html>
