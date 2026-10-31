@@ -117,7 +117,8 @@ npm test
 
 ## 六、在线地址与部署
 
-- 在线访问（作品集版）：<https://rag.xinhao02.ccwu.cc>
-- 部署方式：Cloudflare Workers 静态资源，`wrangler.jsonc` 的 `assets.directory` 指向 `作品集版`；
-- 更新线上：修改 `作品集版/` 后执行 `npx wrangler deploy`；
+- 个人作品集主站：<https://me.xinhao02.ccwu.cc>
+- 项目独立站：<https://rag.xinhao02.ccwu.cc>
+- 部署方式：Cloudflare Workers 静态资源；wrangler.jsonc（项目站）与 wrangler-portfolio.jsonc（主站）的 assets.directory 均指向 作品集版；
+- 更新线上：修改 作品集版/ 后执行 npx wrangler deploy（项目站）或 npx wrangler deploy -c wrangler-portfolio.jsonc（主站）；
 - 真实项目版需要 Node 服务，**不部署到静态托管**，按上文在本机运行。
