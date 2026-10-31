@@ -1,0 +1,17 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "rag-kb-platform",
+  "compatibility_date": "2026-10-23",
+  "observability": {
+    "enabled": true
+  },
+  "assets": {
+    "directory": "作品集版"
+  },
+  "routes": [
+    {
+      "pattern": "rag.xinhao02.ccwu.cc",
+      "custom_domain": true
+    }
+  ]
+}
